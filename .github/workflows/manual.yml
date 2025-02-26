@@ -32,8 +32,31 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           role-duration-seconds: 3600
 
-      - name: Deploy selected Lambda function
+      - name: Check if Lambda function exists
+        id: check_lambda
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
-          echo "Deploying Lambda function: $FUNCTION_NAME"
-          aws lambda update-function-code --function-name "$FUNCTION_NAME" --s3-bucket 100-letters-project-api --s3-key "routes/$FUNCTION_NAME.zip"
+          echo "Checking if Lambda function exists: $FUNCTION_NAME"
+          if aws lambda get-function --function-name "$FUNCTION_NAME"; then
+            echo "Function $FUNCTION_NAME exists, ready for update."
+            echo "exists=true" >> $GITHUB_ENV
+          else
+            echo "Function $FUNCTION_NAME not found, creating it..."
+            echo "exists=false" >> $GITHUB_ENV
+          fi
+
+      - name: Deploy or create Lambda function
+        run: |
+          FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
+          if [ "$exists" == "true" ]; then
+            echo "Updating Lambda function: $FUNCTION_NAME"
+            aws lambda update-function-code --function-name "$FUNCTION_NAME" --s3-bucket 100-letters-project-api --s3-key "routes/$FUNCTION_NAME.zip"
+          else
+            echo "Creating Lambda function: $FUNCTION_NAME"
+            aws lambda create-function --function-name "$FUNCTION_NAME" \
+              --runtime nodejs14.x \
+              --role arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionsRole \
+              --handler index.handler \
+              --zip-file fileb://routes/$FUNCTION_NAME.zip \
+              --region us-west-2
+          fi
