@@ -4,9 +4,16 @@ on:
   workflow_dispatch:
     inputs:
       lambda_function:
-        description: "Lambda function to deploy"
+        description: "Select a Lambda function to deploy"
         required: true
-        type: string
+        type: choice
+        options:
+          - createCorrespondence
+          - getCorrespondences
+          - getCorrespondencesById
+          - getRecipientById
+          - getRecipients
+          - updateCorrespondence
 
 jobs:
   deploy-lambda:
