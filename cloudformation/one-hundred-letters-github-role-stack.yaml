@@ -2,18 +2,18 @@ Resources:
   GitHubActionsRole:
     Type: AWS::IAM::Role
     Properties:
+      RoleName: GitHubActionsRole
+      MaxSessionDuration: 14400  # <-- Set to 4 hours (max is 12 hours)
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
           - Effect: Allow
             Principal:
-              AWS: !Sub arn:aws:iam::${AWS::AccountId}:user/Administrator  # Administrator user can assume the role
-            Action: 'sts:AssumeRole'
-          - Effect: Allow
-            Principal:
-              Service: sts.amazonaws.com  # Correct service for role assumption
-            Action: 'sts:AssumeRole'
-            
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:user/Administrator
+            Action:
+              - sts:AssumeRole
+              - sts:TagSession
+
   GitHubActionsRolePolicy:
     Type: AWS::IAM::Policy
     Properties:
