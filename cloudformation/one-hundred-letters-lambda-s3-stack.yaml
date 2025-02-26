@@ -1,0 +1,18 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  LambdaS3BucketName:
+    Type: String
+    Default: "100-letters-project-api"
+    Description: "S3 bucket for storing Lambda deployment packages"
+
+Resources:
+  LambdaDeploymentBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref LambdaS3BucketName
+
+Outputs:
+  BucketName:
+    Value: !Ref LambdaDeploymentBucket
+    Export:
+      Name: LambdaS3BucketName

@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "aws-sdk": "^2.1360.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2"
+  },
+  "main": "dist/index.js",
+  "name": "updateCorrespondence",
+  "scripts": {
+    "build": "tsc",
+    "package": "zip -r dist/updateCorrespondence.zip dist/"
+  },
+  "version": "1.0.0"
+}

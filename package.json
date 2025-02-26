@@ -1,0 +1,22 @@
+
+{
+  "dependencies": {
+    "aws-sdk": "^2.1000.0"
+  },
+  "devDependencies": {
+    "@prisma/client": "^6.4.1",
+    "@types/aws-lambda": "^8.10.0",
+    "prisma": "^6.4.1",
+     "typescript": "^5.2.2"
+  },
+  "name": "100-letters-project-api",
+  "private": true,
+  "scripts": {
+    "db:migrate:dev": "prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:migrate:reset": "prisma migrate reset",
+    "db:seed": "node ./scripts/seed.js",
+    "db:tunnel": "node ./scripts/tunnel.js",
+    "db:generate": "prisma generate"
+  }
+}

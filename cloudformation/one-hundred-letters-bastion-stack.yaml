@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: EC2 Instance for SSH Tunnel to RDS
+
+Parameters:
+  KeyPairName:
+    Type: String
+    Description: Name of the existing SSH key pair for EC2 access
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: The VPC where the EC2 instance should be created
+  SubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: The subnet where the EC2 instance should be placed
+  YourPublicIP:
+    Type: String
+    Description: Your public IP address to allow SSH access (use x.x.x.x/32 format)
+
+Resources:
+  SSHTunnelInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t3.micro
+      ImageId: ami-027951e78de46a00e
+      KeyName: !Ref KeyPairName
+      SecurityGroupIds:
+        - !Ref SSHTunnelSecurityGroup
+      SubnetId: !Ref SubnetId
+      Tags:
+        - Key: Name
+          Value: SSH-Tunnel-EC2
+
+  SSHTunnelSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow SSH access from users IP
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref YourPublicIP
+
+Outputs:
+  InstanceId:
+    Description: EC2 Instance ID
+    Value: !Ref SSHTunnelInstance
+  PublicIP:
+    Description: Public IP for SSH access
+    Value: !GetAtt SSHTunnelInstance.PublicIp

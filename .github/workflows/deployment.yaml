@@ -1,0 +1,54 @@
+name: CI/CD for Lambdas
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18' # Use a more recent version
+
+      - name: Install dependencies for all Lambdas
+        run: npm install
+
+      - name: Check for changed Lambda functions
+        id: check_changes
+        run: |
+          CHANGED_LAMBDAS=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "^lambdas/" | cut -d'/' -f2 | sort -u | uniq)
+          echo "Changed Lambdas: $CHANGED_LAMBDAS"
+          echo "CHANGED_LAMBDAS=$CHANGED_LAMBDAS" >> $GITHUB_ENV
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: us-west-2 # Change to your AWS region
+          role-to-assume: arn:aws:iam::YOUR_ACCOUNT_ID:role/YOUR_GITHUB_ACTIONS_ROLE
+          role-session-name: GithubLambdaDeployment
+
+      - name: Upload to S3 and Deploy
+        run: |
+          S3_BUCKET="100-letters-project-api" # Change this to your actual S3 bucket name
+          for lambda in ${{ env.CHANGED_LAMBDAS }}; do
+            echo "Building and Deploying $lambda"
+            cd lambdas/$lambda
+            npm install
+            npm run build
+            zip -r dist/$lambda.zip dist/
+            S3_KEY="lambdas/$lambda-$(date +%s).zip"
+            aws s3 cp dist/$lambda.zip s3://$S3_BUCKET/$S3_KEY
+            aws lambda update-function-code --function-name $lambda --s3-bucket $S3_BUCKET --s3-key $S3_KEY
+            cd ../..
+          done
