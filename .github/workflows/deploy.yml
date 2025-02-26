@@ -23,8 +23,19 @@ jobs:
       - name: Check for changed Lambda functions
         id: check_changes
         run: |
+          # Get the list of changed lambdas by comparing the current and previous commits
           CHANGED_LAMBDAS=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "^lambdas/" | cut -d'/' -f2 | sort -u | uniq)
+          
+          # Print changed lambdas for debugging
           echo "Changed Lambdas: $CHANGED_LAMBDAS"
+          
+          # If no lambdas were changed, stop the process
+          if [ -z "$CHANGED_LAMBDAS" ]; then
+            echo "No Lambdas changed."
+            exit 0
+          fi
+          
+          # Export the changed lambdas to the environment
           echo "CHANGED_LAMBDAS=$CHANGED_LAMBDAS" >> $GITHUB_ENV
 
       - name: Configure AWS credentials
