@@ -23,15 +23,26 @@ jobs:
       - name: Check for changed Lambda functions
         id: check_changes
         run: |
+          # Get the list of changed lambdas by comparing the current and previous commits
           CHANGED_LAMBDAS=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "^lambdas/" | cut -d'/' -f2 | sort -u | uniq)
+          
+          # Print changed lambdas for debugging
           echo "Changed Lambdas: $CHANGED_LAMBDAS"
+          
+          # If no lambdas were changed, stop the process
+          if [ -z "$CHANGED_LAMBDAS" ]; then
+            echo "No Lambdas changed."
+            exit 0
+          fi
+          
+          # Export the changed lambdas to the environment
           echo "CHANGED_LAMBDAS=$CHANGED_LAMBDAS" >> $GITHUB_ENV
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-region: us-west-2
-          role-to-assume: arn:aws:iam::YOUR_ACCOUNT_ID:role/GitHubActionsRole  # The role you created in CloudFormation
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionsRole  # Using secret for Account ID
           role-session-name: GithubLambdaDeployment
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
