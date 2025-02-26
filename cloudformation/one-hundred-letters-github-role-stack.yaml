@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+  GitHubActionsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: sts.amazonaws.com
+            Action: 'sts:AssumeRole'
+            Condition:
+              StringEquals:
+                aws:PrincipalTag/Service: github-actions
+
+  GitHubActionsRolePolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: GitHubActionsPolicy
+      Roles:
+        - Ref: GitHubActionsRole
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:PutObject
+              - s3:GetObject
+              - lambda:UpdateFunctionCode
+            Resource:
+              - arn:aws:s3:::100-letters-project-api/*
+              - !Sub arn:aws:lambda:us-west-2:${AWS::AccountId}:function:*
+
+Outputs:
+  GitHubActionsRole:
+    Description: "GitHub Actions Role"
+    Value: !Ref GitHubActionsRole
+
+  GitHubActionsPolicy:
+    Description: "GitHub Actions Policy"
+    Value: !Ref GitHubActionsRolePolicy
