@@ -1,5 +1,3 @@
-AWSTemplateFormatVersion: '2010-09-09'
-
 Resources:
   GitHubActionsRole:
     Type: AWS::IAM::Role
@@ -9,12 +7,13 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              Service: sts.amazonaws.com
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:user/Administrator  # Administrator user can assume the role
             Action: 'sts:AssumeRole'
-            Condition:
-              StringEquals:
-                aws:PrincipalTag/Service: github-actions
-
+          - Effect: Allow
+            Principal:
+              Service: sts.amazonaws.com  # Correct service for role assumption
+            Action: 'sts:AssumeRole'
+            
   GitHubActionsRolePolicy:
     Type: AWS::IAM::Policy
     Properties:
