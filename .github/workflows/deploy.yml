@@ -1,17 +1,6 @@
-name: CI/CD for Lambdas
-
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -19,7 +8,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '18' # Use a more recent version
+          node-version: '18'
 
       - name: Install dependencies for all Lambdas
         run: npm install
@@ -34,13 +23,15 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-region: us-west-2 # Change to your AWS region
-          role-to-assume: arn:aws:iam::YOUR_ACCOUNT_ID:role/YOUR_GITHUB_ACTIONS_ROLE
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::YOUR_ACCOUNT_ID:role/GitHubActionsRole  # The role you created in CloudFormation
           role-session-name: GithubLambdaDeployment
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Upload to S3 and Deploy
         run: |
-          S3_BUCKET="100-letters-project-api" # Change this to your actual S3 bucket name
+          S3_BUCKET="100-letters-project-api"
           for lambda in ${{ env.CHANGED_LAMBDAS }}; do
             echo "Building and Deploying $lambda"
             cd lambdas/$lambda
