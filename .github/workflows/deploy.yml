@@ -30,24 +30,21 @@ jobs:
         env:
           ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
         run: |
+          echo "Listing all changed files:"
           for file in ${ALL_CHANGED_FILES}; do
             echo "$file was changed"
           done
 
       - name: Check modified files
         id: check_files
+        env:
+          ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
         run: |
-          echo "=============== List modified files ==============="
-          git diff --name-only HEAD^ HEAD
-
-          echo "========== Check paths of modified files =========="
-          git diff --name-only HEAD^ HEAD > files.txt
-
+          echo "=============== Check modified files from ALL_CHANGED_FILES ==============="
           changed_functions=""
           
-          # Loop through all modified files to check if they are under the Lambda function directories
-          while IFS= read -r file
-          do
+          # Loop through all files listed in ALL_CHANGED_FILES
+          for file in ${ALL_CHANGED_FILES}; do
             echo "$file"
             if [[ $file =~ ^routes/(createCorrespondence|getCorrespondences|getCorrespondencesById|getRecipientById|getRecipients|updateCorrespondence)/ ]]; then
               echo "Modified file is under the Lambda function folder: $file"
@@ -58,7 +55,7 @@ jobs:
               echo "::set-output name=run_job::false"
               exit 0  # If any modified file is outside the relevant folders, skip deployment
             fi
-          done < files.txt
+          done
 
           echo "Changed functions: $changed_functions"
           echo "::set-output name=changed_functions::$changed_functions"
