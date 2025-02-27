@@ -1,64 +1,86 @@
-name: Lambda Deployment
+name: Deploy Lambda Automatically
 
 on:
   push:
     branches:
-      - main
+      - main  # Or the branch you want to deploy from
 
 jobs:
-  build:
+  deploy-lambdas:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '18'
-
-      - name: Install dependencies for all Lambdas
-        run: npm install
-
-      - name: Check for changed Lambda functions
-        id: check_changes
-        run: |
-          # Get the list of changed lambdas by comparing the current and previous commits
-          CHANGED_LAMBDAS=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "^lambdas/" | cut -d'/' -f2 | sort -u | uniq)
-          
-          # Print changed lambdas for debugging
-          echo "Changed Lambdas: $CHANGED_LAMBDAS"
-          
-          # If no lambdas were changed, stop the process
-          if [ -z "$CHANGED_LAMBDAS" ]; then
-            echo "No Lambdas changed."
-            exit 0
-          fi
-          
-          # Export the changed lambdas to the environment
-          echo "CHANGED_LAMBDAS=$CHANGED_LAMBDAS" >> $GITHUB_ENV
+        uses: actions/checkout@v4
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-region: us-west-2
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionsRole  # Using secret for Account ID
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionsRole
           role-session-name: GithubLambdaDeployment
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           role-duration-seconds: 3600
 
-      - name: Upload to S3 and Deploy
+      - name: Check for changes in Lambda source code
+        id: check_diff
         run: |
-          S3_BUCKET="100-letters-project-api"
-          for lambda in ${{ env.CHANGED_LAMBDAS }}; do
-            echo "Building and Deploying $lambda"
-            cd lambdas/$lambda
+          changed_functions=""
+          # Loop over all Lambda function directories (adjust as necessary)
+          for FUNCTION_NAME in createCorrespondence getCorrespondences getCorrespondencesById getRecipientById getRecipients updateCorrespondence; do
+            # Check if there are any changes in the respective Lambda function folder
+            if git diff --quiet HEAD~1 -- routes/$FUNCTION_NAME; then
+              echo "No changes detected in $FUNCTION_NAME"
+            else
+              echo "Changes detected in $FUNCTION_NAME"
+              changed_functions="$changed_functions $FUNCTION_NAME"
+            fi
+          done
+
+          if [ -z "$changed_functions" ]; then
+            echo "No Lambda function changes detected. Skipping deployment."
+            exit 0
+          fi
+
+          # Export changed functions list for later steps
+          echo "Changed functions: $changed_functions"
+          echo "changed_functions=$changed_functions" >> $GITHUB_ENV
+
+      - name: Build, package, and deploy Lambda functions
+        run: |
+          for FUNCTION_NAME in ${{ env.changed_functions }}; do
+            echo "Processing Lambda function: $FUNCTION_NAME"
+            
+            # Check if Lambda function exists
+            if aws lambda get-function --function-name "$FUNCTION_NAME"; then
+              echo "Function $FUNCTION_NAME exists, ready for update."
+              echo "exists=true" >> $GITHUB_ENV
+            else
+              echo "Function $FUNCTION_NAME not found, creating it..."
+              echo "exists=false" >> $GITHUB_ENV
+            fi
+
+            # Build and package the Lambda function
+            cd routes/$FUNCTION_NAME
             npm install
             npm run build
-            zip -r dist/$lambda.zip dist/
-            S3_KEY="lambdas/$lambda-$(date +%s).zip"
-            aws s3 cp dist/$lambda.zip s3://$S3_BUCKET/$S3_KEY
-            aws lambda update-function-code --function-name $lambda --s3-bucket $S3_BUCKET --s3-key $S3_KEY
-            cd ../..
+            npm run package
+            cd ../../  # Go back to root directory
+
+            # Upload Lambda package to S3
+            aws s3 cp "routes/$FUNCTION_NAME/dist/$FUNCTION_NAME.zip" "s3://100-letters-project-api/$FUNCTION_NAME.zip"
+
+            # Deploy or create Lambda function
+            if [ "$exists" == "true" ]; then
+              echo "Updating Lambda function: $FUNCTION_NAME"
+              aws lambda update-function-code --function-name "$FUNCTION_NAME" --s3-bucket 100-letters-project-api --s3-key "$FUNCTION_NAME.zip"
+            else
+              echo "Creating Lambda function: $FUNCTION_NAME"
+              aws lambda create-function --function-name "$FUNCTION_NAME" \
+                --runtime nodejs20.x \
+                --role arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionsRole \
+                --handler index.handler \
+                --code S3Bucket=100-letters-project-api,S3Key=$FUNCTION_NAME.zip \
+                --region us-west-2
+            fi
           done
