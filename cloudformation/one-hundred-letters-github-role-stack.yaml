@@ -3,7 +3,7 @@ Resources:
     Type: AWS::IAM::Role
     Properties:
       RoleName: GitHubActionsRole
-      MaxSessionDuration: 14400  # <-- Set to 4 hours (max is 12 hours)
+      MaxSessionDuration: 14400  # 4 hours
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -27,7 +27,10 @@ Resources:
             Action:
               - s3:PutObject
               - s3:GetObject
+              - s3:DeleteObject
+              - s3:ListBucket
             Resource:
+              - arn:aws:s3:::100-letters-project-api
               - arn:aws:s3:::100-letters-project-api/*
 
           - Effect: Allow
