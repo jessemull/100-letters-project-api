@@ -52,12 +52,11 @@ jobs:
             echo "Processing Lambda function: $FUNCTION_NAME"
             
             # Check if Lambda function exists
-            if aws lambda get-function --function-name "$FUNCTION_NAME"; then
+            FUNCTION_EXISTS=$(aws lambda get-function --function-name "$FUNCTION_NAME" --query "Configuration.FunctionName" --output text)
+            if [ "$FUNCTION_EXISTS" != "None" ]; then
               echo "Function $FUNCTION_NAME exists, ready for update."
-              echo "exists=true" >> $GITHUB_ENV
             else
               echo "Function $FUNCTION_NAME not found, creating it..."
-              echo "exists=false" >> $GITHUB_ENV
             fi
 
             # Build and package the Lambda function
@@ -71,7 +70,7 @@ jobs:
             aws s3 cp "routes/$FUNCTION_NAME/dist/$FUNCTION_NAME.zip" "s3://100-letters-project-api/$FUNCTION_NAME.zip"
 
             # Deploy or create Lambda function
-            if [ "$exists" == "true" ]; then
+            if [ "$FUNCTION_EXISTS" != "None" ]; then
               echo "Updating Lambda function: $FUNCTION_NAME"
               aws lambda update-function-code --function-name "$FUNCTION_NAME" --s3-bucket 100-letters-project-api --s3-key "$FUNCTION_NAME.zip"
             else
