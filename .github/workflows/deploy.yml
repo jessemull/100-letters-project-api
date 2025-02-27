@@ -26,13 +26,21 @@ jobs:
         id: check_diff
         run: |
           changed_functions=""
-          # Fetch the latest changes from the remote repository
-          git fetch origin
+
+          # Fetch latest changes from origin
+          git fetch origin main
+
+          # Get the merge base (the last common commit) between the PR branch and main
+          merge_base=$(git merge-base origin/main HEAD)
+
+          echo "Merge base commit: $merge_base"
 
           # Loop over all Lambda function directories (adjust as necessary)
           for FUNCTION_NAME in createCorrespondence getCorrespondences getCorrespondencesById getRecipientById getRecipients updateCorrespondence; do
-            # Check if there are any changes in the respective Lambda function folder compared to main
-            if git diff --quiet origin/main -- routes/$FUNCTION_NAME; then
+            echo "Checking for changes in $FUNCTION_NAME..."
+
+            # Check if there are any changes in the respective Lambda function folder since the merge base
+            if git diff --quiet $merge_base -- routes/$FUNCTION_NAME; then
               echo "No changes detected in $FUNCTION_NAME"
             else
               echo "Changes detected in $FUNCTION_NAME"
@@ -48,6 +56,7 @@ jobs:
           # Export changed functions list for later steps
           echo "Changed functions: $changed_functions"
           echo "changed_functions=$changed_functions" >> $GITHUB_ENV
+
 
       - name: Build, package, and deploy Lambda functions
         run: |
