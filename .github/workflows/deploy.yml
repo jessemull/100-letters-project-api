@@ -3,16 +3,16 @@ name: Deploy Lambda Automatically
 on:
   push:
     branches:
-      - main  # Or the branch you want to deploy from
+      - main
 
 jobs:
   deploy-lambdas:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-region: us-west-2
@@ -22,7 +22,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           role-duration-seconds: 3600
 
-      - name: Get changed files
+      - name: Get Changed Files
         id: changed-files
         uses: tj-actions/changed-files@v45 
 
@@ -35,7 +35,7 @@ jobs:
             echo "$file was changed"
           done
 
-      - name: Check modified files
+      - name: Check Modified Files
         id: check_files
         env:
           ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
@@ -65,7 +65,7 @@ jobs:
             echo "::set-output name=run_job::true"
           fi
 
-      - name: Build, package, and deploy Lambda functions
+      - name: Build & Deploy Lambda
         run: |
           for FUNCTION_NAME in ${{ steps.check_files.outputs.changed_functions }}; do
             echo "Processing Lambda function: $FUNCTION_NAME"
