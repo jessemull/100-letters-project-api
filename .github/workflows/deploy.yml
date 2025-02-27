@@ -22,32 +22,32 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           role-duration-seconds: 3600
 
-    - name: Check for changes in Lambda source code
-      id: check_diff
-      run: |
-        changed_functions=""
-        # Fetch the latest changes from the remote repository
-        git fetch origin
+      - name: Check for changes in Lambda source code
+        id: check_diff
+        run: |
+          changed_functions=""
+          # Fetch the latest changes from the remote repository
+          git fetch origin
 
-        # Loop over all Lambda function directories (adjust as necessary)
-        for FUNCTION_NAME in createCorrespondence getCorrespondences getCorrespondencesById getRecipientById getRecipients updateCorrespondence; do
-          # Check if there are any changes in the respective Lambda function folder compared to main
-          if git diff --quiet origin/main -- routes/$FUNCTION_NAME; then
-            echo "No changes detected in $FUNCTION_NAME"
-          else
-            echo "Changes detected in $FUNCTION_NAME"
-            changed_functions="$changed_functions $FUNCTION_NAME"
+          # Loop over all Lambda function directories (adjust as necessary)
+          for FUNCTION_NAME in createCorrespondence getCorrespondences getCorrespondencesById getRecipientById getRecipients updateCorrespondence; do
+            # Check if there are any changes in the respective Lambda function folder compared to main
+            if git diff --quiet origin/main -- routes/$FUNCTION_NAME; then
+              echo "No changes detected in $FUNCTION_NAME"
+            else
+              echo "Changes detected in $FUNCTION_NAME"
+              changed_functions="$changed_functions $FUNCTION_NAME"
+            fi
+          done
+
+          if [ -z "$changed_functions" ]; then
+            echo "No Lambda function changes detected. Skipping deployment."
+            exit 0
           fi
-        done
 
-        if [ -z "$changed_functions" ]; then
-          echo "No Lambda function changes detected. Skipping deployment."
-          exit 0
-        fi
-
-        # Export changed functions list for later steps
-        echo "Changed functions: $changed_functions"
-        echo "changed_functions=$changed_functions" >> $GITHUB_ENV
+          # Export changed functions list for later steps
+          echo "Changed functions: $changed_functions"
+          echo "changed_functions=$changed_functions" >> $GITHUB_ENV
 
       - name: Build, package, and deploy Lambda functions
         run: |
