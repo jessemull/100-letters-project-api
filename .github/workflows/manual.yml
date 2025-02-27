@@ -71,6 +71,6 @@ jobs:
               --runtime nodejs20.x \
               --role arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionsRole \
               --handler index.handler \
-              --code S3Bucket=100-letters-project-api,S3Key=routes/$FUNCTION_NAME.zip \
+              --code S3Bucket=100-letters-project-api,S3Key=$FUNCTION_NAME.zip \
               --region us-west-2
           fi
