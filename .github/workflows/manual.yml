@@ -45,18 +45,26 @@ jobs:
             echo "exists=false" >> $GITHUB_ENV
           fi
 
+      - name: Build and package Lambda function
+        run: |
+          FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
+          cd packages/$FUNCTION_NAME
+          npm install
+          npm run build
+          npm run package
+
       - name: Deploy or create Lambda function
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
           if [ "$exists" == "true" ]; then
             echo "Updating Lambda function: $FUNCTION_NAME"
-            aws lambda update-function-code --function-name "$FUNCTION_NAME" --s3-bucket 100-letters-project-api --s3-key "routes/$FUNCTION_NAME.zip"
+            aws lambda update-function-code --function-name "$FUNCTION_NAME" --s3-bucket 100-letters-project-api --s3-key "routes/dist/$FUNCTION_NAME.zip"
           else
             echo "Creating Lambda function: $FUNCTION_NAME"
             aws lambda create-function --function-name "$FUNCTION_NAME" \
               --runtime nodejs14.x \
               --role arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionsRole \
               --handler index.handler \
-              --zip-file fileb://routes/$FUNCTION_NAME.zip \
+              --code S3Bucket=100-letters-project-api,S3Key=routes/dist/$FUNCTION_NAME.zip \
               --region us-west-2
           fi
