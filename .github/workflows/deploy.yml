@@ -22,32 +22,26 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           role-duration-seconds: 3600
 
-      - name: Get PR merge commit information
-        id: pr_info
-        run: |
-          # Fetch the PR's merge commit information
-          merge_commit=$(git log -1 --merges --pretty=%H)
-          echo "Merge commit: $merge_commit"
-          
-          # Get the parent commit of the merge commit (before it was merged into main)
-          parent_commit=$(git rev-parse $merge_commit^1)
-          echo "Parent commit: $parent_commit"
-          
-          # Set environment variables for later use
-          echo "MERGE_COMMIT=$merge_commit" >> $GITHUB_ENV
-          echo "PARENT_COMMIT=$parent_commit" >> $GITHUB_ENV
+      # --- New Step: Get changed files using the marketplace action ---
+      - name: Get changed files
+        id: get_changed_files
+        uses: dorny/changed-files@v2
 
-      - name: Check for file changes between merge commit and parent commit
+      - name: Echo changed files
+        run: |
+          echo "Changed files: ${{ steps.get_changed_files.outputs.all_changed_files }}"
+
+      - name: Check modified files
         id: check_files
         run: |
           echo "=============== List modified files ==============="
-          
-          # Get the list of modified files between the merge commit and its parent
-          git diff --name-only ${{ env.PARENT_COMMIT }} ${{ env.MERGE_COMMIT }} > files.txt
-          echo "Modified files between merge commit and parent commit:"
+          git diff --name-only HEAD^ HEAD
+
+          echo "========== Check paths of modified files =========="
+          git diff --name-only HEAD^ HEAD > files.txt
 
           changed_functions=""
-
+          
           # Loop through all modified files to check if they are under the Lambda function directories
           while IFS= read -r file
           do
@@ -56,16 +50,15 @@ jobs:
               echo "Modified file is under the Lambda function folder: $file"
               FUNCTION_NAME=$(echo $file | cut -d'/' -f2)  # Extract the function name from the path
               changed_functions="$changed_functions $FUNCTION_NAME"
+            else
+              echo "This modified file is not under a Lambda function folder."
+              echo "::set-output name=run_job::false"
+              exit 0  # If any modified file is outside the relevant folders, skip deployment
             fi
           done < files.txt
 
-          if [ -z "$changed_functions" ]; then
-            echo "No Lambda function changes detected. Skipping deployment."
-            echo "::set-output name=run_job::false"
-            exit 0  # Exit if no Lambda functions were modified
-          else
-            echo "Changed functions: $changed_functions"
-            echo "::set-output name=run_job::true"
+          echo "Changed functions: $changed_functions"
+          echo "::set-output name=run_job::true"  # Proceed if changes are detected in Lambda functions
 
       - name: Build, package, and deploy Lambda functions
         run: |
@@ -98,9 +91,4 @@ jobs:
               echo "Creating Lambda function: $FUNCTION_NAME"
               aws lambda create-function --function-name "$FUNCTION_NAME" \
                 --runtime nodejs20.x \
-                --role arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionsRole \
-                --handler index.handler \
-                --code S3Bucket=100-letters-project-api,S3Key=$FUNCTION_NAME.zip \
-                --region us-west-2
-            fi
-          done
+                --role arn:aws:iam::${{ secrets.AWS_ACCOUNT
