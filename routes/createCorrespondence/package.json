@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "aws-lambda": "^1.0.7",
     "aws-sdk": "^2.1360.0"
   },
   "devDependencies": {
