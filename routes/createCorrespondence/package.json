@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "aws-lambda": "^1.0.7",
     "aws-sdk": "^2.1360.0"
   },
   "devDependencies": {
@@ -11,7 +10,7 @@
   "name": "createCorrespondence",
   "scripts": {
     "build": "tsc",
-    "package": "zip -r -j createCorrespondence.zip dist/*"
+    "package": "zip -r -j dist/createCorrespondence.zip dist/*"
   },
   "version": "1.0.0"
 }
