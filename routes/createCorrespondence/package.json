@@ -7,10 +7,10 @@
     "typescript": "^5.2.2"
   },
   "main": "dist/index.js",
-  "name": "getCorrespondences",
+  "name": "createCorrespondences",
   "scripts": {
     "build": "tsc",
-    "package": "zip -r dist/getCorrespondences.zip dist/"
+    "package": "zip -r dist/createCorrespondences.zip dist/"
   },
   "version": "1.0.0"
 }
