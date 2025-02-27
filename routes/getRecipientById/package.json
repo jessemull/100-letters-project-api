@@ -10,8 +10,7 @@
   "name": "getRecipientById",
   "scripts": {
     "build": "tsc",
-    "package": "zip -r dist/getRecipientById.zip dist/"
+    "package": "zip -r -j dist/getRecipientById.zip dist/*"
   },
   "version": "1.0.0"
 }
-

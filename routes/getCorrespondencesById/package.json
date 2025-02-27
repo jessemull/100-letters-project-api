@@ -10,7 +10,7 @@
   "name": "getCorrespondencesById",
   "scripts": {
     "build": "tsc",
-    "package": "zip -r dist/getCorrespondencesById.zip dist/"
+    "package": "zip -r -j dist/getCorrespondencesById.zip dist/*"
   },
   "version": "1.0.0"
 }

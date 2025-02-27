@@ -10,7 +10,7 @@
   "name": "updateCorrespondences",
   "scripts": {
     "build": "tsc",
-    "package": "zip -r dist/updateCorrespondences.zip dist/"
+    "package": "zip -r -j dist/updateCorrespondences.zip dist/*"
   },
   "version": "1.0.0"
 }

@@ -10,7 +10,7 @@
   "name": "getRecipients",
   "scripts": {
     "build": "tsc",
-    "package": "zip -r dist/getRecipients.zip dist/"
+    "package": "zip -r -j dist/getRecipients.zip dist/*"
   },
   "version": "1.0.0"
 }
