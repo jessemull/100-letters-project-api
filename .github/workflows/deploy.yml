@@ -26,14 +26,13 @@ jobs:
         id: check_diff
         run: |
           changed_functions=""
-          # Get the base branch (usually main)
-          BASE_BRANCH=main
-          # Fetch the latest changes to ensure up-to-date comparison
-          git fetch origin $BASE_BRANCH
+          # Fetch the latest changes from the remote repository
+          git fetch origin
+
           # Loop over all Lambda function directories (adjust as necessary)
           for FUNCTION_NAME in createCorrespondence getCorrespondences getCorrespondencesById getRecipientById getRecipients updateCorrespondence; do
-            # Compare the PR branch to the base branch for each Lambda function folder
-            if git diff --quiet origin/$BASE_BRANCH -- routes/$FUNCTION_NAME; then
+            # Check if there are any changes in the respective Lambda function folder compared to main
+            if git diff --quiet origin/main -- routes/$FUNCTION_NAME; then
               echo "No changes detected in $FUNCTION_NAME"
             else
               echo "Changes detected in $FUNCTION_NAME"
