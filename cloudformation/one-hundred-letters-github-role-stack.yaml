@@ -27,10 +27,24 @@ Resources:
             Action:
               - s3:PutObject
               - s3:GetObject
-              - lambda:UpdateFunctionCode
             Resource:
               - arn:aws:s3:::100-letters-project-api/*
+
+          - Effect: Allow
+            Action:
+              - lambda:CreateFunction
+              - lambda:UpdateFunctionCode
+              - lambda:GetFunction
+              - lambda:ListFunctions
+              - lambda:TagResource
+            Resource:
               - !Sub arn:aws:lambda:us-west-2:${AWS::AccountId}:function:*
+
+          - Effect: Allow
+            Action:
+              - iam:PassRole
+            Resource:
+              - !Sub arn:aws:iam::${AWS::AccountId}:role/GitHubActionsRole
 
 Outputs:
   GitHubActionsRole:

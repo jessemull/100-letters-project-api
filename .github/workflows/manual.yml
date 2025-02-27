@@ -62,7 +62,7 @@ jobs:
           else
             echo "Creating Lambda function: $FUNCTION_NAME"
             aws lambda create-function --function-name "$FUNCTION_NAME" \
-              --runtime nodejs14.x \
+              --runtime nodejs20.x \
               --role arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionsRole \
               --handler index.handler \
               --code S3Bucket=100-letters-project-api,S3Key=routes/dist/$FUNCTION_NAME.zip \
