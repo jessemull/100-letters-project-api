@@ -26,7 +26,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-region: us-west-2
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionsRole  # Using secret for Account ID
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionsRole
           role-session-name: GithubLambdaDeployment
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -52,19 +52,25 @@ jobs:
           npm install
           npm run build
           npm run package
+          cd ../../  # Go back to root directory
 
+      - name: Upload Lambda package to S3
+        run: |
+          FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
+          aws s3 cp "routes/$FUNCTION_NAME/dist/$FUNCTION_NAME.zip" "s3://100-letters-project-api/$FUNCTION_NAME.zip"
+      
       - name: Deploy or create Lambda function
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
           if [ "$exists" == "true" ]; then
             echo "Updating Lambda function: $FUNCTION_NAME"
-            aws lambda update-function-code --function-name "$FUNCTION_NAME" --s3-bucket 100-letters-project-api --s3-key "routes/dist/$FUNCTION_NAME.zip"
+            aws lambda update-function-code --function-name "$FUNCTION_NAME" --s3-bucket 100-letters-project-api --s3-key "$FUNCTION_NAME.zip"
           else
             echo "Creating Lambda function: $FUNCTION_NAME"
             aws lambda create-function --function-name "$FUNCTION_NAME" \
-              --runtime nodejs14.x \
+              --runtime nodejs20.x \
               --role arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionsRole \
               --handler index.handler \
-              --code S3Bucket=100-letters-project-api,S3Key=routes/dist/$FUNCTION_NAME.zip \
+              --code S3Bucket=100-letters-project-api,S3Key=$FUNCTION_NAME.zip \
               --region us-west-2
           fi

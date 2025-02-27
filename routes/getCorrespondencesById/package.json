@@ -3,13 +3,14 @@
     "aws-sdk": "^2.1360.0"
   },
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.147",
     "typescript": "^5.2.2"
   },
   "main": "dist/index.js",
   "name": "getCorrespondencesById",
   "scripts": {
     "build": "tsc",
-    "package": "zip -r dist/getCorrespondencesById.zip dist/"
+    "package": "zip -r -j dist/getCorrespondencesById.zip dist/*"
   },
   "version": "1.0.0"
 }
