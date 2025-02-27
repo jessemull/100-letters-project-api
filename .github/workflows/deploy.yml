@@ -22,14 +22,17 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           role-duration-seconds: 3600
 
-      # --- New Step: Get changed files using the marketplace action ---
       - name: Get changed files
-        id: get_changed_files
-        uses: dorny/changed-files@v2
+        id: changed-files
+        uses: tj-actions/changed-files@v45 
 
-      - name: Echo changed files
+      - name: List all changed files
+        env:
+          ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
         run: |
-          echo "Changed files: ${{ steps.get_changed_files.outputs.all_changed_files }}"
+          for file in ${ALL_CHANGED_FILES}; do
+            echo "$file was changed"
+          done
 
       - name: Check modified files
         id: check_files
