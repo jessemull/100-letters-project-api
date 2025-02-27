@@ -48,7 +48,7 @@ jobs:
       - name: Build and package Lambda function
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
-          cd packages/$FUNCTION_NAME
+          cd routes/$FUNCTION_NAME
           npm install
           npm run build
           npm run package
