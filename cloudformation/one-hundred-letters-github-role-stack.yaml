@@ -13,6 +13,11 @@ Resources:
             Action:
               - sts:AssumeRole
               - sts:TagSession
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
 
   GitHubActionsRolePolicy:
     Type: AWS::IAM::Policy

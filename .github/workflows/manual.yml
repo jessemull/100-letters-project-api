@@ -52,20 +52,19 @@ jobs:
           npm install
           npm run build
           npm run package
-          ls -R dist
           cd ../../  # Go back to root directory
 
       - name: Upload Lambda package to S3
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
-          aws s3 cp "routes/$FUNCTION_NAME/dist/$FUNCTION_NAME.zip" "s3://100-letters-project-api/routes/$FUNCTION_NAME.zip"
+          aws s3 cp "routes/$FUNCTION_NAME/dist/$FUNCTION_NAME.zip" "s3://100-letters-project-api/$FUNCTION_NAME.zip"
       
       - name: Deploy or create Lambda function
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
           if [ "$exists" == "true" ]; then
             echo "Updating Lambda function: $FUNCTION_NAME"
-            aws lambda update-function-code --function-name "$FUNCTION_NAME" --s3-bucket 100-letters-project-api --s3-key "routes/$FUNCTION_NAME.zip"
+            aws lambda update-function-code --function-name "$FUNCTION_NAME" --s3-bucket 100-letters-project-api --s3-key "$FUNCTION_NAME.zip"
           else
             echo "Creating Lambda function: $FUNCTION_NAME"
             aws lambda create-function --function-name "$FUNCTION_NAME" \

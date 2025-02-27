@@ -10,7 +10,7 @@
   "name": "createCorrespondence",
   "scripts": {
     "build": "tsc",
-    "package": "zip -r dist/createCorrespondence.zip dist/"
+    "package": "zip -r -j createCorrespondence.zip dist/*"
   },
   "version": "1.0.0"
 }
