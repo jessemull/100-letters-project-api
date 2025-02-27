@@ -24,9 +24,7 @@ jobs:
 
       - name: Get changed files
         id: changed-files
-        uses: tj-actions/changed-files@v45
-        with:
-          commit-range: ${{ github.event.before }}...${{ github.sha }}
+        uses: tj-actions/changed-files@v45 
 
       - name: List all changed files
         env:
@@ -53,15 +51,19 @@ jobs:
               FUNCTION_NAME=$(echo "$file" | cut -d'/' -f2)  # Extract the function name from the path
               changed_functions="$changed_functions $FUNCTION_NAME"
             else
-              echo "This modified file is not under a Lambda function folder."
-              echo "::set-output name=run_job::false"
-              exit 0  # If any modified file is outside the relevant folders, skip deployment
+              echo "Ignoring file not under Lambda function folder: $file"
             fi
           done
-
-          echo "Changed functions: $changed_functions"
-          echo "::set-output name=changed_functions::$changed_functions"
-          echo "::set-output name=run_job::true"  # Proceed if changes are detected in Lambda functions
+          
+          if [ -z "$changed_functions" ]; then
+            echo "No Lambda function changes detected. Skipping deployment."
+            echo "::set-output name=run_job::false"
+            exit 0
+          else
+            echo "Changed functions: $changed_functions"
+            echo "::set-output name=changed_functions::$changed_functions"
+            echo "::set-output name=run_job::true"
+          fi
 
       - name: Build, package, and deploy Lambda functions
         run: |
