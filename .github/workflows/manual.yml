@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       lambda_function:
-        description: "Select a Lambda function to deploy"
+        description: "Select a Lambda function to deploy..."
         required: true
         type: choice
         options:
@@ -19,10 +19,10 @@ jobs:
   deploy-lambda:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-region: us-west-2
@@ -32,7 +32,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           role-duration-seconds: 3600
 
-      - name: Check if Lambda function exists
+      - name: Check For Lambda (Update/Create)
         id: check_lambda
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
@@ -45,7 +45,7 @@ jobs:
             echo "exists=false" >> $GITHUB_ENV
           fi
 
-      - name: Build and package Lambda function
+      - name: Build & Package Lambda
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
           cd routes/$FUNCTION_NAME
@@ -54,12 +54,12 @@ jobs:
           npm run package
           cd ../../  # Go back to root directory
 
-      - name: Upload Lambda package to S3
+      - name: Upload Lambda to S3
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
           aws s3 cp "routes/$FUNCTION_NAME/dist/$FUNCTION_NAME.zip" "s3://100-letters-project-api/$FUNCTION_NAME.zip"
       
-      - name: Deploy or create Lambda function
+      - name: Update | Create Lambda Function
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
           if [ "$exists" == "true" ]; then
