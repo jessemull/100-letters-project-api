@@ -22,42 +22,34 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           role-duration-seconds: 3600
 
-      - name: Check for changes in Lambda source code
-        id: check_diff
+      - name: Check modified files
+        id: check_files
         run: |
+          echo "=============== List modified files ==============="
+          git diff --name-only HEAD^ HEAD
+
+          echo "========== Check paths of modified files =========="
+          git diff --name-only HEAD^ HEAD > files.txt
+
           changed_functions=""
-
-          # Fetch latest changes from origin
-          git fetch origin main
-
-          # Get the merge base (last common commit) between the PR branch and main
-          merge_base=$(git merge-base origin/main HEAD)
-
-          echo "Merge base commit: $merge_base"
-
-          # Loop over all Lambda function directories (adjust as necessary)
-          for FUNCTION_NAME in createCorrespondence getCorrespondences getCorrespondencesById getRecipientById getRecipients updateCorrespondence; do
-            echo "Checking for changes in $FUNCTION_NAME..."
-
-            # Check for changes in the Lambda function folder since the merge base
-            if git diff --quiet $merge_base..HEAD -- routes/$FUNCTION_NAME; then
-              echo "No changes detected in $FUNCTION_NAME"
-            else
-              echo "Changes detected in $FUNCTION_NAME"
+          
+          # Loop through all modified files to check if they are under the Lambda function directories
+          while IFS= read -r file
+          do
+            echo $file
+            if [[ $file =~ ^routes/(createCorrespondence|getCorrespondences|getCorrespondencesById|getRecipientById|getRecipients|updateCorrespondence)/ ]]; then
+              echo "Modified file is under the Lambda function folder: $file"
+              FUNCTION_NAME=$(echo $file | cut -d'/' -f2)  # Extract the function name from the path
               changed_functions="$changed_functions $FUNCTION_NAME"
+            else
+              echo "This modified file is not under a Lambda function folder."
+              echo "::set-output name=run_job::false"
+              exit 0  # If any modified file is outside the relevant folders, skip deployment
             fi
-          done
+          done < files.txt
 
-          if [ -z "$changed_functions" ]; then
-            echo "No Lambda function changes detected. Skipping deployment."
-            exit 0
-          fi
-
-          # Export changed functions list for later steps
           echo "Changed functions: $changed_functions"
-          echo "changed_functions=$changed_functions" >> $GITHUB_ENV
-
-
+          echo "::set-output name=run_job::true"  # Proceed if changes are detected in Lambda functions
 
       - name: Build, package, and deploy Lambda functions
         run: |
