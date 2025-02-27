@@ -4,7 +4,6 @@ const { faker } = require('@faker-js/faker');
 const prisma = new PrismaClient();
 
 const seed = async () => {
-  // Seed People
   for (let i = 0; i < 10; i++) {
     const person = await prisma.person.create({
       data: {
