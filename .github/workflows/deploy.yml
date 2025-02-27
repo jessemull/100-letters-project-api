@@ -29,7 +29,7 @@ jobs:
           # Loop over all Lambda function directories (adjust as necessary)
           for FUNCTION_NAME in createCorrespondence getCorrespondences getCorrespondencesById getRecipientById getRecipients updateCorrespondence; do
             # Check if there are any changes in the respective Lambda function folder
-            if git diff --quiet HEAD~1 -- routes/$FUNCTION_NAME; then
+            if git diff --quiet HEAD -- routes/$FUNCTION_NAME; then
               echo "No changes detected in $FUNCTION_NAME"
             else
               echo "Changes detected in $FUNCTION_NAME"
