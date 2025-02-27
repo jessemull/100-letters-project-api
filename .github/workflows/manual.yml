@@ -52,6 +52,7 @@ jobs:
           npm install
           npm run build
           npm run package
+          ls -R dist
           cd ../../  # Go back to root directory
 
       - name: Upload Lambda package to S3
