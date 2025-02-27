@@ -7,10 +7,10 @@
     "typescript": "^5.2.2"
   },
   "main": "dist/index.js",
-  "name": "updateCorrespondences",
+  "name": "updateCorrespondence",
   "scripts": {
     "build": "tsc",
-    "package": "zip -r -j dist/updateCorrespondences.zip dist/*"
+    "package": "zip -r -j dist/updateCorrespondence.zip dist/*"
   },
   "version": "1.0.0"
 }
