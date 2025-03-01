@@ -92,13 +92,27 @@ jobs:
 
       - name: Monitor CloudFormation Stack Status
         run: |
-          STACK_NAME="lambda-stack-${{ github.event.inputs.lambda_function }}"
-          STATUS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --region us-west-2 --query "Stacks[0].StackStatus" --output text)
+          STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
 
-          if [[ "$STATUS" == "ROLLBACK_COMPLETE" ]]; then
-            echo "CloudFormation stack rollback detected, exiting with failure."
-            exit 1
-          fi
+          echo "Monitoring CloudFormation stack status..."
+          while true; do
+            STATUS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --region us-west-2 --query "Stacks[0].StackStatus" --output text)
+            echo "Current stack status: $STATUS"
 
-          aws cloudformation wait stack-update-complete --stack-name $STACK_NAME --region us-west-2
+            if [[ "$STATUS" == "ROLLBACK_COMPLETE" ]]; then
+              echo "🚨 CloudFormation stack rollback detected! Fetching failure reasons..."
+              aws cloudformation describe-stack-events --stack-name $STACK_NAME --region us-west-2 --query "StackEvents[?ResourceStatus=='ROLLBACK_FAILED' || ResourceStatus=='ROLLBACK_IN_PROGRESS' || ResourceStatus=='DELETE_FAILED'].[LogicalResourceId, ResourceStatus, ResourceStatusReason]" --output table
+              exit 1
+            elif [[ "$STATUS" == "CREATE_COMPLETE" || "$STATUS" == "UPDATE_COMPLETE" ]]; then
+              echo "✅ CloudFormation stack update successful!"
+              break
+            elif [[ "$STATUS" == "UPDATE_FAILED" || "$STATUS" == "CREATE_FAILED" ]]; then
+              echo "⚠️ CloudFormation stack failed! Fetching failure reasons..."
+              aws cloudformation describe-stack-events --stack-name $STACK_NAME --region us-west-2 --query "StackEvents[?ResourceStatus=='CREATE_FAILED' || ResourceStatus=='UPDATE_FAILED'].[LogicalResourceId, ResourceStatus, ResourceStatusReason]" --output table
+              exit 1
+            else
+              echo "⏳ Still waiting... (next check in 10 seconds)"
+              sleep 10
+            fi
+          done
 
