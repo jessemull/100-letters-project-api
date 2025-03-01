@@ -40,3 +40,5 @@ Resources:
                   - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRecipients'
                   - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createCorrespondence'
                   - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getCorrespondencesById'
+                  - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:deleteCorrespondence'
+              
