@@ -47,7 +47,7 @@ jobs:
           # Loop through all files listed in ALL_CHANGED_FILES
           for file in ${ALL_CHANGED_FILES}; do
             echo "$file"
-            if [[ $file =~ ^routes/(createCorrespondence|getCorrespondences|getCorrespondencesById|getRecipientById|getRecipients|updateCorrespondence)/ ]]; then
+            if [[ $file =~ ^routes/(createCorrespondence|deleteCorrespondence|getCorrespondences|getCorrespondencesById|getRecipientById|getRecipients|updateCorrespondence)/ ]]; then
               echo "Modified file is under the Lambda function folder: $file"
               FUNCTION_NAME=$(echo "$file" | cut -d'/' -f2)  # Extract the function name from the path
               changed_functions="$changed_functions $FUNCTION_NAME"

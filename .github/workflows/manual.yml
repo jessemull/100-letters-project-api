@@ -9,6 +9,7 @@ on:
         type: choice
         options:
           - createCorrespondence
+          - deleteCorrespondence
           - getCorrespondences
           - getCorrespondencesById
           - getRecipientById
