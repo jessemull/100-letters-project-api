@@ -48,44 +48,35 @@ jobs:
           S3_KEY="${FUNCTION_NAME}.zip"
           aws s3 cp "routes/${FUNCTION_NAME}/dist/${FUNCTION_NAME}.zip" s3://${S3_BUCKET}/${S3_KEY} --region us-west-2
 
-      - name: Check If Stack Exists
-        id: stack_exists
+     - name: Check Change Set Update/Create 
+        id: change_set_type
         run: |
           STACK_NAME="lambda-stack-${{ github.event.inputs.lambda_function }}"
           if aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region us-west-2 >/dev/null 2>&1; then
-            echo "exists=true" >> $GITHUB_ENV
+            echo "change_set_type=UPDATE" >> $GITHUB_ENV
           else
-            echo "exists=false" >> $GITHUB_ENV
+            echo "change_set_type=CREATE" >> $GITHUB_ENV
           fi
 
-      - name: Create CloudFormation Stack - Create
-        if: env.exists == 'false'
+      - name: Create CloudFormation Change Set
         run: |
-          FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
-          STACK_NAME="lambda-stack-${FUNCTION_NAME}"
-          TEMPLATE_FILE="routes/${FUNCTION_NAME}/template.yaml"
-          
-          # Create the CloudFormation stack if it does not exist
-          aws cloudformation create-stack \
-            --stack-name $STACK_NAME \
-            --template-body file://$TEMPLATE_FILE \
-            --capabilities CAPABILITY_NAMED_IAM \
-            --region us-west-2
+          STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
+          TEMPLATE_FILE="routes/${{ github.event.inputs.lambda_function }}/template.yaml"
+          CHANGE_SET_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-change-set"
 
-      - name: Create CloudFormation Change Set - Update
-        if: env.exists == 'true'
-        run: |
-          FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
-          STACK_NAME="one-hundred-letters-route-${FUNCTION_NAME}-stack"
-          TEMPLATE_FILE="routes/${FUNCTION_NAME}/template.yaml"
-          CHANGE_SET_NAME="one-hundred-letters-route-${FUNCTION_NAME}-change-set"
-          
-          # Create the change set if the stack exists
           aws cloudformation create-change-set \
             --stack-name $STACK_NAME \
             --template-body file://$TEMPLATE_FILE \
             --change-set-name $CHANGE_SET_NAME \
+            --change-set-type ${{ env.change_set_type }} \
             --capabilities CAPABILITY_NAMED_IAM \
+            --region us-west-2
+
+          echo "Waiting for change set to be created..."
+          
+          aws cloudformation wait change-set-create-complete \
+            --stack-name $STACK_NAME \
+            --change-set-name $CHANGE_SET_NAME \
             --region us-west-2
 
       - name: Execute CloudFormation Change Set
