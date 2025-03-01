@@ -75,12 +75,14 @@ jobs:
           # If no changes are found, skip executing the change set
           if [ "$(echo "$CHANGES" | jq length)" -eq 0 ]; then
             echo "No changes in the change set, skipping execution."
-            exit 0  # Exit early since there are no changes
+            echo "no_changes=true" >> $GITHUB_ENV
           else
             echo "Changes detected, proceeding with execution."
+            echo "no_changes=false" >> $GITHUB_ENV
           fi
 
       - name: Create CloudFormation Change Set
+        if: env.no_changes == 'false'
         run: |
           STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
           TEMPLATE_FILE="routes/${{ github.event.inputs.lambda_function }}/template.yaml"
@@ -103,6 +105,7 @@ jobs:
             --region us-west-2
 
       - name: Execute CloudFormation Change Set
+        if: env.no_changes == 'false'
         run: |
           STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
           CHANGE_SET_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-change-set"
@@ -114,6 +117,7 @@ jobs:
             --region us-west-2
 
       - name: Monitor CloudFormation Stack Status
+        if: env.no_changes == 'false'
         run: |
           STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
 
