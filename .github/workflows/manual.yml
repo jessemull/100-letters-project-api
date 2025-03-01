@@ -48,16 +48,18 @@ jobs:
           S3_KEY="${FUNCTION_NAME}.zip"
           aws s3 cp "routes/${FUNCTION_NAME}/dist/${FUNCTION_NAME}.zip" s3://${S3_BUCKET}/${S3_KEY} --region us-west-2
 
-      - name: Check If Stack Exists
-        id: stack_exists
-        run: |
-          STACK_NAME="lambda-stack-${{ github.event.inputs.lambda_function }}"
-          OUTPUT=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --region us-west-2 2>&1)
-          echo "::set-output name=stack_exists::$OUTPUT"
-        continue-on-error: true
+    - name: Check If Stack Exists
+      id: stack_exists
+      run: |
+        STACK_NAME="lambda-stack-${{ github.event.inputs.lambda_function }}"
+        if aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region us-west-2 >/dev/null 2>&1; then
+          echo "exists=true" >> $GITHUB_ENV
+        else
+          echo "exists=false" >> $GITHUB_ENV
+        fi
 
       - name: Create CloudFormation Stack - Create
-        if: contains(steps.stack_exists.outputs.stack_exists, "does not exist")
+        if: env.exists == 'false'
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
           STACK_NAME="lambda-stack-${FUNCTION_NAME}"
@@ -71,7 +73,7 @@ jobs:
             --region us-west-2
 
       - name: Create CloudFormation Change Set - Update
-        if: steps.stack_exists.outcome == 'success'
+        if: env.exists == 'true'
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
           STACK_NAME="one-hundred-letters-route-${FUNCTION_NAME}-stack"
