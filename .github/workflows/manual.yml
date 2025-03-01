@@ -51,7 +51,7 @@ jobs:
       - name: Check Change Set Update/Create 
         id: change_set_type
         run: |
-          STACK_NAME="lambda-stack-${{ github.event.inputs.lambda_function }}"
+          STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
           if aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region us-west-2 >/dev/null 2>&1; then
             echo "change_set_type=UPDATE" >> $GITHUB_ENV
           else
