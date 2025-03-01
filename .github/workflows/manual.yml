@@ -1,4 +1,4 @@
-name: Deploy Lambda Manually
+name: Deploy Lambda with CloudFormation Change Set
 
 on:
   workflow_dispatch:
@@ -18,8 +18,9 @@ on:
 
 jobs:
   deploy-lambda:
-    name: Deploy Lambda Manually
+    name: Deploy Lambda with CloudFormation Change Set
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -46,12 +47,27 @@ jobs:
       - name: Upload Lambda to S3
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
-          aws s3 cp "routes/$FUNCTION_NAME/dist/$FUNCTION_NAME.zip" "s3://100-letters-project-api/$FUNCTION_NAME.zip"
+          S3_BUCKET="100-letters-project-api"
+          S3_KEY="${FUNCTION_NAME}.zip"
+          aws s3 cp "routes/${FUNCTION_NAME}/dist/${FUNCTION_NAME}.zip" s3://${S3_BUCKET}/${S3_KEY} --region us-west-2
 
-      - name: Deploy Lambda - Run Change Set
-        uses: appleboy/lambda-action@v0.2.0
+      - name: Create CloudFormation Change Set
+        id: create-changeset
+        uses: aws-actions/cloudformation-action@v2
         with:
-          function-name: "${{ github.event.inputs.lambda_function }}"
-          s3-bucket: "100-letters-project-api"
-          s3-key: "${{ github.event.inputs.lambda_function }}.zip"
-          region: us-west-2
+          stack-name: lambda-stack-${{ github.event.inputs.lambda_function }}
+          template-body: file://cloudformation/lambda-template.yaml
+          capabilities: CAPABILITY_NAMED_IAM
+          parameters: |
+            LambdaFunctionName=${{ github.event.inputs.lambda_function }}
+            LambdaZipS3Bucket=100-letters-project-api
+            LambdaZipS3Key=${{ github.event.inputs.lambda_function }}.zip
+
+      - name: Execute CloudFormation Change Set
+        run: |
+          STACK_NAME="lambda-stack-${{ github.event.inputs.lambda_function }}"
+          CHANGE_SET_NAME="ChangeSet-${{ github.event.inputs.lambda_function }}"
+          aws cloudformation execute-change-set \
+            --stack-name $STACK_NAME \
+            --change-set-name $CHANGE_SET_NAME \
+            --region us-west-2
