@@ -72,7 +72,7 @@ jobs:
             --capabilities CAPABILITY_NAMED_IAM \
             --region us-west-2
 
-          echo "Waiting for change set to be created..."
+          echo "\nWaiting for change set to be created..."
 
           aws cloudformation wait change-set-create-complete \
             --stack-name $STACK_NAME \
@@ -93,6 +93,12 @@ jobs:
       - name: Monitor CloudFormation Stack Status
         run: |
           STACK_NAME="lambda-stack-${{ github.event.inputs.lambda_function }}"
-          aws cloudformation wait stack-update-complete \
-            --stack-name $STACK_NAME \
-            --region us-west-2
+          STATUS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --region us-west-2 --query "Stacks[0].StackStatus" --output text)
+
+          if [[ "$STATUS" == "ROLLBACK_COMPLETE" ]]; then
+            echo "CloudFormation stack rollback detected, exiting with failure."
+            exit 1
+          fi
+
+          aws cloudformation wait stack-update-complete --stack-name $STACK_NAME --region us-west-2
+

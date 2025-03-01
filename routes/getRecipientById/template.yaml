@@ -15,6 +15,7 @@ Resources:
 
   LambdaInvokePermissionGetRecipientById:
     Type: AWS::Lambda::Permission
+    DependsOn: MyLambdaFunction
     Properties:
       Action: lambda:InvokeFunction
       FunctionName: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRecipientById"
