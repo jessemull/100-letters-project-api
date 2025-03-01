@@ -48,19 +48,22 @@ jobs:
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
           aws s3 cp "routes/$FUNCTION_NAME/dist/$FUNCTION_NAME.zip" "s3://100-letters-project-api/$FUNCTION_NAME.zip"
 
-      - name: Check for Existing Stack
+            - name: Check for Existing Stack
         id: check_stack
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
           echo "Checking if CloudFormation stack exists for Lambda: $FUNCTION_NAME"
           
           # Check if stack exists
-          if aws cloudformation describe-stacks --stack-name "one-hundred-letters-route-$FUNCTION_NAME-stack"; then
+          STACK_EXISTS=$(aws cloudformation describe-stacks --stack-name "one-hundred-letters-route-$FUNCTION_NAME-stack" --query "Stacks[0].StackName" --output text)
+          
+          if [ "$STACK_EXISTS" != "None" ]; then
             echo "Stack exists, ready to update."
             echo "stack_exists=true" >> $GITHUB_ENV
           else
             echo "Stack not found, creating it..."
             echo "stack_exists=false" >> $GITHUB_ENV
+          fi
 
       - name: Deploy Lambda using CloudFormation
         run: |
