@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       lambda_function:
-        description: "Select a Lambda function to deploy..."
+        description: "Lambda function name"
         required: true
         type: choice
         options:
@@ -22,20 +22,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Configure AWS Credentials
+      - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-region: us-west-2
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionsRole
-          role-session-name: GithubLambdaDeployment
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          role-duration-seconds: 3600
+          aws-region: us-west-2
 
-      - name: Build & Package Lambda
+      - name: Build Lambda Package
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
           cd routes/$FUNCTION_NAME
@@ -51,23 +48,63 @@ jobs:
           S3_KEY="${FUNCTION_NAME}.zip"
           aws s3 cp "routes/${FUNCTION_NAME}/dist/${FUNCTION_NAME}.zip" s3://${S3_BUCKET}/${S3_KEY} --region us-west-2
 
-      - name: Create CloudFormation Change Set
-        id: create-changeset
-        uses: aws-actions/cloudformation-action@v2
-        with:
-          stack-name: lambda-stack-${{ github.event.inputs.lambda_function }}
-          template-body: file://cloudformation/lambda-template.yaml
-          capabilities: CAPABILITY_NAMED_IAM
-          parameters: |
-            LambdaFunctionName=${{ github.event.inputs.lambda_function }}
-            LambdaZipS3Bucket=100-letters-project-api
-            LambdaZipS3Key=${{ github.event.inputs.lambda_function }}.zip
+      - name: Check If Stack Exists
+        id: stack_exists
+        run: |
+          STACK_NAME="lambda-stack-${{ github.event.inputs.lambda_function }}"
+          aws cloudformation describe-stacks --stack-name $STACK_NAME --region us-west-2 || echo "Stack does not exist"
+        continue-on-error: true
+
+      - name: Create CloudFormation Stack - Create
+        if: steps.stack_exists.outcome == 'failure'
+        run: |
+          STACK_NAME="lambda-stack-${{ github.event.inputs.lambda_function }}"
+          TEMPLATE_FILE="cloudformation/lambda-template.yaml"
+          
+          # Create the CloudFormation stack if it does not exist
+          aws cloudformation create-stack \
+            --stack-name $STACK_NAME \
+            --template-body file://$TEMPLATE_FILE \
+            --parameters \
+              ParameterKey=LambdaFunctionName,ParameterValue=${{ github.event.inputs.lambda_function }} \
+              ParameterKey=LambdaZipS3Bucket,ParameterValue=100-letters-project-api \
+              ParameterKey=LambdaZipS3Key,ParameterValue=${{ github.event.inputs.lambda_function }}.zip \
+            --capabilities CAPABILITY_NAMED_IAM \
+            --region us-west-2
+
+      - name: Create CloudFormation Change Set - Update
+        if: steps.stack_exists.outcome == 'success'
+        run: |
+          STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
+          TEMPLATE_FILE="cloudformation/lambda-template.yaml"
+          CHANGE_SET_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-change-set"
+          
+          # Create the change set if the stack exists
+          aws cloudformation create-change-set \
+            --stack-name $STACK_NAME \
+            --template-body file://$TEMPLATE_FILE \
+            --parameters \
+              ParameterKey=LambdaFunctionName,ParameterValue=${{ github.event.inputs.lambda_function }} \
+              ParameterKey=LambdaZipS3Bucket,ParameterValue=100-letters-project-api \
+              ParameterKey=LambdaZipS3Key,ParameterValue=${{ github.event.inputs.lambda_function }}.zip \
+            --change-set-name $CHANGE_SET_NAME \
+            --capabilities CAPABILITY_NAMED_IAM \
+            --region us-west-2
 
       - name: Execute CloudFormation Change Set
         run: |
-          STACK_NAME="lambda-stack-${{ github.event.inputs.lambda_function }}"
-          CHANGE_SET_NAME="ChangeSet-${{ github.event.inputs.lambda_function }}"
+          STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
+          CHANGE_SET_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-change-set"
+          
+          # Execute the change set
           aws cloudformation execute-change-set \
             --stack-name $STACK_NAME \
             --change-set-name $CHANGE_SET_NAME \
+            --region us-west-2
+
+      - name: Monitor CloudFormation Stack Status
+        run: |
+          STACK_NAME="lambda-stack-${{ github.event.inputs.lambda_function }}"
+          aws cloudformation wait stack-update-complete \
+            --stack-name $STACK_NAME \
             --region us-west-2
