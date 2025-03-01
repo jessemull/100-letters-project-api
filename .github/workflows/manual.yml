@@ -54,23 +54,26 @@ jobs:
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
           echo "Checking if CloudFormation stack exists for Lambda: $FUNCTION_NAME"
           
-          # Run the AWS describe-stacks command and catch the error
-          STACK_EXISTS=$(aws cloudformation describe-stacks --stack-name "one-hundred-letters-route-$FUNCTION_NAME-stack" --query "Stacks[0].StackName" --output text 2>&1)
+          # Disable exit on error temporarily
+          set +e
+          
+          # Try to describe the stack
+          aws cloudformation describe-stacks --stack-name "one-hundred-letters-route-$FUNCTION_NAME-stack" --output text
+          
+          # Capture the exit code
+          STACK_EXISTS=$?
+          
+          # Re-enable exit on error
+          set -e
 
-          # If the stack does not exist, AWS will return a validation error
-          if [[ "$STACK_EXISTS" == *"does not exist"* ]]; then
-            echo "Stack not found, creating it..."
-            echo "stack_exists=false" >> $GITHUB_ENV
-          elif [[ "$STACK_EXISTS" == *"ValidationError"* ]]; then
-            echo "Error: Stack does not exist, preparing to create the stack."
-            echo "stack_exists=false" >> $GITHUB_ENV
-          elif [ -z "$STACK_EXISTS" ]; then
-            echo "Unexpected error with AWS CLI output. Exiting."
-            exit 1
-          else
-            # Stack exists
+          if [ $STACK_EXISTS -eq 0 ]; then
+            # If the describe-stacks command succeeded, the stack exists
             echo "Stack exists, ready to update."
             echo "stack_exists=true" >> $GITHUB_ENV
+          else
+            # If the exit code is non-zero, the stack doesn't exist
+            echo "Stack not found, creating it..."
+            echo "stack_exists=false" >> $GITHUB_ENV
           fi
 
       - name: Deploy Lambda using CloudFormation
