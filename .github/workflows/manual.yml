@@ -18,7 +18,7 @@ on:
 
 jobs:
   deploy-lambda:
-    name: Deploy Lambda with CloudFormation Change Set
+    name: Deploy Lambda Manually
     runs-on: ubuntu-latest
 
     steps:
@@ -73,7 +73,7 @@ jobs:
             --region us-west-2
 
           echo "Waiting for change set to be created..."
-          
+
           aws cloudformation wait change-set-create-complete \
             --stack-name $STACK_NAME \
             --change-set-name $CHANGE_SET_NAME \
