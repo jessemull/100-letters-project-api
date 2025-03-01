@@ -48,15 +48,15 @@ jobs:
           S3_KEY="${FUNCTION_NAME}.zip"
           aws s3 cp "routes/${FUNCTION_NAME}/dist/${FUNCTION_NAME}.zip" s3://${S3_BUCKET}/${S3_KEY} --region us-west-2
 
-    - name: Check If Stack Exists
-      id: stack_exists
-      run: |
-        STACK_NAME="lambda-stack-${{ github.event.inputs.lambda_function }}"
-        if aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region us-west-2 >/dev/null 2>&1; then
-          echo "exists=true" >> $GITHUB_ENV
-        else
-          echo "exists=false" >> $GITHUB_ENV
-        fi
+      - name: Check If Stack Exists
+        id: stack_exists
+        run: |
+          STACK_NAME="lambda-stack-${{ github.event.inputs.lambda_function }}"
+          if aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region us-west-2 >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_ENV
+          else
+            echo "exists=false" >> $GITHUB_ENV
+          fi
 
       - name: Create CloudFormation Stack - Create
         if: env.exists == 'false'
