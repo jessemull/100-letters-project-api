@@ -59,6 +59,9 @@ Resources:
               - cloudformation:DescribeStacks
               - cloudformation:CreateStack
               - cloudformation:UpdateStack
+              - cloudformation:CreateChangeSet
+              - cloudformation:DescribeChangeSet
+              - cloudformation:ExecuteChangeSet
             Resource: 
               - !Sub "arn:aws:cloudformation:us-west-2:${AWS::AccountId}:stack/one-hundred-letters-route-*/*"
 
