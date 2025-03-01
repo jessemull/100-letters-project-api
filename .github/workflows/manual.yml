@@ -63,7 +63,6 @@ jobs:
           STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
           TEMPLATE_FILE="routes/${{ github.event.inputs.lambda_function }}/template.yaml"
           CHANGE_SET_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-change-set"
-
           aws cloudformation create-change-set \
             --stack-name $STACK_NAME \
             --template-body file://$TEMPLATE_FILE \
@@ -71,9 +70,8 @@ jobs:
             --change-set-type ${{ env.change_set_type }} \
             --capabilities CAPABILITY_NAMED_IAM \
             --region us-west-2
-
-          echo "\nWaiting for change set to be created..."
-
+          echo ""
+          echo "Waiting for change set to be created..."
           aws cloudformation wait change-set-create-complete \
             --stack-name $STACK_NAME \
             --change-set-name $CHANGE_SET_NAME \
@@ -83,8 +81,6 @@ jobs:
         run: |
           STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
           CHANGE_SET_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-change-set"
-          
-          # Execute the change set
           aws cloudformation execute-change-set \
             --stack-name $STACK_NAME \
             --change-set-name $CHANGE_SET_NAME \
@@ -93,25 +89,22 @@ jobs:
       - name: Monitor CloudFormation Stack Status
         run: |
           STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
-
-          echo "Monitoring CloudFormation stack status..."
+          echo "Monitoring change set execution..."
           while true; do
             STATUS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --region us-west-2 --query "Stacks[0].StackStatus" --output text)
-            echo "Current stack status: $STATUS"
-
+            echo "Change set status -> $STATUS."
             if [[ "$STATUS" == "ROLLBACK_COMPLETE" ]]; then
-              echo "🚨 CloudFormation stack rollback detected! Fetching failure reasons..."
+              echo "Change set rollback detected!"
               aws cloudformation describe-stack-events --stack-name $STACK_NAME --region us-west-2 --query "StackEvents[?ResourceStatus=='ROLLBACK_FAILED' || ResourceStatus=='ROLLBACK_IN_PROGRESS' || ResourceStatus=='DELETE_FAILED'].[LogicalResourceId, ResourceStatus, ResourceStatusReason]" --output table
               exit 1
             elif [[ "$STATUS" == "CREATE_COMPLETE" || "$STATUS" == "UPDATE_COMPLETE" ]]; then
-              echo "✅ CloudFormation stack update successful!"
+              echo "Change set executed successfully!"
               break
             elif [[ "$STATUS" == "UPDATE_FAILED" || "$STATUS" == "CREATE_FAILED" ]]; then
-              echo "⚠️ CloudFormation stack failed! Fetching failure reasons..."
+              echo "Change set failed!"
               aws cloudformation describe-stack-events --stack-name $STACK_NAME --region us-west-2 --query "StackEvents[?ResourceStatus=='CREATE_FAILED' || ResourceStatus=='UPDATE_FAILED'].[LogicalResourceId, ResourceStatus, ResourceStatusReason]" --output table
               exit 1
             else
-              echo "⏳ Still waiting... (next check in 10 seconds)"
               sleep 10
             fi
           done
