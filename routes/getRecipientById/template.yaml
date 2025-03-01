@@ -12,3 +12,11 @@ Resources:
         S3Key: getRecipientById.zip
       Timeout: 10
       MemorySize: 128
+
+  LambdaInvokePermissionGetRecipientById:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRecipientById"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/GET/*"

@@ -68,7 +68,7 @@ jobs:
 
           if [ $STACK_EXISTS -eq 0 ]; then
             # If the describe-stacks command succeeded, the stack exists
-            echo "Stack exists, ready to update."
+            echo "Stack exists, ready to check for changes."
             echo "stack_exists=true" >> $GITHUB_ENV
           else
             # If the exit code is non-zero, the stack doesn't exist
@@ -76,22 +76,59 @@ jobs:
             echo "stack_exists=false" >> $GITHUB_ENV
           fi
 
-      - name: Deploy Lambda using CloudFormation
+      - name: Create Change Set (if stack exists)
+        run: |
+          FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
+          TEMPLATE_PATH="routes/$FUNCTION_NAME/template.yaml"
+          CHANGE_SET_NAME="my-change-set"
+          
+          echo "Creating Change Set for Lambda function: $FUNCTION_NAME"
+          
+          if [ "$stack_exists" == "true" ]; then
+            # Create a change set if the stack exists
+            aws cloudformation create-change-set \
+              --stack-name "one-hundred-letters-route-$FUNCTION_NAME-stack" \
+              --template-body file://$TEMPLATE_PATH \
+              --change-set-name "$CHANGE_SET_NAME" \
+              --capabilities CAPABILITY_IAM --region us-west-2
+          fi
+
+      - name: Check if Change Set has Changes
+        run: |
+          FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
+          CHANGE_SET_NAME="my-change-set"
+          
+          echo "Checking if Change Set has any changes for Lambda: $FUNCTION_NAME"
+          
+          if [ "$stack_exists" == "true" ]; then
+            # Get the status of the change set
+            CHANGE_SET_STATUS=$(aws cloudformation describe-change-set \
+              --stack-name "one-hundred-letters-route-$FUNCTION_NAME-stack" \
+              --change-set-name "$CHANGE_SET_NAME" \
+              --query 'ChangeSet.Status' --output text --region us-west-2)
+            
+            if [ "$CHANGE_SET_STATUS" == "CREATE_COMPLETE" ]; then
+              # If changes exist, execute the change set
+              echo "Changes detected, executing Change Set for Lambda: $FUNCTION_NAME"
+              aws cloudformation execute-change-set \
+                --change-set-name "$CHANGE_SET_NAME" \
+                --stack-name "one-hundred-letters-route-$FUNCTION_NAME-stack" \
+                --region us-west-2
+            else
+              echo "No changes detected, skipping update for Lambda: $FUNCTION_NAME"
+            fi
+          fi
+
+      - name: Create CloudFormation Stack (if stack doesn't exist)
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
           TEMPLATE_PATH="routes/$FUNCTION_NAME/template.yaml"
           
-          echo "Deploying Lambda function with CloudFormation: $FUNCTION_NAME"
+          echo "Creating CloudFormation stack for Lambda: $FUNCTION_NAME"
           
-          # Deploy the stack (create or update)
-          if [ "$stack_exists" == "true" ]; then
-            echo "Updating CloudFormation stack for Lambda: $FUNCTION_NAME"
-            aws cloudformation update-stack --stack-name "one-hundred-letters-route-$FUNCTION_NAME-stack" \
-              --template-body file://$TEMPLATE_PATH \
-              --capabilities CAPABILITY_IAM --region us-west-2
-          else
-            echo "Creating CloudFormation stack for Lambda: $FUNCTION_NAME"
-            aws cloudformation create-stack --stack-name "one-hundred-letters-route-$FUNCTION_NAME-stack" \
+          if [ "$stack_exists" == "false" ]; then
+            aws cloudformation create-stack \
+              --stack-name "one-hundred-letters-route-$FUNCTION_NAME-stack" \
               --template-body file://$TEMPLATE_PATH \
               --capabilities CAPABILITY_IAM --region us-west-2
           fi
