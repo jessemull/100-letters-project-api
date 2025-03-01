@@ -49,7 +49,7 @@ jobs:
           aws s3 cp "routes/$FUNCTION_NAME/dist/$FUNCTION_NAME.zip" "s3://100-letters-project-api/$FUNCTION_NAME.zip"
 
       - name: Deploy Lambda - Run Change Set
-        uses: aws-actions/aws-lambda-deploy@v2
+        uses: appleboy/lambda-action@v0.2.0
         with:
           function-name: "${{ github.event.inputs.lambda_function }}"
           s3-bucket: "100-letters-project-api"
