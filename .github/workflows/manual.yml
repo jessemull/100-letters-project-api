@@ -48,7 +48,7 @@ jobs:
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
           aws s3 cp "routes/$FUNCTION_NAME/dist/$FUNCTION_NAME.zip" "s3://100-letters-project-api/$FUNCTION_NAME.zip"
 
-            - name: Check for Existing Stack
+      - name: Check for Existing Stack
         id: check_stack
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
