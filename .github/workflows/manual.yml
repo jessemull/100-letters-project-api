@@ -59,7 +59,7 @@ jobs:
         if: steps.stack_exists.outcome == 'failure'
         run: |
           STACK_NAME="lambda-stack-${{ github.event.inputs.lambda_function }}"
-          TEMPLATE_FILE="cloudformation/lambda-template.yaml"
+          TEMPLATE_FILE="routes/${FUNCTION_NAME}/template.yaml"
           
           # Create the CloudFormation stack if it does not exist
           aws cloudformation create-stack \
@@ -76,7 +76,7 @@ jobs:
         if: steps.stack_exists.outcome == 'success'
         run: |
           STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
-          TEMPLATE_FILE="cloudformation/lambda-template.yaml"
+          TEMPLATE_FILE="routes/${FUNCTION_NAME}/template.yaml"
           CHANGE_SET_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-change-set"
           
           # Create the change set if the stack exists
