@@ -53,9 +53,6 @@ jobs:
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
           echo "Checking if CloudFormation stack exists for Lambda: $FUNCTION_NAME"
-          
-          # Disable exit on error temporarily
-          set +e
 
       - name: Deploy Lambda using CloudFormation
         run: |
