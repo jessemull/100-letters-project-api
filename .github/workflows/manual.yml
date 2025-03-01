@@ -57,37 +57,31 @@ jobs:
         continue-on-error: true
 
       - name: Create CloudFormation Stack - Create
-        if: steps.stack_exists.outcome == 'failure'
+        if: contains(steps.stack_exists.outputs.stack_exists, "does not exist")
         run: |
-          STACK_NAME="lambda-stack-${{ github.event.inputs.lambda_function }}"
-          TEMPLATE_FILE="routes/${{ github.event.inputs.lambda_function }}/template.yaml"
+          FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
+          STACK_NAME="lambda-stack-${FUNCTION_NAME}"
+          TEMPLATE_FILE="routes/${FUNCTION_NAME}/template.yaml"
           
           # Create the CloudFormation stack if it does not exist
           aws cloudformation create-stack \
             --stack-name $STACK_NAME \
             --template-body file://$TEMPLATE_FILE \
-            --parameters \
-              ParameterKey=LambdaFunctionName,ParameterValue=${{ github.event.inputs.lambda_function }} \
-              ParameterKey=LambdaZipS3Bucket,ParameterValue=100-letters-project-api \
-              ParameterKey=LambdaZipS3Key,ParameterValue=${{ github.event.inputs.lambda_function }}.zip \
             --capabilities CAPABILITY_NAMED_IAM \
             --region us-west-2
 
       - name: Create CloudFormation Change Set - Update
         if: steps.stack_exists.outcome == 'success'
         run: |
-          STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
-          TEMPLATE_FILE="routes/${{ github.event.inputs.lambda_function }}/template.yaml"
-          CHANGE_SET_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-change-set"
+          FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
+          STACK_NAME="one-hundred-letters-route-${FUNCTION_NAME}-stack"
+          TEMPLATE_FILE="routes/${FUNCTION_NAME}/template.yaml"
+          CHANGE_SET_NAME="one-hundred-letters-route-${FUNCTION_NAME}-change-set"
           
           # Create the change set if the stack exists
           aws cloudformation create-change-set \
             --stack-name $STACK_NAME \
             --template-body file://$TEMPLATE_FILE \
-            --parameters \
-              ParameterKey=LambdaFunctionName,ParameterValue=${{ github.event.inputs.lambda_function }} \
-              ParameterKey=LambdaZipS3Bucket,ParameterValue=100-letters-project-api \
-              ParameterKey=LambdaZipS3Key,ParameterValue=${{ github.event.inputs.lambda_function }}.zip \
             --change-set-name $CHANGE_SET_NAME \
             --capabilities CAPABILITY_NAMED_IAM \
             --region us-west-2
