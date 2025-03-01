@@ -56,25 +56,6 @@ jobs:
           
           # Disable exit on error temporarily
           set +e
-          
-          # Try to describe the stack
-          aws cloudformation describe-stacks --stack-name "one-hundred-letters-route-$FUNCTION_NAME-stack" --output text
-          
-          # Capture the exit code
-          STACK_EXISTS=$?
-          
-          # Re-enable exit on error
-          set -e
-
-          if [ $STACK_EXISTS -eq 0 ]; then
-            # If the describe-stacks command succeeded, the stack exists
-            echo "Stack exists, ready to update."
-            echo "stack_exists=true" >> $GITHUB_ENV
-          else
-            # If the exit code is non-zero, the stack doesn't exist
-            echo "Stack not found, creating it..."
-            echo "stack_exists=false" >> $GITHUB_ENV
-          fi
 
       - name: Deploy Lambda using CloudFormation
         run: |
