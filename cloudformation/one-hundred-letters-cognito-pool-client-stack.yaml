@@ -1,0 +1,17 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+  UserPoolId:
+    Type: String
+    Description: The ID of the existing Cognito User Pool
+
+Resources:
+  CognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: OneHundredLettersAppClient
+      UserPoolId: !Ref UserPoolId
+      ExplicitAuthFlows:
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_USER_PASSWORD_AUTH
