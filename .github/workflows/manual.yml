@@ -34,19 +34,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           role-duration-seconds: 3600
 
-      - name: Check For Lambda (Update/Create)
-        id: check_lambda
-        run: |
-          FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
-          echo "Checking if Lambda function exists: $FUNCTION_NAME"
-          if aws lambda get-function --function-name "$FUNCTION_NAME"; then
-            echo "Function $FUNCTION_NAME exists, ready for update."
-            echo "exists=true" >> $GITHUB_ENV
-          else
-            echo "Function $FUNCTION_NAME not found, creating it..."
-            echo "exists=false" >> $GITHUB_ENV
-          fi
-
       - name: Build & Package Lambda
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
@@ -60,19 +47,37 @@ jobs:
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
           aws s3 cp "routes/$FUNCTION_NAME/dist/$FUNCTION_NAME.zip" "s3://100-letters-project-api/$FUNCTION_NAME.zip"
-      
-      - name: Update | Create Lambda Function
+
+      - name: Check for Existing Stack
+        id: check_stack
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
-          if [ "$exists" == "true" ]; then
-            echo "Updating Lambda function: $FUNCTION_NAME"
-            aws lambda update-function-code --function-name "$FUNCTION_NAME" --s3-bucket 100-letters-project-api --s3-key "$FUNCTION_NAME.zip"
+          echo "Checking if CloudFormation stack exists for Lambda: $FUNCTION_NAME"
+          
+          # Check if stack exists
+          if aws cloudformation describe-stacks --stack-name "one-hundred-letters-route-$FUNCTION_NAME-stack"; then
+            echo "Stack exists, ready to update."
+            echo "stack_exists=true" >> $GITHUB_ENV
           else
-            echo "Creating Lambda function: $FUNCTION_NAME"
-            aws lambda create-function --function-name "$FUNCTION_NAME" \
-              --runtime nodejs20.x \
-              --role arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/OneHundredLettersLambdaRole \
-              --handler index.handler \
-              --code S3Bucket=100-letters-project-api,S3Key=$FUNCTION_NAME.zip \
-              --region us-west-2
+            echo "Stack not found, creating it..."
+            echo "stack_exists=false" >> $GITHUB_ENV
+
+      - name: Deploy Lambda using CloudFormation
+        run: |
+          FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
+          TEMPLATE_PATH="routes/$FUNCTION_NAME/template.yaml"
+          
+          echo "Deploying Lambda function with CloudFormation: $FUNCTION_NAME"
+          
+          # Deploy the stack (create or update)
+          if [ "$stack_exists" == "true" ]; then
+            echo "Updating CloudFormation stack for Lambda: $FUNCTION_NAME"
+            aws cloudformation update-stack --stack-name "one-hundred-letters-route-$FUNCTION_NAME-stack" \
+              --template-body file://$TEMPLATE_PATH \
+              --capabilities CAPABILITY_IAM --region us-west-2
+          else
+            echo "Creating CloudFormation stack for Lambda: $FUNCTION_NAME"
+            aws cloudformation create-stack --stack-name "one-hundred-letters-route-$FUNCTION_NAME-stack" \
+              --template-body file://$TEMPLATE_PATH \
+              --capabilities CAPABILITY_IAM --region us-west-2
           fi

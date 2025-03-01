@@ -1,0 +1,14 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:
+  MyLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: createCorrespondence
+      Runtime: nodejs20.x
+      Role: !ImportValue OneHundredLettersLambdaExecutionRoleArn
+      Handler: index.handler
+      Code:
+        S3Bucket: !ImportValue LambdaS3BucketName
+        S3Key: createCorrespondence.zip
+      Timeout: 10
+      MemorySize: 128
