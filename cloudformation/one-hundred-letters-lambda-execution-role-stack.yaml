@@ -1,0 +1,42 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: OneHundredLettersLambdaRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: 
+                - lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaBasicExecution
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                Resource:
+                  - arn:aws:s3:::100-letters-project-api/*
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource:
+                  - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRecipientById'
+                  - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getCorrespondences'
+                  - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:updateCorrespondence'
+                  - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRecipients'
+                  - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createCorrespondence'
+                  - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getCorrespondencesById'

@@ -1,0 +1,41 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+  CognitoUserPoolName:
+    Type: String
+    Default: OneHundredLettersUserPool
+  CognitoAppClientName:
+    Type: String
+    Default: OneHundredLettersAppClient
+
+Resources:
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Ref CognitoUserPoolName
+      AutoVerifiedAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireUppercase: true
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: false
+
+  CognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: !Ref CognitoAppClientName
+      UserPoolId: !Ref CognitoUserPool
+      ExplicitAuthFlows:
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_USER_PASSWORD_AUTH
+
+Outputs:
+  CognitoUserPoolName:
+    Description: "Name of the Cognito User Pool"
+    Value: !Ref CognitoUserPoolName
+    Export:
+      Name: "OneHundredLetterCognitoUserPoolName"
