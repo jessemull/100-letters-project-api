@@ -64,6 +64,12 @@ Resources:
               - cloudformation:ExecuteChangeSet
             Resource: 
               - !Sub "arn:aws:cloudformation:us-west-2:${AWS::AccountId}:stack/one-hundred-letters-route-*/*"
+              
+          - Effect: Allow
+            Action:
+              - lambda:AddPermission
+            Resource:
+              - !Sub "arn:aws:lambda:us-west-2:${AWS::AccountId}:function:*"
 
 Outputs:
   GitHubActionsRole:
