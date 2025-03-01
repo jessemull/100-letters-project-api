@@ -48,7 +48,7 @@ jobs:
           S3_KEY="${FUNCTION_NAME}.zip"
           aws s3 cp "routes/${FUNCTION_NAME}/dist/${FUNCTION_NAME}.zip" s3://${S3_BUCKET}/${S3_KEY} --region us-west-2
 
-     - name: Check Change Set Update/Create 
+      - name: Check Change Set Update/Create 
         id: change_set_type
         run: |
           STACK_NAME="lambda-stack-${{ github.event.inputs.lambda_function }}"
