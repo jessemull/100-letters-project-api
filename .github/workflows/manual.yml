@@ -54,11 +54,11 @@ jobs:
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
           echo "Checking if CloudFormation stack exists for Lambda: $FUNCTION_NAME"
           
-          # Check if stack exists by trying to describe the stack
-          STACK_EXISTS=$(aws cloudformation describe-stacks --stack-name "one-hundred-letters-route-$FUNCTION_NAME-stack" --query "Stacks[0].StackName" --output text 2>&1)
+          # Try to describe the stack and ignore errors if it doesn't exist
+          STACK_EXISTS=$(aws cloudformation describe-stacks --stack-name "one-hundred-letters-route-$FUNCTION_NAME-stack" --query "Stacks[0].StackName" --output text || true)
           
-          # If the error output contains 'does not exist', we know the stack doesn't exist
-          if [[ "$STACK_EXISTS" == *"does not exist"* ]]; then
+          # If the result is 'None', the stack doesn't exist
+          if [ "$STACK_EXISTS" == "None" ]; then
             echo "Stack not found, creating it..."
             echo "stack_exists=false" >> $GITHUB_ENV
           else
