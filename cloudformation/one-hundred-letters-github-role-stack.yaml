@@ -53,6 +53,14 @@ Resources:
               - iam:PassRole
             Resource:
               - !Sub arn:aws:iam::${AWS::AccountId}:role/OneHundredLettersLambdaRole
+          
+          - Effect: Allow
+            Action:
+              - cloudformation:DescribeStacks
+              - cloudformation:CreateStack
+              - cloudformation:UpdateStack
+            Resource: 
+              - !Sub "arn:aws:cloudformation:us-west-2:${AWS::AccountId}:stack/one-hundred-letters-route-*/*"
 
 Outputs:
   GitHubActionsRole:
