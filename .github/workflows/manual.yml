@@ -60,6 +60,26 @@ jobs:
             echo "change_set_type=CREATE" >> $GITHUB_ENV
           fi
 
+      - name: Check for Applied Changes
+        run: |
+          STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
+          CHANGE_SET_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-change-set"
+
+          # Describe the change set to check for changes
+          CHANGES=$(aws cloudformation describe-change-set \
+                    --stack-name $STACK_NAME \
+                    --change-set-name $CHANGE_SET_NAME \
+                    --query "Changes" \
+                    --region us-west-2)
+
+          # If no changes are found, skip executing the change set
+          if [ "$(echo "$CHANGES" | jq length)" -eq 0 ]; then
+            echo "No changes in the change set, skipping execution."
+            exit 0  # Exit early since there are no changes
+          else
+            echo "Changes detected, proceeding with execution."
+          fi
+
       - name: Create CloudFormation Change Set
         run: |
           STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
@@ -81,26 +101,6 @@ jobs:
             --stack-name $STACK_NAME \
             --change-set-name $CHANGE_SET_NAME \
             --region us-west-2
-      
-      - name: Detect Changes Applied
-        run: |
-          STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
-          CHANGE_SET_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-change-set"
-
-          # Describe the change set to check for changes
-          CHANGES=$(aws cloudformation describe-change-set \
-                    --stack-name $STACK_NAME \
-                    --change-set-name $CHANGE_SET_NAME \
-                    --query "Changes" \
-                    --region us-west-2)
-
-          # If no changes are found, skip executing the change set
-          if [ "$(echo "$CHANGES" | jq length)" -eq 0 ]; then
-            echo "No changes in the change set, skipping execution."
-            exit 0  # Exit early since there are no changes
-          else
-            echo "Changes detected, proceeding with execution."
-          fi
 
       - name: Execute CloudFormation Change Set
         run: |
