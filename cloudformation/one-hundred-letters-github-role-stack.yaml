@@ -52,7 +52,7 @@ Resources:
             Action:
               - iam:PassRole
             Resource:
-              - !Sub arn:aws:iam::${AWS::AccountId}:role/GitHubActionsRole
+              - !Sub arn:aws:iam::${AWS::AccountId}:role/OneHundredLettersLambdaRole
 
 Outputs:
   GitHubActionsRole:

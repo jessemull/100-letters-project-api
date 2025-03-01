@@ -22,33 +22,8 @@ Resources:
       ProviderARNs:
         - !Sub "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}"
 
-  ApiGatewayExecutionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: apigateway.amazonaws.com
-            Action: sts:AssumeRole
+  # Correspondence Resources/Methods
 
-  ApiGatewayPolicyAttachment:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyName: ApiGatewayAccessPolicy
-      Roles:
-        - !Ref ApiGatewayExecutionRole
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Action: 'execute-api:Invoke'
-            Resource: !Sub "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${OneHundredLettersApi}/*/*/*"
-            Condition:
-              StringEquals:
-                aws:UserAgent: 'Amazon CloudFront'
-  
   ApiGatewayCorrespondence:
     Type: AWS::ApiGateway::Resource
     Properties:
@@ -64,87 +39,166 @@ Resources:
       HttpMethod: GET
       AuthorizationType: NONE
       Integration:
-        IntegrationHttpMethod: GET
+        IntegrationHttpMethod: POST
         Type: AWS_PROXY
         Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getCorrespondences/invocations"
 
-  # ApiGatewayCorrespondenceUpdateMethod:
-  #   Type: AWS::ApiGateway::Method
-  #   Properties:
-  #     RestApiId: !Ref OneHundredLettersApi
-  #     ResourceId: !Ref ApiGatewayCorrespondence
-  #     AuthorizationType: COGNITO_USER_POOLS
-  #     AuthorizerId: !Ref ApiGatewayAuthorizer
-  #     HttpMethod: PUT
-  #     Integration:
-  #       IntegrationHttpMethod: PUT
-  #       Type: AWS_PROXY
-  #       Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:updateCorrespondence/invocations"
+  ApiGatewayCorrespondenceUpdateMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ResourceId: !Ref ApiGatewayCorrespondence
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !Ref ApiGatewayAuthorizer
+      HttpMethod: PUT
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:updateCorrespondence/invocations"
+
+  ApiGatewayCorrespondenceCreateMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ResourceId: !Ref ApiGatewayCorrespondence
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !Ref ApiGatewayAuthorizer
+      HttpMethod: POST
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createCorrespondence/invocations"
+
+  ApiGatewayGetCorrespondencesById:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ParentId: !Ref ApiGatewayCorrespondence
+      PathPart: "{id}"
       
+  ApiGatewayGetCorrespondencesByIdMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ResourceId: !Ref ApiGatewayGetCorrespondencesById
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getCorrespondencesById/invocations"
+      RequestParameters:
+        method.request.path.id: true
 
-  # ApiGatewayCorrespondenceCreateMethod:
-  #   Type: AWS::ApiGateway::Method
-  #   Properties:
-  #     RestApiId: !Ref OneHundredLettersApi
-  #     ResourceId: !Ref ApiGatewayCorrespondence
-  #     AuthorizationType: COGNITO_USER_POOLS
-  #     AuthorizerId: !Ref ApiGatewayAuthorizer
-  #     HttpMethod: POST
-  #     Integration:
-  #       IntegrationHttpMethod: POST
-  #       Type: AWS_PROXY
-  #       Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createCorrespondence/invocations"
+  ApiGatewayCorrespondenceDeleteMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ResourceId: !Ref ApiGatewayGetCorrespondencesById
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !Ref ApiGatewayAuthorizer
+      HttpMethod: DELETE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:deleteCorrespondence/invocations"
+      RequestParameters:
+        method.request.path.id: true
 
-  # ApiGatewayGetCorrespondencesById:
-  #   Type: AWS::ApiGateway::Resource
-  #   Properties:
-  #     RestApiId: !Ref OneHundredLettersApi
-  #     ParentId: !Ref ApiGatewayCorrespondence  # Corrected this line
-  #     PathPart: "correspondence/{id}"
-      
-  # ApiGatewayGetCorrespondencesByIdMethod:
-  #   Type: AWS::ApiGateway::Method
-  #   Properties:
-  #     RestApiId: !Ref OneHundredLettersApi
-  #     ResourceId: !Ref ApiGatewayGetCorrespondencesById
-  #     HttpMethod: GET
-  #     Integration:
-  #       IntegrationHttpMethod: GET
-  #       Type: AWS_PROXY
-  #       Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getCorrespondencesById/invocations"
+  LambdaInvokePermissionGetCorrespondences:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getCorrespondences"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/GET/*"
+  
+  LambdaInvokePermissionGetCorrespondencesById:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getCorrespondencesById"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/GET/*"
+  
+  LambdaInvokePermissionCreateCorrespondence:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createCorrespondence"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/POST/*"
+  
+  LambdaInvokePermissionUpdateCorrespondence:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:updateCorrespondence"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/PUT/*"
 
-  # ApiGatewayGetRecipientById:
-  #   Type: AWS::ApiGateway::Resource
-  #   Properties:
-  #     RestApiId: !Ref OneHundredLettersApi
-  #     ParentId: !Ref ApiGatewayCorrespondence  # Corrected this line
-  #     PathPart: "recipient/{id}"
+  LambdaInvokePermissionDeleteCorrespondence:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:deleteCorrespondence"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/DELETE/*"
 
-  # ApiGatewayGetRecipientByIdMethod:
-  #   Type: AWS::ApiGateway::Method
-  #   Properties:
-  #     RestApiId: !Ref OneHundredLettersApi
-  #     ResourceId: !Ref ApiGatewayGetRecipientById
-  #     HttpMethod: GET
-  #     Integration:
-  #       IntegrationHttpMethod: GET
-  #       Type: AWS_PROXY
-  #       Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRecipientById/invocations"
+  # Recipient Resources/Methods
 
-  # ApiGatewayGetRecipients:
-  #   Type: AWS::ApiGateway::Resource
-  #   Properties:
-  #     RestApiId: !Ref OneHundredLettersApi
-  #     ParentId: !Ref ApiGatewayCorrespondence  # Corrected this line
-  #     PathPart: "recipient"
+  ApiGatewayGetRecipients:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ParentId: !GetAtt OneHundredLettersApi.RootResourceId
+      PathPart: "recipient"
 
-  # ApiGatewayGetRecipientsMethod:
-  #   Type: AWS::ApiGateway::Method
-  #   Properties:
-  #     RestApiId: !Ref OneHundredLettersApi
-  #     ResourceId: !Ref ApiGatewayGetRecipients
-  #     HttpMethod: GET
-  #     Integration:
-  #       IntegrationHttpMethod: GET
-  #       Type: AWS_PROXY
-  #       Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRecipients/invocations"
+  ApiGatewayGetRecipientsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ResourceId: !Ref ApiGatewayGetRecipients
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRecipients/invocations"
+  
+  ApiGatewayGetRecipientById:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ParentId: !Ref ApiGatewayGetRecipients
+      PathPart: "{id}"
+
+  ApiGatewayGetRecipientByIdMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ResourceId: !Ref ApiGatewayGetRecipientById
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRecipientById/invocations"
+      RequestParameters:
+        method.request.path.id: true
+  
+  LambdaInvokePermissionGetRecipientById:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRecipientById"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/GET/*"
+  
+  LambdaInvokePermissionGetRecipients:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRecipients"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/GET/*"
