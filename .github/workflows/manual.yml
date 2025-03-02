@@ -41,12 +41,21 @@ jobs:
           npm run package
           cd ../../  # Go back to root directory
 
+      - name: Generate Artifact Name
+        run: |
+          FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
+          COMMIT_HASH=$(git rev-parse --short HEAD)
+          VERSION=$(jq -r .version < package.json)
+          TIMESTAMP=$(date -u +"%Y%m%dT%H%M%SZ")
+          ARTIFACT_NAME="${FUNCTION_NAME}-${VERSION}-${COMMIT_HASH}-${TIMESTAMP}.zip"
+          echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_ENV
+          
       - name: Upload Lambda to S3
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
           S3_BUCKET="100-letters-project-api"
           S3_KEY="${FUNCTION_NAME}.zip"
-          aws s3 cp "routes/${FUNCTION_NAME}/dist/${FUNCTION_NAME}.zip" s3://${S3_BUCKET}/${S3_KEY} --region us-west-2
+          aws s3 cp "routes/${FUNCTION_NAME}/dist/${FUNCTION_NAME}.zip" s3://${S3_BUCKET}/${FUNCTION_NAME}/${ARTIFACT_NAME} --region us-west-2
 
       - name: Check Change Set Update/Create 
         id: change_set_type
@@ -68,6 +77,7 @@ jobs:
           # Describe the change set to check for changes
           CHANGES=$(aws cloudformation describe-change-set \
                     --stack-name $STACK_NAME \
+                    --parameters ParameterKey=S3Key,ParameterValue=${ARTIFACT_NAME} \
                     --change-set-name $CHANGE_SET_NAME \
                     --query "Changes" \
                     --region us-west-2)
@@ -91,6 +101,7 @@ jobs:
           aws cloudformation create-change-set \
             --stack-name $STACK_NAME \
             --template-body file://$TEMPLATE_FILE \
+            --parameters ParameterKey=S3Key,ParameterValue=${ARTIFACT_NAME} \
             --change-set-name $CHANGE_SET_NAME \
             --change-set-type ${{ env.change_set_type }} \
             --capabilities CAPABILITY_NAMED_IAM \
