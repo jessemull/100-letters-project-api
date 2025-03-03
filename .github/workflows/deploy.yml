@@ -1,4 +1,4 @@
-name: Deploy Lambda Automatically
+name: Deploy Lambda On Merge
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: Trigger All Lambda Deployments
+name: Deploy All Lambdas Manually
 
 on:
   workflow_dispatch: {}
@@ -7,45 +7,31 @@ jobs:
   trigger-deployments:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: List Lambda Functions
+      - name: Get Lambda Names
         id: list_lambdas
         run: |
-          # Initialize an empty array to store the lambda function names
           lambdas=()
-
-          # Loop through all directories in the 'routes' directory
           for dir in routes/*; do
             if [ -d "$dir" ]; then
-              # Check if a package.json exists in the directory
               if [ -f "$dir/package.json" ]; then
-                # Extract the name from the package.json using jq
                 lambda_name=$(jq -r '.name' "$dir/package.json")
-
-                # Add the lambda name to the array
                 if [ "$lambda_name" != "null" ]; then
                   lambdas+=("$lambda_name")
                 fi
               fi
             fi
           done
-
-          # Output the lambda function names
-          echo "Lambdas found: ${lambdas[@]}"
-          
-          # Set the lambda names as an output variable
+          echo "Lambdas: ${lambdas[@]}"
           echo "::set-output name=lambdas::${lambdas[@]}"
 
-      - name: Trigger Lambda Deployments
+      - name: Deploy All Lambdas
         run: |
-          # Read the Lambda function names from the output of the previous step
           lambdas=(${{ steps.list_lambdas.outputs.lambdas }})
-
-          # Now trigger the deployments for each lambda
           for lambda in "${lambdas[@]}"; do
-            echo "Triggering $lambda"
+            echo "Deploying $lambda..."
             curl -v -X POST https://api.github.com/repos/${{ github.repository }}/actions/workflows/manual.yml/dispatches \
               -H "Authorization: Bearer ${{ secrets.ACTIONS_PAT }}" \
               -d '{"ref":"${{ github.ref }}","inputs":{"lambda_function":"'"$lambda"'"}}'
