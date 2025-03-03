@@ -94,7 +94,7 @@ jobs:
           aws cloudformation create-change-set \
             --stack-name $STACK_NAME \
             --template-body file://$TEMPLATE_FILE \
-            --parameters ParameterKey=S3Key,ParameterValue=${FUNCTION_NAME}/${ARTIFACT_NAME} \
+            --parameters ParameterKey=S3Key,ParameterValue=${FUNCTION_NAME}/error/${ARTIFACT_NAME} \
             --change-set-name $CHANGE_SET_NAME \
             --change-set-type ${{ env.change_set_type }} \
             --capabilities CAPABILITY_NAMED_IAM \
