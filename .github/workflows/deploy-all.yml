@@ -46,9 +46,7 @@ jobs:
           # Now trigger the deployments for each lambda
           for lambda in "${lambdas[@]}"; do
             echo "Triggering $lambda"
-            echo "https://api.github.com/repos/${{ github.repository }}/actions/workflows/deploy-lambda.yml/dispatches"
-            echo "${{ github.ref }}"
-            curl -v -X POST https://api.github.com/repos/${{ github.repository }}/actions/workflows/deploy-lambda.yml/dispatches \
+            curl -v -X POST https://api.github.com/repos/${{ github.repository }}/actions/workflows/manual.yml/dispatches \
               -H "Authorization: Bearer ${{ secrets.ACTIONS_PAT }}" \
               -d '{"ref":"refs/heads/${{ github.ref }}","inputs":{"lambda_function":"'"$lambda"'"}}'
           done
