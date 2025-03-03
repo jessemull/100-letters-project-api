@@ -8,12 +8,25 @@
     "@faker-js/faker": "^9.5.0",
     "@prisma/client": "^6.4.1",
     "@types/aws-lambda": "^8.10.0",
+    "@typescript-eslint/eslint-plugin": "^8.26.0",
+    "@typescript-eslint/parser": "^8.26.0",
     "commitizen": "^4.3.1",
     "cz-conventional-changelog": "^3.3.0",
     "dotenv": "^16.4.7",
+    "eslint": "^9.21.0",
+    "eslint-config-prettier": "^10.0.2",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^5.2.3",
+    "eslint-plugin-promise": "^7.2.1",
     "husky": "^9.1.7",
+    "lint-staged": "^15.4.3",
+    "prettier": "^3.5.3",
     "prisma": "^6.4.1",
     "typescript": "^5.2.2"
+  },
+  "lint-staged": {
+    "*.ts": ["eslint --fix", "prettier --write"]
   },
   "name": "100-letters-project-api",
   "private": true,
@@ -25,7 +38,13 @@
     "db:migrate:reset": "prisma migrate reset",
     "db:seed": "node ./scripts/seed.js",
     "db:tunnel": "node ./scripts/tunnel.js",
-    "db:generate": "prisma generate"
+    "db:generate": "prisma generate",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint:all": "eslint routes --ext .ts",
+    "lint:all:fix": "eslint routes --ext .ts --fix",
+    "lint:pkg": "node scripts/lint-pkg.js",
+    "lint:pkg:fix": "node scripts/lint-pkg-fix.js"
   },
   "config": {
     "commitizen": {
