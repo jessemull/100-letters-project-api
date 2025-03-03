@@ -8,6 +8,7 @@
     "@faker-js/faker": "^9.5.0",
     "@prisma/client": "^6.4.1",
     "@types/aws-lambda": "^8.10.0",
+    "@types/jest": "^29.5.14",
     "@typescript-eslint/eslint-plugin": "^8.26.0",
     "@typescript-eslint/parser": "^8.26.0",
     "commitizen": "^4.3.1",
@@ -20,13 +21,18 @@
     "eslint-plugin-prettier": "^5.2.3",
     "eslint-plugin-promise": "^7.2.1",
     "husky": "^9.1.7",
+    "jest": "^29.7.0",
     "lint-staged": "^15.4.3",
     "prettier": "^3.5.3",
     "prisma": "^6.4.1",
+    "ts-jest": "^29.2.6",
     "typescript": "^5.2.2"
   },
   "lint-staged": {
-    "*.ts": ["eslint --fix", "prettier --write"]
+    "*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   },
   "name": "100-letters-project-api",
   "private": true,
@@ -44,7 +50,11 @@
     "lint:all": "eslint routes --ext .ts",
     "lint:all:fix": "eslint routes --ext .ts --fix",
     "lint:pkg": "node scripts/lint-pkg.js",
-    "lint:pkg:fix": "node scripts/lint-pkg-fix.js"
+    "lint:pkg:fix": "node scripts/lint-pkg-fix.js",
+    "test:all": "jest",
+    "test:all:watch": "jest --watch",
+    "test:pkg": "node scripts/test-pkg.js",
+    "test:pkg:watch": "node scripts/test-pkg-watch.js" 
   },
   "config": {
     "commitizen": {
