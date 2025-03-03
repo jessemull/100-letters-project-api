@@ -79,7 +79,7 @@ jobs:
           echo "Status: $STATUS"
           FAILED_STATES=("CREATE_FAILED" "ROLLBACK_FAILED" "UPDATE_FAILED" "DELETE_FAILED" "UPDATE_ROLLBACK_FAILED" "UPDATE_ROLLBACK_COMPLETE" "ROLLBACK_COMPLETE")
           if [[ " ${FAILED_STATES[@]} " =~ " ${STATUS} " ]]; then
-            echo "Deleting stack due to clear rollback status..."
+            echo "Deleting stack due to status..."
             aws cloudformation delete-stack --stack-name "$STACK_NAME" --region us-west-2
             echo "Waiting for stack deletion to complete..."
             aws cloudformation wait stack-delete-complete --stack-name "$STACK_NAME" --region us-west-2
