@@ -45,7 +45,7 @@ jobs:
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
           COMMIT_HASH=$(git rev-parse --short HEAD)
-          VERSION=$(jq -r .version < package.json)
+          VERSION=$(jq -r .version < routes/${FUNCTION_NAME}/package.json)
           TIMESTAMP=$(date -u +"%Y%m%dT%H%M%SZ")
           ARTIFACT_NAME="${FUNCTION_NAME}-${VERSION}-${COMMIT_HASH}-${TIMESTAMP}.zip"
           echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_ENV
@@ -77,7 +77,6 @@ jobs:
           # Describe the change set to check for changes
           CHANGES=$(aws cloudformation describe-change-set \
                     --stack-name $STACK_NAME \
-                    --parameters ParameterKey=S3Key,ParameterValue=${ARTIFACT_NAME} \
                     --change-set-name $CHANGE_SET_NAME \
                     --query "Changes" \
                     --region us-west-2)
