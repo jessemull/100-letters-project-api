@@ -59,7 +59,7 @@ jobs:
           fi
 
       - name: Deploy Lambdas
-        if: ${{ env.run_job == 'true' }}
+        if: env.run_job == 'true'
         run: |
           changed_functions="${{ steps.check_files.outputs.changed_functions }}"
           for lambda in $changed_functions; do
