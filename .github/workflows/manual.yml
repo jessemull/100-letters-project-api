@@ -73,6 +73,7 @@ jobs:
 
       - name: Create CloudFormation Change Set
         run: |
+          FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
           STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
           TEMPLATE_FILE="routes/${{ github.event.inputs.lambda_function }}/template.yaml"
           CHANGE_SET_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-change-set"
