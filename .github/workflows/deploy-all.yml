@@ -6,10 +6,6 @@ on:
 jobs:
   trigger-deployments:
     runs-on: ubuntu-latest
-    permissions:
-      actions: write
-      contents: read
-      workflows: write  # This gives permission to trigger other workflows
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
