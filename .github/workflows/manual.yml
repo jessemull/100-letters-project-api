@@ -84,6 +84,7 @@ jobs:
             echo "Waiting for stack deletion to complete..."
             aws cloudformation wait stack-delete-complete --stack-name "$STACK_NAME" --region us-west-2
             echo "Stack deleted successfully!"
+            echo "change_set_type=CREATE" >> $GITHUB_ENV
           fi
 
       - name: Create CloudFormation Change Set
