@@ -3,15 +3,13 @@ name: Trigger All Lambda Deployments
 on:
   workflow_dispatch: {}
 
-permissions:
-  actions: write
-  contents: read
-  workflows: write  # This gives permission to trigger other workflows
-
 jobs:
   trigger-deployments:
     runs-on: ubuntu-latest
-
+    permissions:
+      actions: write
+      contents: read
+      workflows: write  # This gives permission to trigger other workflows
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
