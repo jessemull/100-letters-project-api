@@ -18,9 +18,8 @@ on:
 
 jobs:
   deploy-lambda:
-    name: Deploy Lambda Manually
+    name: Deploy Lambda Manually - ${{ github.event.inputs.lambda_function }}
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2

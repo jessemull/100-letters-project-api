@@ -51,16 +51,16 @@ jobs:
           done
           if [ -z "$changed_functions" ]; then
             echo "No lambda function changes detected. Skipping deployment."
-            echo "::set-output name=run_job::false"
+            echo "run_job=false" >> $GITHUB_ENV
             exit 0
           else
             echo "Lambdas: $changed_functions"
             echo "::set-output name=changed_functions::$changed_functions"
-            echo "::set-output name=run_job::true"
+            echo "run_job=true" >> $GITHUB_ENV
           fi
 
       - name: Deploy Lambdas
-        if: ${{ steps.check_files.outputs.run_job == 'true' }}
+        if: ${{ env.run_job == 'true' }}
         run: |
           changed_functions="${{ steps.check_files.outputs.changed_functions }}"
           for lambda in $changed_functions; do
