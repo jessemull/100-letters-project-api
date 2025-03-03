@@ -1,0 +1,38 @@
+name: Deploy All Lambdas Manually
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  trigger-deployments:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Get Lambda Names
+        id: list_lambdas
+        run: |
+          lambdas=()
+          for dir in routes/*; do
+            if [ -d "$dir" ]; then
+              if [ -f "$dir/package.json" ]; then
+                lambda_name=$(jq -r '.name' "$dir/package.json")
+                if [ "$lambda_name" != "null" ]; then
+                  lambdas+=("$lambda_name")
+                fi
+              fi
+            fi
+          done
+          echo "Lambdas: ${lambdas[@]}"
+          echo "::set-output name=lambdas::${lambdas[@]}"
+
+      - name: Deploy All Lambdas
+        run: |
+          lambdas=(${{ steps.list_lambdas.outputs.lambdas }})
+          for lambda in "${lambdas[@]}"; do
+            echo "Deploying $lambda..."
+            curl -v -X POST https://api.github.com/repos/${{ github.repository }}/actions/workflows/manual.yml/dispatches \
+              -H "Authorization: Bearer ${{ secrets.ACTIONS_PAT }}" \
+              -d '{"ref":"${{ github.ref }}","inputs":{"lambda_function":"'"$lambda"'"}}'
+          done
