@@ -9,7 +9,7 @@ Resources:
   MyLambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: createCorrespondence
+      FunctionName: updateCorrespondence
       Runtime: nodejs20.x
       Role: !ImportValue OneHundredLettersLambdaExecutionRoleArn
       Handler: index.handler
@@ -24,6 +24,6 @@ Resources:
     DependsOn: MyLambdaFunction
     Properties:
       Action: lambda:InvokeFunction
-      FunctionName: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createCorrespondence"
+      FunctionName: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:updateCorrespondence"
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/GET/*"
