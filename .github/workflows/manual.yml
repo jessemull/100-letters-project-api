@@ -70,7 +70,6 @@ jobs:
           fi
 
       - name: Create CloudFormation Change Set
-        if: env.no_changes == 'false'
         run: |
           STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
           TEMPLATE_FILE="routes/${{ github.event.inputs.lambda_function }}/template.yaml"
@@ -113,6 +112,7 @@ jobs:
             echo "Changes detected, proceeding with execution."
             echo "no_changes=false" >> $GITHUB_ENV
           fi
+          
       - name: Execute CloudFormation Change Set
         if: env.no_changes == 'false'
         run: |
