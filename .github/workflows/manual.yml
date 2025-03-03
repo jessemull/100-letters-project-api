@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       lambda_function:
-        description: "Select a Lambda function to deploy..."
+        description: "Lambda function name"
         required: true
         type: choice
         options:
@@ -20,34 +20,19 @@ jobs:
   deploy-lambda:
     name: Deploy Lambda Manually
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
 
-      - name: Configure AWS Credentials
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-region: us-west-2
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionsRole
-          role-session-name: GithubLambdaDeployment
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          role-duration-seconds: 3600
+          aws-region: us-west-2
 
-      - name: Check For Lambda (Update/Create)
-        id: check_lambda
-        run: |
-          FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
-          echo "Checking if Lambda function exists: $FUNCTION_NAME"
-          if aws lambda get-function --function-name "$FUNCTION_NAME"; then
-            echo "Function $FUNCTION_NAME exists, ready for update."
-            echo "exists=true" >> $GITHUB_ENV
-          else
-            echo "Function $FUNCTION_NAME not found, creating it..."
-            echo "exists=false" >> $GITHUB_ENV
-          fi
-
-      - name: Build & Package Lambda
+      - name: Build Lambda Package
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
           cd routes/$FUNCTION_NAME
@@ -56,23 +41,122 @@ jobs:
           npm run package
           cd ../../  # Go back to root directory
 
+      - name: Generate Artifact Name
+        run: |
+          FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
+          COMMIT_HASH=$(git rev-parse --short HEAD)
+          VERSION=$(jq -r .version < routes/${FUNCTION_NAME}/package.json)
+          TIMESTAMP=$(date -u +"%Y%m%dT%H%M%SZ")
+          ARTIFACT_NAME="${FUNCTION_NAME}-${VERSION}-${COMMIT_HASH}-${TIMESTAMP}.zip"
+          echo "Artifact: $ARTIFACT_NAME"
+          echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_ENV
+          
       - name: Upload Lambda to S3
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
-          aws s3 cp "routes/$FUNCTION_NAME/dist/$FUNCTION_NAME.zip" "s3://100-letters-project-api/$FUNCTION_NAME.zip"
-      
-      - name: Update | Create Lambda Function
+          S3_BUCKET="100-letters-project-api"
+          S3_KEY="${FUNCTION_NAME}.zip"
+          aws s3 cp "routes/${FUNCTION_NAME}/dist/${FUNCTION_NAME}.zip" s3://${S3_BUCKET}/${FUNCTION_NAME}/${ARTIFACT_NAME} --region us-west-2
+
+      - name: Check Change Set Update/Create 
+        id: change_set_type
+        run: |
+          STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
+          if aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region us-west-2 >/dev/null 2>&1; then
+            echo "Updating change set..."
+            echo "change_set_type=UPDATE" >> $GITHUB_ENV
+          else
+            echo "Creating change set..."
+            echo "change_set_type=CREATE" >> $GITHUB_ENV
+          fi
+
+      - name: Check Stack Status
+        id: stack_status
+        if: env.change_set_type == 'UPDATE'
+        run: |
+          STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
+          STATUS=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].StackStatus" --output text 2>/dev/null || echo "NOT_FOUND")
+          echo "Status: $STATUS"
+          FAILED_STATES=("CREATE_FAILED" "ROLLBACK_FAILED" "UPDATE_FAILED" "DELETE_FAILED" "UPDATE_ROLLBACK_FAILED" "UPDATE_ROLLBACK_COMPLETE" "ROLLBACK_COMPLETE")
+          if [[ " ${FAILED_STATES[@]} " =~ " ${STATUS} " ]]; then
+            echo "Deleting stack due to status..."
+            aws cloudformation delete-stack --stack-name "$STACK_NAME" --region us-west-2
+            echo "Waiting for stack deletion to complete..."
+            aws cloudformation wait stack-delete-complete --stack-name "$STACK_NAME" --region us-west-2
+            echo "Stack deleted successfully!"
+            echo "change_set_type=CREATE" >> $GITHUB_ENV
+          fi
+
+      - name: Create CloudFormation Change Set
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
-          if [ "$exists" == "true" ]; then
-            echo "Updating Lambda function: $FUNCTION_NAME"
-            aws lambda update-function-code --function-name "$FUNCTION_NAME" --s3-bucket 100-letters-project-api --s3-key "$FUNCTION_NAME.zip"
+          STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
+          TEMPLATE_FILE="routes/${{ github.event.inputs.lambda_function }}/template.yaml"
+          CHANGE_SET_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-change-set"
+          aws cloudformation create-change-set \
+            --stack-name $STACK_NAME \
+            --template-body file://$TEMPLATE_FILE \
+            --parameters ParameterKey=S3Key,ParameterValue=${FUNCTION_NAME}/${ARTIFACT_NAME} \
+            --change-set-name $CHANGE_SET_NAME \
+            --change-set-type ${{ env.change_set_type }} \
+            --capabilities CAPABILITY_NAMED_IAM \
+            --region us-west-2
+          echo "Waiting for change set to be created..."
+          aws cloudformation wait change-set-create-complete \
+            --stack-name $STACK_NAME \
+            --change-set-name $CHANGE_SET_NAME \
+            --region us-west-2
+
+      - name: Check for Applied Changes
+        run: |
+          STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
+          CHANGE_SET_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-change-set"
+          CHANGES=$(aws cloudformation describe-change-set \
+                    --stack-name $STACK_NAME \
+                    --change-set-name $CHANGE_SET_NAME \
+                    --query "Changes" \
+                    --region us-west-2)
+          if [ "$(echo "$CHANGES" | jq length)" -eq 0 ]; then
+            echo "No changes in the change set, skipping execution."
+            echo "no_changes=true" >> $GITHUB_ENV
           else
-            echo "Creating Lambda function: $FUNCTION_NAME"
-            aws lambda create-function --function-name "$FUNCTION_NAME" \
-              --runtime nodejs20.x \
-              --role arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/OneHundredLettersLambdaRole \
-              --handler index.handler \
-              --code S3Bucket=100-letters-project-api,S3Key=$FUNCTION_NAME.zip \
-              --region us-west-2
+            echo "Changes detected, proceeding with execution."
+            echo "no_changes=false" >> $GITHUB_ENV
           fi
+
+      - name: Execute CloudFormation Change Set
+        if: env.no_changes == 'false'
+        run: |
+          STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
+          CHANGE_SET_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-change-set"
+          
+          # Execute the change set
+          aws cloudformation execute-change-set \
+            --stack-name $STACK_NAME \
+            --change-set-name $CHANGE_SET_NAME \
+            --region us-west-2
+
+      - name: Monitor CloudFormation Stack Status
+        if: env.no_changes == 'false'
+        run: |
+          STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
+          while true; do
+            STATUS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --region us-west-2 --query "Stacks[0].StackStatus" --output text)
+            echo "Status: $STATUS"
+            if [[ "$STATUS" == "ROLLBACK_COMPLETE" ]]; then
+              echo "Rollback detected!"
+              aws cloudformation describe-stack-events --stack-name $STACK_NAME --region us-west-2 --query "StackEvents[?ResourceStatus=='ROLLBACK_FAILED' || ResourceStatus=='ROLLBACK_IN_PROGRESS' || ResourceStatus=='DELETE_FAILED'].[LogicalResourceId, ResourceStatus, ResourceStatusReason]" --output table
+              exit 1
+            elif [[ "$STATUS" == "CREATE_COMPLETE" || "$STATUS" == "UPDATE_COMPLETE" ]]; then
+              echo "Stack update successful!"
+              break
+            elif [[ "$STATUS" == "UPDATE_FAILED" || "$STATUS" == "CREATE_FAILED" ]]; then
+              echo "Stack update failed!"
+              aws cloudformation describe-stack-events --stack-name $STACK_NAME --region us-west-2 --query "StackEvents[?ResourceStatus=='CREATE_FAILED' || ResourceStatus=='UPDATE_FAILED'].[LogicalResourceId, ResourceStatus, ResourceStatusReason]" --output table
+              exit 1
+            else
+              echo "Checking status..."
+              sleep 10
+            fi
+          done
+

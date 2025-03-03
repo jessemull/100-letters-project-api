@@ -42,3 +42,8 @@ Resources:
                   - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getCorrespondencesById'
                   - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:deleteCorrespondence'
               
+Outputs:
+  LambdaExecutionRoleArn:
+    Value: !GetAtt LambdaExecutionRole.Arn
+    Export:
+      Name: OneHundredLettersLambdaExecutionRoleArn

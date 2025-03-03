@@ -1,0 +1,29 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Parameters:
+  S3Key:
+    Type: String
+    Description: The S3 key for the lambda function zip file.
+
+Resources:
+  MyLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: getRecipients
+      Runtime: nodejs20.x
+      Role: !ImportValue OneHundredLettersLambdaExecutionRoleArn
+      Handler: index.handler
+      Code:
+        S3Bucket: !ImportValue LambdaS3BucketName
+        S3Key: !Ref S3Key
+      Timeout: 10
+      MemorySize: 128
+
+  LambdaInvokePermissionGetRecipientById:
+    Type: AWS::Lambda::Permission
+    DependsOn: MyLambdaFunction
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRecipients"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/GET/*"
