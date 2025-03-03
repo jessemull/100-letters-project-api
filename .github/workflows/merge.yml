@@ -65,7 +65,7 @@ jobs:
           changed_functions="${{ steps.check_files.outputs.changed_functions }}"
           for lambda in $changed_functions; do
             echo "Deploying $lambda..."
-            curl -v -X POST https://api.github.com/repos/${{ github.repository }}/actions/workflows/deploy-lambda.yml/dispatches \
+            curl -v -X POST https://api.github.com/repos/${{ github.repository }}/actions/workflows/manual.yml/dispatches \
               -H "Authorization: Bearer ${{ secrets.ACTIONS_PAT }}" \
               -H "Accept: application/vnd.github+json" \
               -H "X-GitHub-Api-Version: 2022-11-28" \
