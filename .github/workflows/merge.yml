@@ -60,7 +60,7 @@ jobs:
       - name: Deploy Lambdas
         if: env.changed_functions != ''
         run: |
-          changed_functions="${{ steps.check_files.outputs.changed_functions }}"
+          changed_functions="${{ env.changed_functions }}"
           for lambda in $changed_functions; do
             echo "Deploying $lambda..."
             curl -v -X POST https://api.github.com/repos/${{ github.repository }}/actions/workflows/manual.yml/dispatches \
