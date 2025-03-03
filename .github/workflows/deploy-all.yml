@@ -3,6 +3,11 @@ name: Trigger All Lambda Deployments
 on:
   workflow_dispatch: {}
 
+permissions:
+  actions: write
+  contents: read
+  workflows: write  # This gives permission to trigger other workflows
+
 jobs:
   trigger-deployments:
     runs-on: ubuntu-latest
@@ -11,7 +16,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: List and trigger Lambda functions
+      - name: List Lambda Functions
+        id: list_lambdas
         run: |
           # Initialize an empty array to store the lambda function names
           lambdas=()
@@ -31,6 +37,17 @@ jobs:
               fi
             fi
           done
+
+          # Output the lambda function names
+          echo "Lambdas found: ${lambdas[@]}"
+          
+          # Set the lambda names as an output variable
+          echo "::set-output name=lambdas::${lambdas[@]}"
+
+      - name: Trigger Lambda Deployments
+        run: |
+          # Read the Lambda function names from the output of the previous step
+          lambdas=(${{ steps.list_lambdas.outputs.lambdas }})
 
           # Now trigger the deployments for each lambda
           for lambda in "${lambdas[@]}"; do
