@@ -69,27 +69,6 @@ jobs:
             echo "change_set_type=CREATE" >> $GITHUB_ENV
           fi
 
-      - name: Check for Applied Changes
-        run: |
-          STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
-          CHANGE_SET_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-change-set"
-
-          # Describe the change set to check for changes
-          CHANGES=$(aws cloudformation describe-change-set \
-                    --stack-name $STACK_NAME \
-                    --change-set-name $CHANGE_SET_NAME \
-                    --query "Changes" \
-                    --region us-west-2)
-
-          # If no changes are found, skip executing the change set
-          if [ "$(echo "$CHANGES" | jq length)" -eq 0 ]; then
-            echo "No changes in the change set, skipping execution."
-            echo "no_changes=true" >> $GITHUB_ENV
-          else
-            echo "Changes detected, proceeding with execution."
-            echo "no_changes=false" >> $GITHUB_ENV
-          fi
-
       - name: Create CloudFormation Change Set
         if: env.no_changes == 'false'
         run: |
@@ -114,6 +93,26 @@ jobs:
             --change-set-name $CHANGE_SET_NAME \
             --region us-west-2
 
+      - name: Check for Applied Changes
+        run: |
+          STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
+          CHANGE_SET_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-change-set"
+
+          # Describe the change set to check for changes
+          CHANGES=$(aws cloudformation describe-change-set \
+                    --stack-name $STACK_NAME \
+                    --change-set-name $CHANGE_SET_NAME \
+                    --query "Changes" \
+                    --region us-west-2)
+
+          # If no changes are found, skip executing the change set
+          if [ "$(echo "$CHANGES" | jq length)" -eq 0 ]; then
+            echo "No changes in the change set, skipping execution."
+            echo "no_changes=true" >> $GITHUB_ENV
+          else
+            echo "Changes detected, proceeding with execution."
+            echo "no_changes=false" >> $GITHUB_ENV
+          fi
       - name: Execute CloudFormation Change Set
         if: env.no_changes == 'false'
         run: |
