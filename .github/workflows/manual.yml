@@ -70,36 +70,14 @@ jobs:
             echo "change_set_type=CREATE" >> $GITHUB_ENV
           fi
 
-
-
-      - name: Check and Delete Failed Stack (if necessary)
-        id: delete_stack
-        run: |
-          STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
-          STATUS=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].StackStatus" --output text 2>/dev/null || echo "NOT_FOUND")
-          echo "Status: $STATUS"
-          FAILED_STATES=("CREATE_FAILED" "ROLLBACK_FAILED" "UPDATE_FAILED" "DELETE_FAILED" "UPDATE_ROLLBACK_FAILED" "UPDATE_ROLLBACK_COMPLETE" "ROLLBACK_COMPLETE")
-          if [[ " ${FAILED_STATES[@]} " =~ " ${STATUS} " ]]; then
-            echo "Stack is in a failed state, deleting the stack..."
-            aws cloudformation delete-stack --stack-name "$STACK_NAME" --region us-west-2
-            echo "Waiting for stack deletion to complete..."
-            aws cloudformation wait stack-delete-complete --stack-name "$STACK_NAME" --region us-west-2
-            echo "Stack deleted successfully!"
-          else
-            echo "Stack is not in a failed state, proceeding with update."
-          fi
-
-
-
-
-      - name: Check Rollback
+      - name: Check Stack Status
         id: stack_status
         if: env.change_set_type == 'UPDATE'
         run: |
           STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
           STATUS=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].StackStatus" --output text 2>/dev/null || echo "NOT_FOUND")
           echo "Status: $STATUS"
-          FAILED_STATES=("ROLLBACK_FAILED" "UPDATE_FAILED" "CREATE_FAILED" "DELETE_FAILED")
+          FAILED_STATES=("CREATE_FAILED" "ROLLBACK_FAILED" "UPDATE_FAILED" "DELETE_FAILED" "UPDATE_ROLLBACK_FAILED" "UPDATE_ROLLBACK_COMPLETE" "ROLLBACK_COMPLETE")
           if [[ " ${FAILED_STATES[@]} " =~ " ${STATUS} " ]]; then
             echo "Deleting stack due to clear rollback status..."
             aws cloudformation delete-stack --stack-name "$STACK_NAME" --region us-west-2
