@@ -48,6 +48,7 @@ jobs:
           VERSION=$(jq -r .version < routes/${FUNCTION_NAME}/package.json)
           TIMESTAMP=$(date -u +"%Y%m%dT%H%M%SZ")
           ARTIFACT_NAME="${FUNCTION_NAME}-${VERSION}-${COMMIT_HASH}-${TIMESTAMP}.zip"
+          echo "Artifact Name: $ARTIFACT_NAME"
           echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_ENV
           
       - name: Upload Lambda to S3
@@ -55,6 +56,7 @@ jobs:
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
           S3_BUCKET="100-letters-project-api"
           S3_KEY="${FUNCTION_NAME}.zip"
+          echo "S3 Path: s3://${S3_BUCKET}/${FUNCTION_NAME}/${ARTIFACT_NAME}"
           aws s3 cp "routes/${FUNCTION_NAME}/dist/${FUNCTION_NAME}.zip" s3://${S3_BUCKET}/${FUNCTION_NAME}/${ARTIFACT_NAME} --region us-west-2
 
       - name: Check Change Set Update/Create 
@@ -62,10 +64,10 @@ jobs:
         run: |
           STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
           if aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region us-west-2 >/dev/null 2>&1; then
-            echo "Change Set - Update"
+            echo "Updating change set..."
             echo "change_set_type=UPDATE" >> $GITHUB_ENV
           else
-            echo "Change Set - Create"
+            echo "Creating change set..."
             echo "change_set_type=CREATE" >> $GITHUB_ENV
           fi
 
@@ -74,6 +76,8 @@ jobs:
           STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
           TEMPLATE_FILE="routes/${{ github.event.inputs.lambda_function }}/template.yaml"
           CHANGE_SET_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-change-set"
+
+          echo "S3 Key Parameter: ${FUNCTION_NAME}/${ARTIFACT_NAME}"
 
           aws cloudformation create-change-set \
             --stack-name $STACK_NAME \
