@@ -1,0 +1,73 @@
+name: Deploy Lambda On Merge
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-lambdas:
+    name: Deploy Lambdas
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionsRole
+          role-session-name: GithubLambdaDeployment
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-duration-seconds: 3600
+
+      - name: Get Changed Files
+        id: changed-files
+        uses: tj-actions/changed-files@v45 
+
+      - name: List Changed Files
+        env:
+          ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+        run: |
+          echo "Listing all changed files:"
+          for file in ${ALL_CHANGED_FILES}; do
+            echo "$file was changed"
+          done
+
+      - name: Check Modified Files
+        id: check_files
+        env:
+          ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+        run: |
+          changed_functions=""
+          for file in ${ALL_CHANGED_FILES}; do
+            echo "$file"
+            if [[ $file =~ ^routes/(createCorrespondence|deleteCorrespondence|getCorrespondences|getCorrespondencesById|getRecipientById|getRecipients|updateCorrespondence)/ ]]; then
+              FUNCTION_NAME=$(echo "$file" | cut -d'/' -f2)  # Extract the function name from the path
+              changed_functions="$changed_functions $FUNCTION_NAME"
+            fi
+          done
+          if [ -z "$changed_functions" ]; then
+            echo "No lambda function changes detected. Skipping deployment."
+            echo "::set-output name=run_job::false"
+            exit 0
+          else
+            echo "Lambdas: $changed_functions"
+            echo "::set-output name=changed_functions::$changed_functions"
+            echo "::set-output name=run_job::true"
+          fi
+
+      - name: Deploy Lambdas
+        if: ${{ steps.check_files.outputs.run_job == 'true' }}
+        run: |
+          changed_functions="${{ steps.check_files.outputs.changed_functions }}"
+          for lambda in $changed_functions; do
+            echo "Deploying $lambda..."
+            curl -v -X POST https://api.github.com/repos/${{ github.repository }}/actions/workflows/deploy-lambda.yml/dispatches \
+              -H "Authorization: Bearer ${{ secrets.ACTIONS_PAT }}" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              -d '{"ref":"${{ github.ref }}","inputs":{"lambda_function":"'"$lambda"'"}}'
+          done
