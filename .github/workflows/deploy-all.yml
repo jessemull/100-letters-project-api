@@ -47,6 +47,6 @@ jobs:
           for lambda in "${lambdas[@]}"; do
             echo "Triggering $lambda"
             curl -X POST https://api.github.com/repos/${{ github.repository }}/actions/workflows/deploy-lambda.yml/dispatches \
-              -H "Authorization: Bearer ${{ secrets.GH_PAT }}" \
+              -H "Authorization: Bearer ${{ secrets.ACTIONS_PAT }}" \
               -d '{"ref":"refs/heads/${{ github.ref }}","inputs":{"lambda_function":"'"$lambda"'"}}'
           done
