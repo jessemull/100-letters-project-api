@@ -64,7 +64,7 @@ jobs:
             echo "change_set_type=CREATE" >> $GITHUB_ENV
           fi
 
-      - name: Create CloudFormation Change Set for Rollback
+      - name: Create CloudFormation Change Set
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
           STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
@@ -72,7 +72,6 @@ jobs:
           CHANGE_SET_NAME="rollback-${{ github.event.inputs.lambda_function }}-change-set"
           S3_BUCKET="100-letters-project-api"
           S3_KEY="${{ github.event.inputs.lambda_function }}/${{ github.event.inputs.s3_zip_file }}"
-
           aws cloudformation create-change-set \
             --stack-name $STACK_NAME \
             --template-body file://$TEMPLATE_FILE \
@@ -91,7 +90,6 @@ jobs:
         run: |
           STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
           CHANGE_SET_NAME="rollback-${{ github.event.inputs.lambda_function }}-change-set"
-          
           aws cloudformation execute-change-set \
             --stack-name $STACK_NAME \
             --change-set-name $CHANGE_SET_NAME \
