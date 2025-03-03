@@ -55,7 +55,6 @@ jobs:
             exit 0
           else
             echo "Lambdas: $changed_functions"
-            echo "::set-output name=changed_functions::$changed_functions"
             echo "run_job=true" >> $GITHUB_ENV
           fi
 
