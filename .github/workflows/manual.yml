@@ -78,7 +78,7 @@ jobs:
           aws cloudformation create-change-set \
             --stack-name $STACK_NAME \
             --template-body file://$TEMPLATE_FILE \
-            --parameters ParameterKey=S3Key,ParameterValue=${ARTIFACT_NAME} \
+            --parameters ParameterKey=S3Key,ParameterValue=${FUNCTION_NAME}/${ARTIFACT_NAME} \
             --change-set-name $CHANGE_SET_NAME \
             --change-set-type ${{ env.change_set_type }} \
             --capabilities CAPABILITY_NAMED_IAM \
@@ -112,7 +112,7 @@ jobs:
             echo "Changes detected, proceeding with execution."
             echo "no_changes=false" >> $GITHUB_ENV
           fi
-          
+
       - name: Execute CloudFormation Change Set
         if: env.no_changes == 'false'
         run: |
