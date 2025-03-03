@@ -138,24 +138,31 @@ jobs:
       - name: Monitor CloudFormation Stack Status
         if: env.no_changes == 'false'
         run: |
+          DONE_STATUSES=("CREATE_COMPLETE" "UPDATE_COMPLETE" "ROLLBACK_COMPLETE" "UPDATE_ROLLBACK_COMPLETE" "DELETE_COMPLETE")
+          FAILED_STATUSES=("CREATE_FAILED" "UPDATE_FAILED" "ROLLBACK_FAILED" "DELETE_FAILED" "UPDATE_ROLLBACK_FAILED" "ROLLBACK_IN_PROGRESS" "DELETE_IN_PROGRESS")
           STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
+          MAX_RETRIES=30
+          RETRY_COUNT=0
           while true; do
             STATUS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --region us-west-2 --query "Stacks[0].StackStatus" --output text)
             echo "Status: $STATUS"
-            if [[ "$STATUS" == "ROLLBACK_COMPLETE" ]]; then
-              echo "Rollback detected!"
-              aws cloudformation describe-stack-events --stack-name $STACK_NAME --region us-west-2 --query "StackEvents[?ResourceStatus=='ROLLBACK_FAILED' || ResourceStatus=='ROLLBACK_IN_PROGRESS' || ResourceStatus=='DELETE_FAILED'].[LogicalResourceId, ResourceStatus, ResourceStatusReason]" --output table
-              exit 1
-            elif [[ "$STATUS" == "CREATE_COMPLETE" || "$STATUS" == "UPDATE_COMPLETE" ]]; then
-              echo "Stack update successful!"
+            if [[ " ${DONE_STATUSES[@]} " =~ " ${STATUS} " ]]; then
+              echo "Stack update completed successfully!"
+              echo "Status: $STATUS"
               break
-            elif [[ "$STATUS" == "UPDATE_FAILED" || "$STATUS" == "CREATE_FAILED" ]]; then
-              echo "Stack update failed!"
-              aws cloudformation describe-stack-events --stack-name $STACK_NAME --region us-west-2 --query "StackEvents[?ResourceStatus=='CREATE_FAILED' || ResourceStatus=='UPDATE_FAILED'].[LogicalResourceId, ResourceStatus, ResourceStatusReason]" --output table
+            # Check if the status is one of the 'failed' statuses
+            elif [[ " ${FAILED_STATUSES[@]} " =~ " ${STATUS} " ]]; then
+              echo "Stack failed to update!"
+              echo "Status: $STATUS"
+              aws cloudformation describe-stack-events --stack-name $STACK_NAME --region us-west-2 --query "StackEvents[?ResourceStatus=='$STATUS'].[LogicalResourceId, ResourceStatus, ResourceStatusReason]" --output table
               exit 1
-            else
-              echo "Checking status..."
-              sleep 10
             fi
+            RETRY_COUNT=$((RETRY_COUNT + 1))
+            if [[ $RETRY_COUNT -ge $MAX_RETRIES ]]; then
+              echo "Max retries reached, exiting."
+              exit 1
+            fi
+            echo "Checking status..."
+            sleep 10
           done
 
