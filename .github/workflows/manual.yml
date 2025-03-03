@@ -70,6 +70,21 @@ jobs:
             echo "change_set_type=CREATE" >> $GITHUB_ENV
           fi
 
+      - name: Check Rollback
+        id: stack_status
+        if: env.change_set_type == 'UPDATE'
+        run: |
+          STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
+          STATUS=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].StackStatus" --output text 2>/dev/null || echo "NOT_FOUND")
+          echo "Status: $STATUS"
+          if [[ "$STATUS" == "ROLLBACK_COMPLETE" ]]; then
+            echo "Deleting stack due to clear rollback status..."
+            aws cloudformation delete-stack --stack-name "$STACK_NAME" --region us-west-2
+            echo "Waiting for stack deletion to complete..."
+            aws cloudformation wait stack-delete-complete --stack-name "$STACK_NAME" --region us-west-2
+            echo "Stack deleted successfully!"
+          fi
+
       - name: Create CloudFormation Change Set
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
