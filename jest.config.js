@@ -8,6 +8,7 @@ module.exports = {
       tsconfig: 'tsconfig.json', // Use the main tsconfig for the tests
     }],
   },
+  collectCoverage: true,
   coverageDirectory: './coverage', // Coverage output directory
   collectCoverageFrom: ['routes/**/*.{ts,tsx}', '!routes/**/node_modules/**'], // Collect coverage from all route files
 };
