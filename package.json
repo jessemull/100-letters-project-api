@@ -51,6 +51,7 @@
     "lint:all:fix": "eslint routes --ext .ts --fix",
     "lint:pkg": "node scripts/lint-pkg.js",
     "lint:pkg:fix": "node scripts/lint-pkg-fix.js",
+    "prepare": "husky install",
     "test:all": "jest",
     "test:all:watch": "jest --watch",
     "test:pkg": "node scripts/test-pkg.js",
