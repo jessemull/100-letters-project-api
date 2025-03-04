@@ -77,9 +77,11 @@ jobs:
                 -H "Authorization: Bearer ${{ secrets.ACTIONS_PAT }}" \
                 -H "Accept: application/vnd.github+json" \
                 -H "X-GitHub-Api-Version: 2022-11-28" | jq -r '.status')
+              echo "Status: $run_status"
               if [[ "$run_status" == "completed" ]]; then
                 echo "Lambda $lambda deployment completed..."
                 break
               fi
+              sleep 30
             done
           done
