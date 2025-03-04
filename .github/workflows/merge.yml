@@ -57,31 +57,35 @@ jobs:
             echo "changed_functions=$changed_functions" >> $GITHUB_ENV
           fi
 
-      - name: Dispatch and Wait for Lambda Deployments
+      - name: Dispatch Lambda Deployments
         if: env.changed_functions != ''
         run: |
           changed_functions="${{ env.changed_functions }}"
           for lambda in $changed_functions; do
-            echo "Dispatching deployment for $lambda..."
-            response=$(curl -v -X POST https://api.github.com/repos/${{ github.repository }}/actions/workflows/manual.yml/dispatches \
+            run_id=$(date +%s)
+            echo "Dispatching deployment for $lambda with run ID of $run_id..."
+            response=$(curl -X POST https://api.github.com/repos/${{ github.repository }}/actions/workflows/manual.yml/dispatches \
               -H "Authorization: Bearer ${{ secrets.ACTIONS_PAT }}" \
               -H "Accept: application/vnd.github+json" \
               -H "X-GitHub-Api-Version: 2022-11-28" \
-              -d '{"ref":"${{ github.ref }}","inputs":{"lambda_function":"'"$lambda"'"}}')
-            run_id=$(echo $response | jq -r '.id')
-            echo "Response: $response"
-            echo "Dispatch ID for $lambda: $run_id..."
-            echo "Waiting for $lambda to deploy..."
+              -d '{"ref":"${{ github.ref }}","inputs":{"lambda_function":"'"$lambda"'","run_id":"'"$run_id"'"}}')
             while true; do
-              echo "Monitoring status of lambda $lambda deployment..."
-              run_status=$(curl -s https://api.github.com/repos/${{ github.repository }}/actions/runs/$run_id \
+              runs_response=$(curl -s "https://api.github.com/repos/${{ github.repository }}/actions/runs" \
                 -H "Authorization: Bearer ${{ secrets.ACTIONS_PAT }}" \
                 -H "Accept: application/vnd.github+json" \
-                -H "X-GitHub-Api-Version: 2022-11-28" | jq -r '.status')
+                -H "X-GitHub-Api-Version: 2022-11-28")
+              run_status=$(echo $runs_response | jq -r ".workflow_runs[] | select(.workflow_run.inputs.run_id == \"$run_id\") | .status")
+              run_conclusion=$(echo $runs_response | jq -r ".workflow_runs[] | select(.workflow_run.inputs.run_id == \"$run_id\") | .conclusion")
               echo "Status: $run_status"
+              echo "Conclusion: $run_conclusion"
               if [[ "$run_status" == "completed" ]]; then
-                echo "Lambda $lambda deployment completed..."
-                break
+                if [[ "$run_conclusion" == "success" ]]; then
+                  echo "Lambda $lambda deployment success!"
+                  break
+                else
+                  echo "Lambda $lambda deployment failed!"
+                  break
+                fi
               fi
               sleep 30
             done
