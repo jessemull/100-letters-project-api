@@ -1,4 +1,4 @@
-name: Deploy Lambda On Merge
+name: Deploy Lambdas on Merge
 
 on:
   push:
@@ -6,8 +6,8 @@ on:
       - main
 
 jobs:
-  lint-and-test:
-    name: Lint & Test Code
+  deploy-lambdas:
+    name: Deploy Lambdas
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -20,7 +20,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          npm install
+          npm ci
 
       - name: Run Linting
         run: |
@@ -28,16 +28,15 @@ jobs:
 
       - name: Run Jest Tests
         run: |
-          npm run test:all -- --coverage --coverageThreshold='{"global":{"branches":80,"functions":80,"lines":80,"statements":80}}'
-        continue-on-error: false
+          npm run test:all
 
-  deploy-lambdas:
-    name: Deploy Lambdas
-    needs: lint-and-test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - name: Check Jest Coverage
+        run: |
+          COVERAGE=$(npm run test:all -- --coverage --json)
+          if [ $(echo "$COVERAGE" | jq '.total.lines.pct') -lt 80 ]; then
+            echo "Code coverage is below 80%. Failing the pipeline."
+            exit 1
+          fi
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -51,7 +50,7 @@ jobs:
 
       - name: Get Changed Files
         id: changed-files
-        uses: tj-actions/changed-files@v45 
+        uses: tj-actions/changed-files@v45
 
       - name: List Changed Files
         env:

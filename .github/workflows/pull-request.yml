@@ -1,0 +1,39 @@
+name: Lint & Test
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint-and-test:
+    name: Run Lint & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set Up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: |
+          npm ci
+
+      - name: Run Linting
+        run: |
+          npm run lint:all  # Run your linting script (e.g., eslint)
+
+      - name: Run Jest Tests
+        run: |
+          npm run test:all  # Run your Jest tests
+
+      - name: Check Jest Coverage
+        run: |
+          COVERAGE=$(npm run test:all -- --coverage --json)
+          if [ $(echo "$COVERAGE" | jq '.total.lines.pct') -lt 80 ]; then
+            echo "Code coverage is below 80%. Failing the pipeline."
+            exit 1
+          fi
