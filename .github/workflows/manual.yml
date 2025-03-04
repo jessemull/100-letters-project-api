@@ -60,21 +60,21 @@ jobs:
           S3_KEY="${FUNCTION_NAME}.zip"
           aws s3 cp "routes/${FUNCTION_NAME}/dist/${FUNCTION_NAME}.zip" s3://${S3_BUCKET}/${FUNCTION_NAME}/${ARTIFACT_NAME} --region us-west-2
 
-      - name: Check Change Set Update/Create 
-        id: change_set_type
+      - name: Check Stack Existence
+        id: check_stack_existence
         run: |
           STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
           if aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region us-west-2 >/dev/null 2>&1; then
-            echo "Updating change set..."
-            echo "change_set_type=UPDATE" >> $GITHUB_ENV
+            echo "Stack already exists..."
+            echo "stack_exists=true" >> $GITHUB_ENV
           else
-            echo "Creating change set..."
-            echo "change_set_type=CREATE" >> $GITHUB_ENV
+            echo "Stack does not exist..."
+            echo "stack_exists=false" >> $GITHUB_ENV
           fi
 
       - name: Check Stack Status
         id: stack_status
-        if: env.change_set_type == 'UPDATE'
+        if: env.stack_exists == 'true'
         run: |
           STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
           STATUS=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].StackStatus" --output text 2>/dev/null || echo "NOT_FOUND")
@@ -86,7 +86,6 @@ jobs:
             echo "Waiting for stack deletion to complete..."
             aws cloudformation wait stack-delete-complete --stack-name "$STACK_NAME" --region us-west-2
             echo "Stack deleted successfully!"
-            echo "change_set_type=CREATE" >> $GITHUB_ENV
           fi
 
       - name: Create CloudFormation Change Set
@@ -99,7 +98,7 @@ jobs:
             --template-body file://$TEMPLATE_FILE \
             --parameters ParameterKey=S3Key,ParameterValue=${FUNCTION_NAME}/${ARTIFACT_NAME} \
             --change-set-name ${{ env.CHANGE_SET_NAME }} \
-            --change-set-type ${{ env.change_set_type }} \
+            --change-set-type create \
             --capabilities CAPABILITY_NAMED_IAM \
             --region us-west-2
           echo "Waiting for change set to be created..."
