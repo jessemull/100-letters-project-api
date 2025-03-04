@@ -6,8 +6,34 @@ on:
       - main
 
 jobs:
+  lint-and-test:
+    name: Lint & Test Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set Up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: |
+          npm install
+
+      - name: Run Linting
+        run: |
+          npm run lint:all
+
+      - name: Run Jest Tests
+        run: |
+          npm run test:all -- --coverage --coverageThreshold='{"global":{"branches":80,"functions":80,"lines":80,"statements":80}}'
+        continue-on-error: false
+
   deploy-lambdas:
     name: Deploy Lambdas
+    needs: lint-and-test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
