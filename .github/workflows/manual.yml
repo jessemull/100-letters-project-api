@@ -17,7 +17,7 @@ on:
           - updateCorrespondence
 
 concurrency:
-  group: lambda-deployment
+  group: lambda-deployment-${{ github.event.inputs.lambda_function }}
   cancel-in-progress: false
   
 jobs:
