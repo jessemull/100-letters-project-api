@@ -74,6 +74,7 @@ jobs:
                 -H "Authorization: Bearer ${{ secrets.ACTIONS_PAT }}" \
                 -H "Accept: application/vnd.github+json" \
                 -H "X-GitHub-Api-Version: 2022-11-28")
+              echo "Response: $runs_response"
               run_status=$(echo $runs_response | jq -r ".workflow_runs[] | select(.workflow_run.inputs.run_id == \"$run_id\") | .status")
               run_conclusion=$(echo $runs_response | jq -r ".workflow_runs[] | select(.workflow_run.inputs.run_id == \"$run_id\") | .conclusion")
               echo "Status: $run_status"
