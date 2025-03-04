@@ -98,7 +98,7 @@ jobs:
             --template-body file://$TEMPLATE_FILE \
             --parameters ParameterKey=S3Key,ParameterValue=${FUNCTION_NAME}/${ARTIFACT_NAME} \
             --change-set-name ${{ env.CHANGE_SET_NAME }} \
-            --change-set-type create \
+            --change-set-type CREATE \
             --capabilities CAPABILITY_NAMED_IAM \
             --region us-west-2
           echo "Waiting for change set to be created..."
