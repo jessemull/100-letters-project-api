@@ -4,7 +4,7 @@ export const handler: APIGatewayProxyHandler = async () => {
   return {
     statusCode: 200,
     body: JSON.stringify({
-      message: 'Delete Correspondence - Update',
+      message: 'Delete Correspondence',
     }),
   };
 };
