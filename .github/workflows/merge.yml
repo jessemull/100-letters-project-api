@@ -1,4 +1,4 @@
-name: Deploy Lambda On Merge
+name: Deploy Lambdas on Merge
 
 on:
   push:
@@ -13,6 +13,37 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Set Up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: |
+          npm ci
+
+      - name: Run Linting
+        run: |
+          npm run lint:all:fix
+
+      - name: Run Jest Tests
+        run: |
+          npm run test:all
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage
+          retention-days: 7
+
+      - name: Coverage Threshold Check
+        run: |
+          if [[ $(grep "Statements" coverage/lcov-report/index.html | awk '{print $4}' | tr -d '%') -lt 80 ]]; then
+            echo "Code coverage is below threshold. Please update test coverage and try again."
+            exit 1
+          fi
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -25,7 +56,7 @@ jobs:
 
       - name: Get Changed Files
         id: changed-files
-        uses: tj-actions/changed-files@v45 
+        uses: tj-actions/changed-files@v45
 
       - name: List Changed Files
         env:
