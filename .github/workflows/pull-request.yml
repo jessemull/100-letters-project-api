@@ -24,11 +24,11 @@ jobs:
 
       - name: Run Linting
         run: |
-          npm run lint:all  # Run your linting script (e.g., eslint)
+          npm run lint:all:fix
 
       - name: Run Jest Tests
         run: |
-          npm run test:all  # Run your Jest tests
+          npm run test:all
 
       - name: Check Jest Coverage
         run: |
