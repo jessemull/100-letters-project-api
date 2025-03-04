@@ -16,12 +16,14 @@ on:
           - getRecipients
           - updateCorrespondence
 
+concurrency:
+  group: lambda-deployment
+  cancel-in-progress: false
+  
 jobs:
   deploy-lambda:
     name: Deploy Lambda Manually - ${{ github.event.inputs.lambda_function }}
     runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 1
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
