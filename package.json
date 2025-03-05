@@ -1,6 +1,9 @@
 {
   "dependencies": {
-    "aws-sdk": "^2.1000.0"
+    "@prisma/client": "^6.4.1",
+    "aws-sdk": "^2.1000.0",
+    "bunyan": "^1.8.15",
+    "bunyan-cloudwatch": "^2.2.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.7.1",
