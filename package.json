@@ -41,6 +41,8 @@
   "name": "100-letters-project-api",
   "private": true,
   "scripts": {
+    "clean:all": "node ./scripts/clean-all.js",
+    "clean:pkg": "node ./scripts/clean-pkg.js",
     "commit": "git-cz",
     "db:connect": "node ./scripts/connect.js",
     "db:migrate:dev": "prisma migrate dev",
@@ -51,6 +53,8 @@
     "db:generate": "prisma generate",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "install:all": "node scripts/npm-install-all.js",
+    "install:pkg": "node scripts/npm-install-pkg.js",
     "lint:all": "eslint src --ext .ts",
     "lint:all:fix": "eslint src --ext .ts --fix",
     "lint:pkg": "node scripts/lint-pkg.js",

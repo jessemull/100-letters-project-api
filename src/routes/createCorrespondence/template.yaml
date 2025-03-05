@@ -12,7 +12,7 @@ Resources:
       FunctionName: createCorrespondence
       Runtime: nodejs20.x
       Role: !ImportValue OneHundredLettersLambdaExecutionRoleArn
-      Handler: index.handler
+      Handler: routes/createCorrespondence/index.handler
       Code:
         S3Bucket: !ImportValue LambdaS3BucketName
         S3Key: !Ref S3Key

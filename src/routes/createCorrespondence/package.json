@@ -1,18 +1,25 @@
 {
   "dependencies": {
-    "aws-sdk": "^2.1360.0"
+    "@prisma/client": "^6.4.1",
+    "aws-sdk": "^2.1360.0",
+    "bunyan": "^1.8.15",
+    "bunyan-cloudwatch": "^2.2.0"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.147",
+    "@types/bunyan": "^1.8.11",
+    "@types/node": "^22.13.9",
     "typescript": "^5.2.2"
   },
   "main": "dist/index.js",
   "name": "createCorrespondence",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run postbuild",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
-    "package": "zip -r -j dist/createCorrespondence.zip dist/*"
+    "package": "cd dist && zip -r createCorrespondence.zip ./*",
+    "postbuild": "cp package.json dist/ && [ -f package-lock.json ] && cp package-lock.json dist/ || true && cd dist && npm install --omit=dev",
+    "prebuild": "rm -rf dist"
   },
   "version": "1.0.0"
 }
