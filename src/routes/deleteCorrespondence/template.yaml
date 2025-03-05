@@ -12,7 +12,7 @@ Resources:
       FunctionName: deleteCorrespondence
       Runtime: nodejs20.x
       Role: !ImportValue OneHundredLettersLambdaExecutionRoleArn
-      Handler: index.handler
+      Handler: routes/deleteCorrespondence/index.handler
       Code:
         S3Bucket: !ImportValue LambdaS3BucketName
         S3Key: !Ref S3Key
