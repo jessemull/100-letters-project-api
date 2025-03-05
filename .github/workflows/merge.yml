@@ -84,7 +84,7 @@ jobs:
           for file in ${ALL_CHANGED_FILES}; do
             echo "$file"
             if [[ $file =~ ^src/routes/(createCorrespondence|deleteCorrespondence|getCorrespondences|getCorrespondencesById|getRecipientById|getRecipients|updateCorrespondence)/ ]]; then
-              FUNCTION_NAME=$(echo "$file" | cut -d'/' -f2)  # Extract the function name from the path
+              FUNCTION_NAME=$(echo "$file" | cut -d'/' -f3)
               changed_functions="$changed_functions $FUNCTION_NAME"
             fi
           done
