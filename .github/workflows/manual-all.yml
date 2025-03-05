@@ -14,7 +14,7 @@ jobs:
         id: list_lambdas
         run: |
           lambdas=()
-          for dir in routes/*; do
+          for dir in src/routes/*; do
             if [ -d "$dir" ]; then
               if [ -f "$dir/package.json" ]; then
                 lambda_name=$(jq -r '.name' "$dir/package.json")

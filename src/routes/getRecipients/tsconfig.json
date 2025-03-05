@@ -1,16 +1,14 @@
 {
+  "extends": "../../../tsconfig.json",
   "compilerOptions": {
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "module": "commonjs",
-    "outDir": "./dist",
-    "skipLibCheck": true,
-    "strict": true,
-    "target": "ES6"
+    "outDir": "dist/",  
+    "rootDir": "../../", 
+    "baseUrl": "../../",
+    "paths": {
+      "@common/*": ["common/*"],
+      "@types/*": ["types/*"]
+    }
   },
-  "include": [
-    "index.ts",
-    "../../common/**/*",
-    "../../types/**/*"
-  ]
+  "include": ["../../common", "../../types", ".", "./index.ts"],
+  "exclude": ["node_modules", "../../../dist", "../../**/*.test.*"]
 }

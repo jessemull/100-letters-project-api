@@ -9,10 +9,12 @@
   "main": "dist/index.js",
   "name": "getRecipients",
   "scripts": {
-    "build": "tsc",
+    "prebuild": "rm -rf dist",
+    "build": "tsc && npm run postbuild",
+    "postbuild": "cp package.json dist/ && [ -f package-lock.json ] && cp package-lock.json dist/ || true && cd dist && npm install --omit=dev",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
-    "package": "zip -r -j dist/getRecipients.zip dist/*"
+    "package": "cd dist && zip -r getRecipients.zip ./*"
   },
   "version": "1.0.0"
 }
