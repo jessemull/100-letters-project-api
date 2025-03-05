@@ -17,7 +17,7 @@ describe('Delete Correspondence Route', () => {
     expect(result.statusCode).toBe(200);
     expect(result.body).toBe(
       JSON.stringify({
-        message: 'Delete Correspondence',
+        message: 'Delete Correspondence - Update',
       }),
     );
   });
