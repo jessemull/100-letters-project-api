@@ -4,10 +4,6 @@
     "outDir": "dist/",  
     "rootDir": "../../", 
     "baseUrl": "../../",
-    "paths": {
-      "@common/*": ["common/*"],
-      "@types/*": ["types/*"]
-    }
   },
   "include": ["../../common", "../../types", ".", "./index.ts"],
   "exclude": ["node_modules", "../../../dist", "../../**/*.test.*"]
