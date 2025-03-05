@@ -38,7 +38,8 @@ jobs:
       - name: Build Lambda Package
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
-          cd routes/$FUNCTION_NAME
+          npm install
+          cd src/routes/$FUNCTION_NAME
           npm install
           npm run build
           npm run package
@@ -48,7 +49,7 @@ jobs:
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
           COMMIT_HASH=$(git rev-parse --short HEAD)
-          VERSION=$(jq -r .version < routes/${FUNCTION_NAME}/package.json)
+          VERSION=$(jq -r .version < src/routes/${FUNCTION_NAME}/package.json)
           TIMESTAMP=$(date -u +"%Y%m%dT%H%M%SZ")
           ARTIFACT_NAME="${FUNCTION_NAME}-${VERSION}-${COMMIT_HASH}-${TIMESTAMP}.zip"
           echo "Artifact: $ARTIFACT_NAME"
@@ -59,7 +60,7 @@ jobs:
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
           S3_BUCKET="100-letters-project-api"
           S3_KEY="${FUNCTION_NAME}.zip"
-          aws s3 cp "routes/${FUNCTION_NAME}/dist/${FUNCTION_NAME}.zip" s3://${S3_BUCKET}/${FUNCTION_NAME}/${ARTIFACT_NAME} --region us-west-2
+          aws s3 cp "src/routes/${FUNCTION_NAME}/dist/${FUNCTION_NAME}.zip" s3://${S3_BUCKET}/${FUNCTION_NAME}/${ARTIFACT_NAME} --region us-west-2
 
       - name: Check Change Set Update/Create 
         id: change_set_type
@@ -94,7 +95,7 @@ jobs:
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
           STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
-          TEMPLATE_FILE="routes/${{ github.event.inputs.lambda_function }}/template.yaml"
+          TEMPLATE_FILE="src/routes/${{ github.event.inputs.lambda_function }}/template.yaml"
           CHANGE_SET_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-change-set"
           aws cloudformation create-change-set \
             --stack-name $STACK_NAME \

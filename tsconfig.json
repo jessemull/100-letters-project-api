@@ -9,9 +9,6 @@
     "outDir": "./dist"
   },
   "include": [
-    "common/**/*.ts",
-    "routes/**/*.ts",
-    "scripts/**/*.ts",
-    "types/**/*.ts"
+    "src/**/*.ts"
   ]
 }

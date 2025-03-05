@@ -10,5 +10,5 @@ module.exports = {
   },
   collectCoverage: true,
   coverageDirectory: './coverage', // Coverage output directory
-  collectCoverageFrom: ['routes/**/*.{ts,tsx}', '!routes/**/node_modules/**'], // Collect coverage from all route files
+  collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/types/**'], // Collect coverage from all route files
 };

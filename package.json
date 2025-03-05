@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@prisma/client": "^6.4.1",
     "aws-sdk": "^2.1000.0",
     "bunyan": "^1.8.15",
     "bunyan-cloudwatch": "^2.2.0"
@@ -50,8 +51,8 @@
     "db:generate": "prisma generate",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "lint:all": "eslint routes --ext .ts",
-    "lint:all:fix": "eslint routes --ext .ts --fix",
+    "lint:all": "eslint src --ext .ts",
+    "lint:all:fix": "eslint src --ext .ts --fix",
     "lint:pkg": "node scripts/lint-pkg.js",
     "lint:pkg:fix": "node scripts/lint-pkg-fix.js",
     "prepare": "husky install",

@@ -1,5 +1,5 @@
 import * as bunyan from 'bunyan';
-import * as BunyanCloudWatch from 'bunyan-cloudwatch';
+import BunyanCloudWatch from 'bunyan-cloudwatch';
 
 const logger = bunyan.createLogger({
   name: 'one-hundred-letters-api-logger',
@@ -13,7 +13,7 @@ const logger = bunyan.createLogger({
     {
       level: 'error',
       type: 'raw',
-      stream: new BunyanCloudWatch({
+      stream: BunyanCloudWatch({
         logGroupName: '/aws/lambda/one-hundred-letters-api-log-group',
         logStreamName: 'one-hundred-letters-api-log-stream',
         awsRegion: 'us-west-2',
