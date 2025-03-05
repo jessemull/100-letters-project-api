@@ -1,9 +1,14 @@
 {
   "dependencies": {
-    "aws-sdk": "^2.1360.0"
+    "@prisma/client": "^6.4.1",
+    "aws-sdk": "^2.1360.0",
+    "bunyan": "^1.8.15",
+    "bunyan-cloudwatch": "^2.2.0"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.147",
+    "@types/bunyan": "^1.8.11",
+    "@types/node": "^22.13.9",
     "typescript": "^5.2.2"
   },
   "main": "dist/index.js",
