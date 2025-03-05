@@ -7,7 +7,7 @@ if (!route) {
   process.exit(1);
 }
 
-const routePath = `routes/${route}`;
+const routePath = `src/routes/${route}`;
 
 try {
   console.log(`Running ESLint for ${route}...`);

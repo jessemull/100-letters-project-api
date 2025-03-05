@@ -9,7 +9,7 @@ if (!route) {
 
 try {
   console.log(`Running tests for ${route}...`);
-  execSync(`jest --testPathPattern=routes/${route}/`, { stdio: "inherit" });
+  execSync(`jest --testPathPattern=src/routes/${route}/`, { stdio: "inherit" });
 } catch (error) {
   console.error("Testing failed...");
   process.exit(1);
