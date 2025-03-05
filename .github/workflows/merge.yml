@@ -88,6 +88,7 @@ jobs:
               changed_functions="$changed_functions $FUNCTION_NAME"
             fi
           done
+          changed_functions=$(echo "$changed_functions" | tr ' ' '\n' | sort -u | tr '\n' ' ')
           if [ -z "$changed_functions" ]; then
             echo "No lambda function changes detected. Skipping deployment."
             exit 0

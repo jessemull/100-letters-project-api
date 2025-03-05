@@ -9,6 +9,8 @@
     "target": "ES6"
   },
   "include": [
-    "index.ts"
+    "index.ts",
+    "../../common/**/*",
+    "../../types/**/*"
   ]
 }
