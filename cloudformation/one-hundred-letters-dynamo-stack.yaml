@@ -10,8 +10,6 @@ Resources:
           AttributeType: "S"
         - AttributeName: "SK"
           AttributeType: "S"
-        - AttributeName: "lastName"
-          AttributeType: "S"
       KeySchema:
         - AttributeName: "PK"
           KeyType: "HASH"
@@ -24,18 +22,6 @@ Resources:
       Tags:
         - Key: "Name"
           Value: "OneHundredLettersPersonTable"
-      GlobalSecondaryIndexes:
-        - IndexName: "LastNameIndex"
-          KeySchema:
-            - AttributeName: "PK"
-              KeyType: "HASH"
-            - AttributeName: "lastName"
-              KeyType: "RANGE"
-          Projection:
-            ProjectionType: "ALL"
-          ProvisionedThroughput:
-            ReadCapacityUnits: 5
-            WriteCapacityUnits: 5
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
 
