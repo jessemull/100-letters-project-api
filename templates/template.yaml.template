@@ -4,32 +4,26 @@ Parameters:
   S3Key:
     Type: String
     Description: The S3 key for the lambda function zip file.
-  DatabaseSecretArn:
-    Type: String
-    Description: The ARN of the secret storing the database URL.
 
 Resources:
   MyLambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: getRecipients
+      FunctionName: {{routeName}}
       Runtime: nodejs20.x
       Role: !ImportValue OneHundredLettersLambdaExecutionRoleArn
-      Handler: routes/getRecipients/index.handler
+      Handler: routes/{{routeName}}/index.handler
       Code:
         S3Bucket: !ImportValue LambdaS3BucketName
         S3Key: !Ref S3Key
       Timeout: 10
       MemorySize: 128
-      Environment:
-        Variables:
-          DATABASE_URL: !Sub "{{resolve:secretsmanager:${DatabaseSecretArn}:SecretString}}"
 
-  LambdaInvokePermissionGetRecipientById:
+  LambdaInvokePermission{{routeName}}:
     Type: AWS::Lambda::Permission
     DependsOn: MyLambdaFunction
     Properties:
       Action: lambda:InvokeFunction
-      FunctionName: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRecipients"
+      FunctionName: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:{{routeName}}"
       Principal: apigateway.amazonaws.com
-      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/GET/*"
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/{{HTTPMethod}}/*"

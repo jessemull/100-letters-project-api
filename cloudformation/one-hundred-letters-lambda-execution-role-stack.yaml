@@ -1,5 +1,10 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
+Parameters:
+  DatabaseSecretArn:
+    Type: String
+    Description: The ARN of the secret storing the database URL.
+
 Resources:
   LambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -41,7 +46,11 @@ Resources:
                   - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createCorrespondence'
                   - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getCorrespondencesById'
                   - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:deleteCorrespondence'
-              
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: !Ref DatabaseSecretArn
+
 Outputs:
   LambdaExecutionRoleArn:
     Value: !GetAtt LambdaExecutionRole.Arn
