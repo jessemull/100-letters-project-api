@@ -40,6 +40,7 @@ Resources:
                   - dynamodb:GetItem
                 Resource:
                   - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OneHundredLettersPersonTable
+                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OneHundredLettersPersonTable/index/LastNameIndex
                   - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OneHundredLettersCorrespondenceTable
                   - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OneHundredLettersLetterTable
 

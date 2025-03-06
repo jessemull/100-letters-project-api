@@ -1,6 +1,7 @@
 {
   "dependencies": {
-    "aws-sdk": "^2.1360.0",
+    "@aws-sdk/client-dynamodb": "^3.758.0",
+    "@aws-sdk/lib-dynamodb": "^3.758.0",
     "bunyan": "^1.8.15",
     "bunyan-cloudwatch": "^2.2.0"
   },
@@ -16,7 +17,7 @@
     "build": "tsc && npm run postbuild",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
-    "package": "cd dist && zip -r createCorrespondence.zip ./*",
+    "package": "cd dist && zip -rq createCorrespondence.zip ./*",
     "postbuild": "cp package.json dist/ && [ -f package-lock.json ] && cp package-lock.json dist/ || true && cd dist && npm install --omit=dev",
     "prebuild": "rm -rf dist",
     "test": "jest",

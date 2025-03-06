@@ -1,7 +1,7 @@
-const AWS = require('aws-sdk');
+const { DynamoDBClient, PutItemCommand } = require('@aws-sdk/client-dynamodb');
 const { faker } = require('@faker-js/faker');
 
-const dynamoDB = new AWS.DynamoDB.DocumentClient({ region: 'us-west-2' });
+const dynamoDBClient = new DynamoDBClient({ region: 'us-west-2' });
 
 const personTableName = 'OneHundredLettersPersonTable';
 const correspondenceTableName = 'OneHundredLettersCorrespondenceTable';
@@ -13,73 +13,77 @@ const numLetters = 30;
 
 function generatePersonData(id) {
   return {
-    PK: `PERSON#${id}`,
-    SK: 'PROFILE',
-    firstName: faker.person.firstName(),
-    lastName: faker.person.lastName(),
-    address: faker.location.streetAddress(),
-    createdAt: faker.date.past().toISOString(),
-    updatedAt: faker.date.recent().toISOString()
+    PK: { S: `PERSON#${id}` },
+    SK: { S: 'PROFILE' },
+    firstName: { S: faker.person.firstName() },
+    lastName: { S: faker.person.lastName() },
+    address: { S: faker.location.streetAddress() },
+    createdAt: { S: faker.date.past().toISOString() },
+    updatedAt: { S: faker.date.recent().toISOString() }
   };
 }
 
 function generateCorrespondenceData(personId, correspondenceId) {
   return {
-    PK: `CORRESPONDENCE#${correspondenceId}`,
-    SK: `PERSON#${personId}`,
-    reason: faker.lorem.sentence(),
-    createdAt: faker.date.past().toISOString(),
-    updatedAt: faker.date.recent().toISOString()
+    PK: { S: `CORRESPONDENCE#${correspondenceId}` },
+    SK: { S: `PERSON#${personId}` },
+    reason: { S: faker.lorem.sentence() },
+    createdAt: { S: faker.date.past().toISOString() },
+    updatedAt: { S: faker.date.recent().toISOString() }
   };
 }
 
 function generateLetterData(correspondenceId, letterId) {
   return {
-    PK: `CORRESPONDENCE#${correspondenceId}`,
-    SK: `LETTER#${letterId}`,
-    type: faker.helpers.arrayElement(['email', 'physical mail']), // Use helpers
-    date: faker.date.past().toISOString(),
-    text: faker.lorem.paragraph(),
-    method: faker.helpers.arrayElement(['handwritten', 'typed']), // Use helpers
-    status: faker.helpers.arrayElement(['sent', 'pending']), // Use helpers
-    imageURL: faker.image.url(),
-    title: faker.lorem.words(),
-    createdAt: faker.date.past().toISOString(),
-    updatedAt: faker.date.recent().toISOString()
+    PK: { S: `CORRESPONDENCE#${correspondenceId}` },
+    SK: { S: `LETTER#${letterId}` },
+    type: { S: faker.helpers.arrayElement(['email', 'physical mail']) },
+    date: { S: faker.date.past().toISOString() },
+    text: { S: faker.lorem.paragraph() },
+    method: { S: faker.helpers.arrayElement(['handwritten', 'typed']) },
+    status: { S: faker.helpers.arrayElement(['sent', 'pending']) },
+    imageURL: { S: faker.image.url() },
+    title: { S: faker.lorem.words() },
+    createdAt: { S: faker.date.past().toISOString() },
+    updatedAt: { S: faker.date.recent().toISOString() }
   };
 }
 
 async function seedData() {
   try {
-    // Seed persons
     for (let i = 1; i <= numPersons; i++) {
       const person = generatePersonData(i);
-      await dynamoDB.put({
+      const params = {
         TableName: personTableName,
         Item: person
-      }).promise();
-      console.log(`Inserted person: ${person.PK}`);
+      };
+      const command = new PutItemCommand(params);
+      await dynamoDBClient.send(command);
+      console.log(`Inserted person: ${person.PK.S}`);
     }
 
-    // Seed correspondences
     for (let i = 1; i <= numCorrespondences; i++) {
-      const personId = faker.helpers.arrayElement([...Array(numPersons).keys()].map(i => i + 1)); // Ensure array index is correct
+      const personId = faker.helpers.arrayElement([...Array(numPersons).keys()].map(i => i + 1));
       const correspondence = generateCorrespondenceData(personId, i);
-      await dynamoDB.put({
+      const params = {
         TableName: correspondenceTableName,
         Item: correspondence
-      }).promise();
-      console.log(`Inserted correspondence: ${correspondence.PK}`);
+      };
+      const command = new PutItemCommand(params);
+      await dynamoDBClient.send(command);
+      console.log(`Inserted correspondence: ${correspondence.PK.S}`);
     }
 
     for (let i = 1; i <= numLetters; i++) {
-      const correspondenceId = faker.helpers.arrayElement([...Array(numCorrespondences).keys()].map(i => i + 1)); // Ensure array index is correct
+      const correspondenceId = faker.helpers.arrayElement([...Array(numCorrespondences).keys()].map(i => i + 1));
       const letter = generateLetterData(correspondenceId, i);
-      await dynamoDB.put({
+      const params = {
         TableName: letterTableName,
         Item: letter
-      }).promise();
-      console.log(`Inserted letter: ${letter.PK}`);
+      };
+      const command = new PutItemCommand(params);
+      await dynamoDBClient.send(command);
+      console.log(`Inserted letter: ${letter.PK.S}`);
     }
     console.log('Seed data inserted successfully...');
   } catch (error) {

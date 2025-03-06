@@ -10,8 +10,6 @@ Resources:
           AttributeType: "S"
         - AttributeName: "SK"
           AttributeType: "S"
-        - AttributeName: "name"
-          AttributeType: "S"
       KeySchema:
         - AttributeName: "PK"
           KeyType: "HASH"
@@ -24,16 +22,6 @@ Resources:
       Tags:
         - Key: "Name"
           Value: "OneHundredLettersPersonTable"
-      GlobalSecondaryIndexes:
-        - IndexName: "NameIndex"
-          KeySchema:
-            - AttributeName: "name"
-              KeyType: "HASH"
-          Projection:
-            ProjectionType: "ALL"
-          ProvisionedThroughput:
-            ReadCapacityUnits: 5
-            WriteCapacityUnits: 5
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
 
@@ -45,8 +33,6 @@ Resources:
         - AttributeName: "PK"
           AttributeType: "S"
         - AttributeName: "SK"
-          AttributeType: "S"
-        - AttributeName: "createdAt"
           AttributeType: "S"
       KeySchema:
         - AttributeName: "PK"
@@ -60,18 +46,6 @@ Resources:
       Tags:
         - Key: "Name"
           Value: "OneHundredLettersCorrespondenceTable"
-      GlobalSecondaryIndexes:
-        - IndexName: "CreatedAtIndex"
-          KeySchema:
-            - AttributeName: "PK"
-              KeyType: "HASH"
-            - AttributeName: "createdAt"
-              KeyType: "RANGE"
-          Projection:
-            ProjectionType: "ALL"
-          ProvisionedThroughput:
-            ReadCapacityUnits: 5
-            WriteCapacityUnits: 5
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
 
@@ -83,10 +57,6 @@ Resources:
         - AttributeName: "PK"
           AttributeType: "S"
         - AttributeName: "SK"
-          AttributeType: "S"
-        - AttributeName: "status"
-          AttributeType: "S"
-        - AttributeName: "date"
           AttributeType: "S"
       KeySchema:
         - AttributeName: "PK"
@@ -100,27 +70,6 @@ Resources:
       Tags:
         - Key: "Name"
           Value: "OneHundredLettersLetterTable"
-      GlobalSecondaryIndexes:
-        - IndexName: "LetterStatusIndex"
-          KeySchema:
-            - AttributeName: "status"
-              KeyType: "HASH"
-          Projection:
-            ProjectionType: "ALL"
-          ProvisionedThroughput:
-            ReadCapacityUnits: 5
-            WriteCapacityUnits: 5
-        - IndexName: "LetterDateIndex"
-          KeySchema:
-            - AttributeName: "PK"
-              KeyType: "HASH"
-            - AttributeName: "date"
-              KeyType: "RANGE"
-          Projection:
-            ProjectionType: "ALL"
-          ProvisionedThroughput:
-            ReadCapacityUnits: 5
-            WriteCapacityUnits: 5
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
 

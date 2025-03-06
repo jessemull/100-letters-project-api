@@ -1,10 +1,12 @@
 {
   "dependencies": {
-    "aws-sdk": "^2.1360.0",
+    "@aws-sdk/client-dynamodb": "^3.758.0",
+    "@aws-sdk/lib-dynamodb": "^3.758.0",
     "bunyan": "^1.8.15",
     "bunyan-cloudwatch": "^2.2.0"
   },
   "devDependencies": {
+    "@aws-sdk/lib-dynamodb": "^3.758.0",
     "@types/aws-lambda": "^8.10.147",
     "@types/bunyan": "^1.8.11",
     "@types/node": "^22.13.9",
@@ -17,7 +19,7 @@
     "clean": "rm -rf dist node_modules",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
-    "package": "cd dist && zip -r getRecipients.zip ./*",
+    "package": "cd dist && zip -rq getRecipients.zip ./*",
     "postbuild": "node ../../../scripts/post-build.js",
     "prebuild": "rm -rf dist",
     "test": "jest",
