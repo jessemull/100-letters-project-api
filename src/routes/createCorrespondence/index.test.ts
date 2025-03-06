@@ -17,7 +17,7 @@ describe('Create Correspondence Route', () => {
     expect(result.statusCode).toBe(200);
     expect(result.body).toBe(
       JSON.stringify({
-        message: 'createCorrespondence',
+        message: 'createCorrespondence - update',
       }),
     );
   });
