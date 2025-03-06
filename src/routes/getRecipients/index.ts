@@ -11,17 +11,21 @@ export const handler: APIGatewayProxyHandler = async () => {
   try {
     const params = {
       TableName: 'OneHundredLettersPersonTable',
-      IndexName: 'LastNameIndex',
-      ScanIndexForward: true,
     };
 
     const command = new ScanCommand(params);
     const result = await docClient.send(command);
 
+    const sortedItems = (result.Items || []).sort((a, b) => {
+      const lastNameA = a.lastName?.toLowerCase() || '';
+      const lastNameB = b.lastName?.toLowerCase() || '';
+      return lastNameA.localeCompare(lastNameB);
+    });
+
     return {
       statusCode: 200,
       body: JSON.stringify({
-        data: result.Items || [],
+        data: sortedItems,
       }),
     };
   } catch (error) {
