@@ -22,7 +22,12 @@ describe('getRecipients', () => {
   });
 
   it('should return all recipients', async () => {
-    const mockData = [{ id: '1', lastName: 'Doe' }];
+    const mockData = [
+      { id: '1', lastName: 'Xavier' },
+      { id: '2' },
+      { id: '3', lastName: 'Adams' },
+      { id: '4' },
+    ];
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({ Items: mockData });
     const context: Context = {} as Context;
     const event: APIGatewayProxyEvent = {
@@ -98,7 +103,7 @@ describe('getRecipients', () => {
     expect(responseBody.error).toBe('DatabaseError');
     expect(responseBody.message).toBe('Internal Server Error');
     expect(logger.error).toHaveBeenCalledWith(
-      'Error fetching from DynamoDB: ',
+      'Error scanning from DynamoDB: ',
       expect.any(Error),
     );
   });

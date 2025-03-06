@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.758.0",
+    "@aws-sdk/lib-dynamodb": "^3.758.0",
     "bunyan": "^1.8.15",
     "bunyan-cloudwatch": "^2.2.0"
   },
