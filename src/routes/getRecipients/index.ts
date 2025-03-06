@@ -8,6 +8,7 @@ export const handler: APIGatewayProxyHandler = async () => {
     const params = {
       TableName: 'OneHundredLettersPersonTable',
       IndexName: 'LastNameIndex',
+      KeyConditionExpression: 'lastName = :lastName',
       ScanIndexForward: true,
     };
     const result = await dynamoClient.send(new QueryCommand(params));
