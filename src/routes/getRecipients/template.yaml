@@ -4,6 +4,9 @@ Parameters:
   S3Key:
     Type: String
     Description: The S3 key for the lambda function zip file.
+  DatabaseSecretArn:
+    Type: String
+    Description: The ARN of the secret storing the database URL.
 
 Resources:
   MyLambdaFunction:
@@ -18,6 +21,9 @@ Resources:
         S3Key: !Ref S3Key
       Timeout: 10
       MemorySize: 128
+      Environment:
+        Variables:
+          DATABASE_URL: !Sub "{{resolve:secretsmanager:${DatabaseSecretArn}:SecretString}}"
 
   LambdaInvokePermissionGetRecipientById:
     Type: AWS::Lambda::Permission
