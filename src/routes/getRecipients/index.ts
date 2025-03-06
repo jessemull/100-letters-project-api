@@ -8,6 +8,10 @@ export const handler: APIGatewayProxyHandler = async () => {
     const params = {
       TableName: 'OneHundredLettersPersonTable',
       IndexName: 'LastNameIndex',
+      KeyConditionExpression: 'PK = :pkValue',
+      ExpressionAttributeValues: {
+        ':pkValue': { S: '' },
+      },
       ScanIndexForward: true,
     };
 
