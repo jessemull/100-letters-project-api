@@ -17,7 +17,7 @@ describe('Get Correspondence by ID Route', () => {
     expect(result.statusCode).toBe(200);
     expect(result.body).toBe(
       JSON.stringify({
-        message: 'Get Correspondences by ID',
+        message: 'getCorrespondenceById',
       }),
     );
   });
