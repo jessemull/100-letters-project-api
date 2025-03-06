@@ -19,7 +19,9 @@
     "lint:fix": "eslint . --ext .ts --fix",
     "package": "cd dist && zip -r getRecipientById.zip ./*",
     "postbuild": "cp package.json dist/ && [ -f package-lock.json ] && cp package-lock.json dist/ || true && cd dist && npm install --omit=dev",
-    "prebuild": "rm -rf dist"
+    "prebuild": "rm -rf dist",
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "version": "1.0.0"
 }

@@ -44,6 +44,7 @@
     "clean:all": "node ./scripts/clean-all.js",
     "clean:pkg": "node ./scripts/clean-pkg.js",
     "commit": "git-cz",
+    "create:route": "node ./scripts/create-route.js",
     "db:connect": "node ./scripts/connect.js",
     "db:migrate:dev": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
