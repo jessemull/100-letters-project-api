@@ -1,10 +1,8 @@
 {
   "dependencies": {
-    "@prisma/client": "^6.4.1",
     "aws-sdk": "^2.1360.0",
     "bunyan": "^1.8.15",
-    "bunyan-cloudwatch": "^2.2.0",
-    "prisma": "^6.4.1"
+    "bunyan-cloudwatch": "^2.2.0"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.147",
@@ -17,7 +15,6 @@
   "scripts": {
     "build": "tsc && npm run postbuild",
     "clean": "rm -rf dist node_modules",
-    "generate": "prisma generate",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "package": "cd dist && zip -r getRecipients.zip ./*",

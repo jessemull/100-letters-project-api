@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "@prisma/client": "^6.4.1",
     "aws-sdk": "^2.1000.0",
     "bunyan": "^1.8.15",
     "bunyan-cloudwatch": "^2.2.0"
@@ -9,7 +8,6 @@
     "@commitlint/cli": "^19.7.1",
     "@commitlint/config-conventional": "^19.7.1",
     "@faker-js/faker": "^9.5.0",
-    "@prisma/client": "^6.4.1",
     "@types/aws-lambda": "^8.10.0",
     "@types/bunyan": "^1.8.11",
     "@types/jest": "^29.5.14",
@@ -28,7 +26,6 @@
     "jest": "^29.7.0",
     "lint-staged": "^15.4.3",
     "prettier": "^3.5.3",
-    "prisma": "^6.4.1",
     "ts-jest": "^29.2.6",
     "typescript": "^5.2.2"
   },
@@ -41,17 +38,15 @@
   "name": "100-letters-project-api",
   "private": true,
   "scripts": {
+    "bastion": "node ./scripts/bastion-connect.js",
+    "build-all": "node ./scripts/build-all.js",
+    "build-pkg": "node ./scripts/build-pkg.js",
     "clean:all": "node ./scripts/clean-all.js",
     "clean:pkg": "node ./scripts/clean-pkg.js",
     "commit": "git-cz",
     "create:route": "node ./scripts/create-route.js",
-    "db:connect": "node ./scripts/connect.js",
-    "db:migrate:dev": "prisma migrate dev",
-    "db:migrate:deploy": "prisma migrate deploy",
-    "db:migrate:reset": "prisma migrate reset",
-    "db:seed": "node ./scripts/seed.js",
-    "db:tunnel": "node ./scripts/tunnel.js",
-    "db:generate": "prisma generate",
+    "db:reset": "node ./scripts/reset-db.js",
+    "db:seed": "node ./scripts/seed-db.js",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "install:all": "node scripts/npm-install-all.js",

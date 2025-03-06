@@ -102,7 +102,6 @@ jobs:
             --template-body file://$TEMPLATE_FILE \
             --parameters \
               ParameterKey=S3Key,ParameterValue=${FUNCTION_NAME}/${ARTIFACT_NAME} \
-              ParameterKey=DatabaseSecretArn,ParameterValue=${{ secrets.DATABASE_URL_ARN }} \
             --change-set-name $CHANGE_SET_NAME \
             --change-set-type ${{ env.change_set_type }} \
             --capabilities CAPABILITY_NAMED_IAM \
