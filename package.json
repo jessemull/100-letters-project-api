@@ -41,6 +41,8 @@
   "name": "100-letters-project-api",
   "private": true,
   "scripts": {
+    "bld:all": "node ./scripts/build-all.js",
+    "bld:pkg": "node ./scripts/build-pkg.js",
     "clean:all": "node ./scripts/clean-all.js",
     "clean:pkg": "node ./scripts/clean-pkg.js",
     "commit": "git-cz",
