@@ -10,7 +10,9 @@ Resources:
           AttributeType: "S"
         - AttributeName: "SK"
           AttributeType: "S"
-        - AttributeName: "name"
+        - AttributeName: "firstName"
+          AttributeType: "S"
+        - AttributeName: "lastName"
           AttributeType: "S"
       KeySchema:
         - AttributeName: "PK"
@@ -25,10 +27,12 @@ Resources:
         - Key: "Name"
           Value: "OneHundredLettersPersonTable"
       GlobalSecondaryIndexes:
-        - IndexName: "NameIndex"
+        - IndexName: "LastNameIndex"
           KeySchema:
-            - AttributeName: "name"
+            - AttributeName: "lastName"
               KeyType: "HASH"
+            - AttributeName: "firstName"
+              KeyType: "RANGE"
           Projection:
             ProjectionType: "ALL"
           ProvisionedThroughput:

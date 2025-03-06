@@ -3,22 +3,79 @@ import {
   APIGatewayProxyResult,
   Context,
 } from 'aws-lambda';
+import { dynamoClient, logger } from '../../common/util';
 import { handler } from './index';
 
-describe('Get Recipients Route', () => {
-  it('Should return 200 with message.', async () => {
-    const event: APIGatewayProxyEvent = {} as APIGatewayProxyEvent;
+jest.mock('../../common/util', () => ({
+  dynamoClient: {
+    send: jest.fn(),
+  },
+  logger: {
+    error: jest.fn(),
+    info: jest.fn(),
+  },
+}));
+
+describe('getRecipients', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should return all recipients', async () => {
+    const mockData = [{ id: '1', lastName: 'Doe' }];
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({ Items: mockData });
     const context: Context = {} as Context;
+    const event: APIGatewayProxyEvent = {
+      body: null,
+      headers: {},
+      httpMethod: 'GET',
+      isBase64Encoded: false,
+      path: '',
+      pathParameters: null,
+      queryStringParameters: null,
+      stageVariables: null,
+      requestContext: {} as APIGatewayProxyEvent['requestContext'],
+      resource: '',
+    } as APIGatewayProxyEvent;
     const result = (await handler(
       event,
       context,
       () => {},
     )) as APIGatewayProxyResult;
     expect(result.statusCode).toBe(200);
-    expect(result.body).toBe(
-      JSON.stringify({
-        message: 'getRecipients',
-      }),
+    expect(JSON.parse(result.body || '').data).toEqual(mockData);
+  });
+
+  it('should return an error on failure', async () => {
+    const errorMessage = 'DynamoDB error occurred';
+    (dynamoClient.send as jest.Mock).mockRejectedValueOnce(
+      new Error(errorMessage),
+    );
+    const context: Context = {} as Context;
+    const event: APIGatewayProxyEvent = {
+      body: null,
+      headers: {},
+      httpMethod: 'GET',
+      isBase64Encoded: false,
+      path: '',
+      pathParameters: null,
+      queryStringParameters: null,
+      stageVariables: null,
+      requestContext: {} as APIGatewayProxyEvent['requestContext'],
+      resource: '',
+    } as APIGatewayProxyEvent;
+    const result = (await handler(
+      event,
+      context,
+      () => {},
+    )) as APIGatewayProxyResult;
+    const responseBody = JSON.parse(result.body || '');
+    expect(result.statusCode).toBe(500);
+    expect(responseBody.error).toBe('DatabaseError');
+    expect(responseBody.message).toBe('Internal Server Error');
+    expect(logger.error).toHaveBeenCalledWith(
+      'Error fetching from DynamoDB: ',
+      expect.any(Error),
     );
   });
 });

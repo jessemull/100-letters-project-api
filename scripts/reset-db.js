@@ -1,9 +1,6 @@
-const AWS = require('aws-sdk');
+const { DynamoDBClient, ScanCommand, DeleteItemCommand } = require('@aws-sdk/client-dynamodb');
 
-// Specify the region
-AWS.config.update({ region: 'us-west-2' });
-
-const dynamoDB = new AWS.DynamoDB.DocumentClient();
+const dynamoDBClient = new DynamoDBClient({ region: 'us-west-2' });
 
 const tableNames = [
   'OneHundredLettersPersonTable',
@@ -12,13 +9,14 @@ const tableNames = [
 ];
 
 async function deleteTableItems(tableName) {
-  let params = {
-    TableName: tableName
+  const scanParams = {
+    TableName: tableName,
   };
 
   let data;
   try {
-    data = await dynamoDB.scan(params).promise();
+    const scanCommand = new ScanCommand(scanParams);
+    data = await dynamoDBClient.send(scanCommand);
   } catch (error) {
     console.error(`Error scanning table ${tableName}: `, error);
     return;
@@ -34,7 +32,8 @@ async function deleteTableItems(tableName) {
     };
 
     try {
-      await dynamoDB.delete(deleteParams).promise();
+      const deleteCommand = new DeleteItemCommand(deleteParams);
+      await dynamoDBClient.send(deleteCommand);
       console.log(`Deleted item from ${tableName}: `, data.Items[i]);
     } catch (error) {
       console.error(`Error deleting item from ${tableName}: `, error);
@@ -50,4 +49,4 @@ async function resetTables() {
   console.log('All tables have been reset!');
 }
 
-resetTables().catch((error) => console.error('Error resetting tables:', error));
+resetTables().catch((error) => console.error('Error resetting tables: ', error));
