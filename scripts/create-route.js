@@ -2,9 +2,10 @@ const fs = require('fs');
 const path = require('path');
 
 const routeName = process.argv[2];
+const httpMethod = process.argv[3]?.toUpperCase();
 
-if (!routeName) {
-  console.error("Please provide a route name.");
+if (!routeName || !httpMethod) {
+  console.error("Usage: node scaffold-route.js <routeName> <HTTPMethod>");
   process.exit(1);
 }
 
@@ -17,11 +18,13 @@ const templateFiles = fs.readdirSync(templatesDir);
 
 templateFiles.forEach((templateFile) => {
   const templatePath = path.join(templatesDir, templateFile);
-  const fileContents = fs.readFileSync(templatePath, 'utf8');
-  const outputContents = fileContents.replace(/{{routeName}}/g, routeName);
+  let fileContents = fs.readFileSync(templatePath, 'utf8');
+  fileContents = fileContents
+    .replace(/{{routeName}}/g, routeName)
+    .replace(/{{HTTPMethod}}/g, httpMethod);
   const outputFileName = templateFile.replace('.template', '');
   const outputPath = path.join(routeDir, outputFileName);
-  fs.writeFileSync(outputPath, outputContents);
+  fs.writeFileSync(outputPath, fileContents);
 });
 
-console.log(`Route ${routeName} scaffolded successfully at /src/routes/${routeName}...`);
+console.log(`Route ${routeName} (${httpMethod}) scaffolded successfully at /src/routes/${routeName}...`);
