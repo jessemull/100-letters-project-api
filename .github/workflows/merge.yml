@@ -81,13 +81,20 @@ jobs:
           ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
         run: |
           changed_functions=""
+
+          # Get the list of route directories dynamically
+          ROUTE_NAMES=$(ls src/routes)
+
           for file in ${ALL_CHANGED_FILES}; do
             echo "$file"
-            if [[ $file =~ ^src/routes/(createCorrespondence|deleteCorrespondence|getCorrespondences|getCorrespondencesById|getRecipientById|getRecipients|updateCorrespondence)/ ]]; then
-              FUNCTION_NAME=$(echo "$file" | cut -d'/' -f3)
-              changed_functions="$changed_functions $FUNCTION_NAME"
-            fi
+            for route in $ROUTE_NAMES; do
+              if [[ $file =~ ^src/routes/$route/ ]]; then
+                FUNCTION_NAME=$(echo "$file" | cut -d'/' -f3)
+                changed_functions="$changed_functions $FUNCTION_NAME"
+              fi
+            done
           done
+
           changed_functions=$(echo "$changed_functions" | tr ' ' '\n' | sort -u | tr '\n' ' ')
           if [ -z "$changed_functions" ]; then
             echo "No lambda function changes detected. Skipping deployment."
