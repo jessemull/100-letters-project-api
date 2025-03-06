@@ -27,8 +27,10 @@ Resources:
       GlobalSecondaryIndexes:
         - IndexName: "LastNameIndex"
           KeySchema:
-            - AttributeName: "lastName"
+            - AttributeName: "PK"
               KeyType: "HASH"
+            - AttributeName: "lastName"
+              KeyType: "RANGE"
           Projection:
             ProjectionType: "ALL"
           ProvisionedThroughput:
