@@ -16,7 +16,7 @@
     "build": "tsc && npm run postbuild",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
-    "package": "cd dist && zip -r getCorrespondencesById.zip ./*",
+    "package": "cd dist && zip -rq getCorrespondencesById.zip ./*",
     "postbuild": "cp package.json dist/ && [ -f package-lock.json ] && cp package-lock.json dist/ || true && cd dist && npm install --omit=dev",
     "prebuild": "rm -rf dist",
     "test": "jest",

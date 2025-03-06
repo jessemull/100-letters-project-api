@@ -5,6 +5,7 @@
     "bunyan-cloudwatch": "^2.2.0"
   },
   "devDependencies": {
+    "@aws-sdk/lib-dynamodb": "^3.758.0",
     "@types/aws-lambda": "^8.10.147",
     "@types/bunyan": "^1.8.11",
     "@types/node": "^22.13.9",

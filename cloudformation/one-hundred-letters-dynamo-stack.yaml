@@ -14,9 +14,9 @@ Resources:
           AttributeType: "S"
       KeySchema:
         - AttributeName: "PK"
-          KeyType: "HASH"
+          KeyType: "HASH"  # Primary Partition Key
         - AttributeName: "SK"
-          KeyType: "RANGE"
+          KeyType: "RANGE" # Primary Sort Key
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
@@ -27,12 +27,10 @@ Resources:
       GlobalSecondaryIndexes:
         - IndexName: "LastNameIndex"
           KeySchema:
-            - AttributeName: "PK"
-              KeyType: "HASH" 
             - AttributeName: "lastName"
-              KeyType: "RANGE"
+              KeyType: "HASH"  # GSI Partition Key (lastName)
           Projection:
-            ProjectionType: "ALL"
+            ProjectionType: "ALL"  # Include all attributes in the index
           ProvisionedThroughput:
             ReadCapacityUnits: 5
             WriteCapacityUnits: 5
