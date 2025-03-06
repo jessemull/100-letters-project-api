@@ -46,6 +46,30 @@ describe('getRecipients', () => {
     expect(JSON.parse(result.body || '').data).toEqual(mockData);
   });
 
+  it('should return an empty array if no recipients exist', async () => {
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({});
+    const context: Context = {} as Context;
+    const event: APIGatewayProxyEvent = {
+      body: null,
+      headers: {},
+      httpMethod: 'GET',
+      isBase64Encoded: false,
+      path: '',
+      pathParameters: null,
+      queryStringParameters: null,
+      stageVariables: null,
+      requestContext: {} as APIGatewayProxyEvent['requestContext'],
+      resource: '',
+    } as APIGatewayProxyEvent;
+    const result = (await handler(
+      event,
+      context,
+      () => {},
+    )) as APIGatewayProxyResult;
+    expect(result.statusCode).toBe(200);
+    expect(JSON.parse(result.body || '').data).toEqual([]);
+  });
+
   it('should return an error on failure', async () => {
     const errorMessage = 'DynamoDB error occurred';
     (dynamoClient.send as jest.Mock).mockRejectedValueOnce(
