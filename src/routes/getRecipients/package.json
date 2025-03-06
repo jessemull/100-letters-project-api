@@ -17,7 +17,7 @@
     "clean": "rm -rf dist node_modules",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
-    "package": "cd dist && zip -r getRecipients.zip ./*",
+    "package": "cd dist && zip -r updateCorrespondence.zip ./.* > /dev/null 2>&1",
     "postbuild": "node ../../../scripts/post-build.js",
     "prebuild": "rm -rf dist",
     "test": "jest",
