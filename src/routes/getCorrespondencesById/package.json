@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "@prisma/client": "^6.4.1",
     "aws-sdk": "^2.1360.0",
     "bunyan": "^1.8.15",
     "bunyan-cloudwatch": "^2.2.0"
