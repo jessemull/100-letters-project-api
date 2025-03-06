@@ -3,7 +3,8 @@
     "@prisma/client": "^6.4.1",
     "aws-sdk": "^2.1360.0",
     "bunyan": "^1.8.15",
-    "bunyan-cloudwatch": "^2.2.0"
+    "bunyan-cloudwatch": "^2.2.0",
+    "prisma": "^6.4.1"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.147",
@@ -15,10 +16,12 @@
   "name": "getRecipients",
   "scripts": {
     "build": "tsc && npm run postbuild",
+    "clean": "rm -rf dist node_modules",
+    "generate": "prisma generate",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "package": "cd dist && zip -r getRecipients.zip ./*",
-    "postbuild": "cp package.json dist/ && [ -f package-lock.json ] && cp package-lock.json dist/ || true && cd dist && npm install --omit=dev",
+    "postbuild": "node ../../../scripts/post-build.js",
     "prebuild": "rm -rf dist",
     "test": "jest",
     "test:watch": "jest --watch"
