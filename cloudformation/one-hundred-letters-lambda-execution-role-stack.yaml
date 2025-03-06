@@ -1,10 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
-Parameters:
-  DatabaseSecretArn:
-    Type: String
-    Description: The ARN of the secret storing the database URL.
-
 Resources:
   LambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -37,19 +32,16 @@ Resources:
                   - arn:aws:s3:::100-letters-project-api/*
               - Effect: Allow
                 Action:
-                  - lambda:InvokeFunction
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:BatchWriteItem
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                  - dynamodb:GetItem
                 Resource:
-                  - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRecipientById'
-                  - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getCorrespondences'
-                  - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:updateCorrespondence'
-                  - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRecipients'
-                  - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createCorrespondence'
-                  - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getCorrespondencesById'
-                  - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:deleteCorrespondence'
-              - Effect: Allow
-                Action:
-                  - secretsmanager:GetSecretValue
-                Resource: !Ref DatabaseSecretArn
+                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OneHundredLettersPersonTable
+                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OneHundredLettersCorrespondenceTable
+                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OneHundredLettersLetterTable
 
 Outputs:
   LambdaExecutionRoleArn:
