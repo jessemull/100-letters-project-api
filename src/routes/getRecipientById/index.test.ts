@@ -32,7 +32,7 @@ describe('getRecipientById', () => {
       headers: {},
       httpMethod: 'GET',
       isBase64Encoded: false,
-      path: `/recipient/1`, // Example of the endpoint
+      path: `/recipient/1`,
       pathParameters: { id: '1' },
       queryStringParameters: null,
       stageVariables: null,
@@ -110,7 +110,6 @@ describe('getRecipientById', () => {
   it('should return a 500 error if there is a DynamoDB error', async () => {
     const errorMessage = 'DynamoDB error occurred';
 
-    // Mock DynamoDB to throw an error
     (dynamoClient.send as jest.Mock).mockRejectedValueOnce(
       new Error(errorMessage),
     );

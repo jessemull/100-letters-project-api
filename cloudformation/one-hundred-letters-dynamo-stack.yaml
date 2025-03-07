@@ -11,10 +11,7 @@ Resources:
       KeySchema:
         - AttributeName: "personId"
           KeyType: "HASH"
-      ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
-      BillingMode: PROVISIONED
+      BillingMode: PAY_PER_REQUEST
       Tags:
         - Key: "Name"
           Value: "OneHundredLettersPersonTable"
@@ -31,10 +28,7 @@ Resources:
       KeySchema:
         - AttributeName: "correspondenceId"
           KeyType: "HASH"
-      ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
-      BillingMode: PROVISIONED
+      BillingMode: PAY_PER_REQUEST
       Tags:
         - Key: "Name"
           Value: "OneHundredLettersCorrespondenceTable"
@@ -46,22 +40,16 @@ Resources:
     Properties:
       TableName: "OneHundredLettersLetterTable"
       AttributeDefinitions:
-        - AttributeName: "letterId"
-          AttributeType: "S"
         - AttributeName: "correspondenceId"
           AttributeType: "S"
-      KeySchema:
         - AttributeName: "letterId"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "correspondenceId"
           KeyType: "HASH"
-      ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
-      BillingMode: PROVISIONED
-      Tags:
-        - Key: "Name"
-          Value: "OneHundredLettersLetterTable"
-      PointInTimeRecoverySpecification:
-        PointInTimeRecoveryEnabled: true
+        - AttributeName: "letterId"
+          KeyType: "RANGE"
+      BillingMode: PAY_PER_REQUEST
       GlobalSecondaryIndexes:
         - IndexName: "CorrespondenceIndex"
           KeySchema:
@@ -69,9 +57,6 @@ Resources:
               KeyType: "HASH"
           Projection:
             ProjectionType: "ALL"
-          ProvisionedThroughput:
-            ReadCapacityUnits: 5
-            WriteCapacityUnits: 5
 
 Outputs:
   PersonTable:
