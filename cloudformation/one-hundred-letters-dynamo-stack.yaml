@@ -57,9 +57,6 @@ Resources:
               KeyType: "HASH"
           Projection:
             ProjectionType: "ALL"
-          ProvisionedThroughput:
-            ReadCapacityUnits: 5
-            WriteCapacityUnits: 5
 
 Outputs:
   PersonTable:
