@@ -23,7 +23,8 @@ export const handler: APIGatewayProxyHandler = async (
   };
 
   try {
-    // Step 1: Get correspondence data
+    // Step 1: Get correspondence data.
+
     const correspondenceData = await dynamoClient.send(
       new GetCommand(getCorrespondenceParams),
     );
@@ -32,7 +33,8 @@ export const handler: APIGatewayProxyHandler = async (
       return new NotFoundError('Correspondence not found.').build();
     }
 
-    // Step 2: Delete correspondence
+    // Step 2: Delete correspondence.
+
     const deleteCorrespondenceParams = {
       TableName: 'OneHundredLettersCorrespondenceTable',
       Key: { correspondenceId },
@@ -47,7 +49,8 @@ export const handler: APIGatewayProxyHandler = async (
       },
     ];
 
-    // Step 3: Get and delete all letters associated with the correspondence
+    // Step 3: Get and delete all letters associated with the correspondence.
+
     const queryParams = {
       TableName: 'OneHundredLettersLetterTable',
       KeyConditionExpression: 'correspondenceId = :correspondenceId',
@@ -74,8 +77,9 @@ export const handler: APIGatewayProxyHandler = async (
       });
     }
 
-    // Step 4: Get and delete the person associated with the correspondence
-    const personId = correspondenceData.Item?.personId;
+    // Step 4: Get and delete the person associated with the correspondence.
+
+    const personId = correspondenceData.Item.personId;
 
     if (personId) {
       const deletePersonParams = {
@@ -85,7 +89,8 @@ export const handler: APIGatewayProxyHandler = async (
       transactItems.push({ Delete: deletePersonParams });
     }
 
-    // Step 5: Perform the transaction
+    // Step 5: Perform the transaction.
+
     const command = new TransactWriteCommand({
       TransactItems: transactItems,
     });
