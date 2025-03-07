@@ -57,7 +57,7 @@
     "lint:pkg": "node scripts/lint-pkg.js",
     "lint:pkg:fix": "node scripts/lint-pkg-fix.js",
     "prepare": "husky install",
-    "test:all": "jest",
+    "test:all": "jest --no-cache",
     "test:all:watch": "jest --watch",
     "test:pkg": "node scripts/test-pkg.js",
     "test:pkg:watch": "node scripts/test-pkg-watch.js"

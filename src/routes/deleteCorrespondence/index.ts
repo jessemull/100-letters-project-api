@@ -1,4 +1,4 @@
-import { APIGatewayProxyHandler } from 'aws-lambda';
+import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
 import { DatabaseError, NotFoundError } from '../../common/errors';
 import { Letter } from '../../types';
 import {
@@ -8,8 +8,14 @@ import {
 } from '@aws-sdk/lib-dynamodb'; // Import GetCommand
 import { dynamoClient, logger } from '../../common/util';
 
-export const handler: APIGatewayProxyHandler = async (event) => {
+export const handler: APIGatewayProxyHandler = async (
+  event,
+): Promise<APIGatewayProxyResult> => {
   const correspondenceId = event.pathParameters?.id;
+
+  if (!correspondenceId) {
+    return new NotFoundError('Correspondence ID is required.').build();
+  }
 
   const getCorrespondenceParams = {
     TableName: 'OneHundredLettersCorrespondenceTable',
