@@ -46,13 +46,17 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       },
     ];
 
+    const letterIds: string[] = [];
+
     letters.forEach((letter: LetterInput) => {
+      const letterId = uuidv4();
+      letterIds.push(letterId);
       transactItems.push({
         Put: {
           TableName: 'OneHundredLettersLetterTable',
           Item: {
             correspondenceId,
-            letterId: uuidv4(),
+            letterId,
             ...letter,
           },
           ConditionExpression: 'attribute_not_exists(letterId)',
@@ -69,6 +73,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         message: 'Correspondence created successfully.',
         correspondenceId,
         personId,
+        letterIds,
       }),
     };
   } catch (error) {

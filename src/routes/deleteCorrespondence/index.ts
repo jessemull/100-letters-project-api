@@ -66,10 +66,13 @@ export const handler: APIGatewayProxyHandler = async (
 
     const letterData = await dynamoClient.send(new QueryCommand(queryParams));
 
+    const letterIds: string[] = [];
+
     if (letterData.Items && letterData.Items.length > 0) {
       const letters: Letter[] = letterData.Items as Letter[];
 
       letters.forEach((letter) => {
+        letterIds.push(letter.letterId); // Collect letterIds
         const deleteLetterParams = {
           TableName: 'OneHundredLettersLetterTable',
           Key: {
@@ -105,6 +108,9 @@ export const handler: APIGatewayProxyHandler = async (
       statusCode: 200,
       body: JSON.stringify({
         message: 'Successfully deleted correspondence, person, and letters.',
+        personId,
+        correspondenceId,
+        letterIds,
       }),
     };
   } catch (error) {
