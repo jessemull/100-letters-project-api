@@ -3,7 +3,7 @@ interface Letter {
   imageUrl: string;
   correspondenceId: string;
   type: string;
-  date: string; // Using string since DynamoDB stores dates as ISO strings
+  date: string;
   text: string;
   method?: string;
   status?: string;
