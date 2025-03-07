@@ -32,7 +32,7 @@ Resources:
 
   # Correspondence Resources/Methods
 
-  ApiGatewayCorrespondenceModel:
+  ApiGatewayCorrespondenceInputModel:
     Type: AWS::ApiGateway::Model
     Properties:
       RestApiId: !Ref OneHundredLettersApi
@@ -91,8 +91,6 @@ Resources:
               required: ["date", "imageURL", "method", "status", "text", "title", "type"]
         required: ["correspondence", "person", "letters"]
 
-
-
   ApiGatewayCorrespondence:
     Type: AWS::ApiGateway::Resource
     Properties:
@@ -135,7 +133,7 @@ Resources:
       HttpMethod: POST
       RequestValidatorId: !Ref ApiGatewayRequestValidator
       RequestModels:
-        "application/json": !Ref ApiGatewayCorrespondenceModel
+        "application/json": !Ref ApiGatewayCorrespondenceInputModel
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
