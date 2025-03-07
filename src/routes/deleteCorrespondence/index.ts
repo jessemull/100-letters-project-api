@@ -23,6 +23,7 @@ export const handler: APIGatewayProxyHandler = async (
   };
 
   try {
+    // Step 1: Get correspondence data
     const correspondenceData = await dynamoClient.send(
       new GetCommand(getCorrespondenceParams),
     );
@@ -31,6 +32,7 @@ export const handler: APIGatewayProxyHandler = async (
       return new NotFoundError('Correspondence not found.').build();
     }
 
+    // Step 2: Delete correspondence
     const deleteCorrespondenceParams = {
       TableName: 'OneHundredLettersCorrespondenceTable',
       Key: { correspondenceId },
@@ -45,13 +47,14 @@ export const handler: APIGatewayProxyHandler = async (
       },
     ];
 
+    // Step 3: Get and delete all letters associated with the correspondence
     const queryParams = {
       TableName: 'OneHundredLettersLetterTable',
       KeyConditionExpression: 'correspondenceId = :correspondenceId',
       ExpressionAttributeValues: {
         ':correspondenceId': correspondenceId,
       },
-      ProjectionExpression: 'correspondenceId, letterId', // Removed any reference to personId
+      ProjectionExpression: 'correspondenceId, letterId',
     };
 
     const letterData = await dynamoClient.send(new QueryCommand(queryParams));
@@ -63,7 +66,7 @@ export const handler: APIGatewayProxyHandler = async (
         const deleteLetterParams = {
           TableName: 'OneHundredLettersLetterTable',
           Key: {
-            correspondenceId: letter.correspondenceId, // No personId reference anymore
+            correspondenceId: letter.correspondenceId,
             letterId: letter.letterId,
           },
         };
@@ -71,6 +74,18 @@ export const handler: APIGatewayProxyHandler = async (
       });
     }
 
+    // Step 4: Get and delete the person associated with the correspondence
+    const personId = correspondenceData.Item?.personId;
+
+    if (personId) {
+      const deletePersonParams = {
+        TableName: 'OneHundredLettersPersonTable',
+        Key: { personId },
+      };
+      transactItems.push({ Delete: deletePersonParams });
+    }
+
+    // Step 5: Perform the transaction
     const command = new TransactWriteCommand({
       TransactItems: transactItems,
     });
