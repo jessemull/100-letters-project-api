@@ -119,7 +119,7 @@ describe('Handler tests', () => {
     expect(JSON.parse(response.body).message).toBe('Internal Server Error');
   });
 
-  it('should return 404 if correspondenceId is missing in pathParameters', async () => {
+  it('should return 400 if correspondenceId is missing in pathParameters', async () => {
     const eventWithoutId = {
       ...mockEvent,
       pathParameters: {},
@@ -131,7 +131,7 @@ describe('Handler tests', () => {
       mockCallback,
     )) as APIGatewayProxyResult;
 
-    expect(response.statusCode).toBe(404);
+    expect(response.statusCode).toBe(400);
     expect(JSON.parse(response.body).message).toBe(
       'Correspondence ID is required.',
     );
@@ -149,7 +149,7 @@ describe('Handler tests', () => {
       mockCallback,
     )) as APIGatewayProxyResult;
 
-    expect(response.statusCode).toBe(404);
+    expect(response.statusCode).toBe(400);
     expect(JSON.parse(response.body).message).toBe(
       'Correspondence ID is required.',
     );

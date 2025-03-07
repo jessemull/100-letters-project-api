@@ -12,7 +12,7 @@ Resources:
       FunctionName: getCorrespondencesById
       Runtime: nodejs20.x
       Role: !ImportValue OneHundredLettersLambdaExecutionRoleArn
-      Handler: routes/getCorrespondenceById/index.handler
+      Handler: routes/getCorrespondencesById/index.handler
       Code:
         S3Bucket: !ImportValue LambdaS3BucketName
         S3Key: !Ref S3Key

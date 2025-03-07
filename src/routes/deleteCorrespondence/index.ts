@@ -1,5 +1,9 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
-import { DatabaseError, NotFoundError } from '../../common/errors';
+import {
+  BadRequestError,
+  DatabaseError,
+  NotFoundError,
+} from '../../common/errors';
 import { Letter } from '../../types';
 import {
   TransactWriteCommand,
@@ -14,7 +18,7 @@ export const handler: APIGatewayProxyHandler = async (
   const correspondenceId = event.pathParameters?.id;
 
   if (!correspondenceId) {
-    return new NotFoundError('Correspondence ID is required.').build();
+    return new BadRequestError('Correspondence ID is required.').build();
   }
 
   const getCorrespondenceParams = {
