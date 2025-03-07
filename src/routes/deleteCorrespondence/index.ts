@@ -22,7 +22,6 @@ export const handler: APIGatewayProxyHandler = async (
     Key: { correspondenceId },
   };
 
-  let personId;
   try {
     const correspondenceData = await dynamoClient.send(
       new GetCommand(getCorrespondenceParams),
@@ -32,43 +31,27 @@ export const handler: APIGatewayProxyHandler = async (
       return new NotFoundError('Correspondence not found.').build();
     }
 
-    personId = correspondenceData.Item.personId;
-  } catch (error) {
-    logger.error('Error retrieving correspondence data: ', error);
-    return new DatabaseError('Internal Server Error').build();
-  }
+    const deleteCorrespondenceParams = {
+      TableName: 'OneHundredLettersCorrespondenceTable',
+      Key: { correspondenceId },
+    };
 
-  const deleteCorrespondenceParams = {
-    TableName: 'OneHundredLettersCorrespondenceTable',
-    Key: { correspondenceId },
-  };
+    const transactItems: {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      Delete: { TableName: string; Key: Record<string, any> | undefined };
+    }[] = [
+      {
+        Delete: deleteCorrespondenceParams,
+      },
+    ];
 
-  const deletePersonParams = {
-    TableName: 'OneHundredLettersPersonTable',
-    Key: { personId },
-  };
-
-  const transactItems: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    Delete: { TableName: string; Key: Record<string, any> | undefined };
-  }[] = [
-    {
-      Delete: deleteCorrespondenceParams,
-    },
-    {
-      Delete: deletePersonParams,
-    },
-  ];
-
-  try {
     const queryParams = {
       TableName: 'OneHundredLettersLetterTable',
-      IndexName: 'CorrespondenceIndex', // Ensure this matches your GSI if applicable
       KeyConditionExpression: 'correspondenceId = :correspondenceId',
       ExpressionAttributeValues: {
         ':correspondenceId': correspondenceId,
       },
-      ProjectionExpression: 'correspondenceId, letterId',
+      ProjectionExpression: 'correspondenceId, letterId', // Removed any reference to personId
     };
 
     const letterData = await dynamoClient.send(new QueryCommand(queryParams));
@@ -80,8 +63,8 @@ export const handler: APIGatewayProxyHandler = async (
         const deleteLetterParams = {
           TableName: 'OneHundredLettersLetterTable',
           Key: {
-            correspondenceId: letter.correspondenceId, // Ensure this matches the partition key
-            letterId: letter.letterId, // Ensure this matches the sort key
+            correspondenceId: letter.correspondenceId, // No personId reference anymore
+            letterId: letter.letterId,
           },
         };
         transactItems.push({ Delete: deleteLetterParams });
