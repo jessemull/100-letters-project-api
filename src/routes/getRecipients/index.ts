@@ -26,13 +26,6 @@ export const handler: APIGatewayProxyHandler = async () => {
     };
   } catch (error) {
     logger.error('Error scanning from DynamoDB: ', error);
-    const dbError = new DatabaseError('Internal Server Error');
-    return {
-      statusCode: dbError.statusCode,
-      body: JSON.stringify({
-        error: dbError.name,
-        message: dbError.message,
-      }),
-    };
+    return new DatabaseError('Internal Server Error').build();
   }
 };

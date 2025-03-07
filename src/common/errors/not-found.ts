@@ -1,9 +1,9 @@
-class DatabaseError extends Error {
+class NotFoundError extends Error {
   statusCode: number;
   constructor(message: string) {
     super(message);
-    this.name = 'DatabaseError';
-    this.statusCode = 500;
+    this.name = 'NotFoundError';
+    this.statusCode = 404;
   }
 
   build() {
@@ -17,4 +17,4 @@ class DatabaseError extends Error {
   }
 }
 
-export { DatabaseError };
+export { NotFoundError };
