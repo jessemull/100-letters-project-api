@@ -42,7 +42,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     Key: { personId },
   };
 
-  const transactItems: { Delete: { TableName: string; Key: unknown } }[] = [
+  const transactItems: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Delete: { TableName: string; Key: Record<string, any> | undefined };
+  }[] = [
     {
       Delete: deleteCorrespondenceParams,
     },
