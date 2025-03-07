@@ -18,7 +18,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const params = {
       TableName: 'OneHundredLettersPersonTable',
       Key: {
-        PK: recipientId,
+        personId: recipientId,
       },
     };
 

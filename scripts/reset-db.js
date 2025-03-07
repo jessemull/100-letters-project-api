@@ -23,12 +23,18 @@ async function deleteTableItems(tableName) {
   }
 
   for (let i = 0; i < data.Items.length; i++) {
+    let key;
+    if (tableName === 'OneHundredLettersPersonTable') {
+      key = { personId: data.Items[i].personId };
+    } else if (tableName === 'OneHundredLettersCorrespondenceTable') {
+      key = { correspondenceId: data.Items[i].correspondenceId };
+    } else if (tableName === 'OneHundredLettersLetterTable') {
+      key = { letterId: data.Items[i].letterId };
+    }
+
     const deleteParams = {
       TableName: tableName,
-      Key: {
-        PK: data.Items[i].PK,
-        SK: data.Items[i].SK,
-      },
+      Key: key,
     };
 
     try {
