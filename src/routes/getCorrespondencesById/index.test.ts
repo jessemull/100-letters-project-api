@@ -19,7 +19,7 @@ jest.mock('../../common/util', () => ({
 describe('Handler tests', () => {
   const mockEvent = {
     pathParameters: {
-      correspondenceId: '123',
+      id: '123',
     },
     body: null,
     queryStringParameters: null,
