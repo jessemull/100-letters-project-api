@@ -244,4 +244,51 @@ describe('getCorrespondences', () => {
       expect.any(Error),
     );
   });
+
+  it('should return empty letters array if letters result is undefined', async () => {
+    const mockCorrespondences = [{ correspondenceId: '1', personId: '123' }];
+    const mockPerson = { personId: '123', name: 'John Doe' };
+
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Items: mockCorrespondences,
+    });
+
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Item: mockPerson,
+    });
+
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Items: undefined,
+    });
+
+    const context: Context = {} as Context;
+    const event: APIGatewayProxyEvent = {
+      body: null,
+      headers: {},
+      httpMethod: 'GET',
+      isBase64Encoded: false,
+      path: '',
+      pathParameters: null,
+      queryStringParameters: null,
+      stageVariables: null,
+      requestContext: {} as APIGatewayProxyEvent['requestContext'],
+      resource: '',
+    } as APIGatewayProxyEvent;
+
+    const result = (await handler(
+      event,
+      context,
+      () => {},
+    )) as APIGatewayProxyResult;
+
+    expect(result.statusCode).toBe(200);
+    expect(JSON.parse(result.body || '').data).toEqual([
+      {
+        correspondenceId: '1',
+        personId: '123',
+        person: mockPerson,
+        letters: [],
+      },
+    ]);
+  });
 });

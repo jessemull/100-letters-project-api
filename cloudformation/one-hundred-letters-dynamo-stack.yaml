@@ -48,6 +48,8 @@ Resources:
       AttributeDefinitions:
         - AttributeName: "letterId"
           AttributeType: "S"
+        - AttributeName: "correspondenceId"
+          AttributeType: "S"
       KeySchema:
         - AttributeName: "letterId"
           KeyType: "HASH"
@@ -60,6 +62,16 @@ Resources:
           Value: "OneHundredLettersLetterTable"
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
+      GlobalSecondaryIndexes:
+        - IndexName: "CorrespondenceIndex"
+          KeySchema:
+            - AttributeName: "correspondenceId"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: "ALL"
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
 
 Outputs:
   PersonTable:
