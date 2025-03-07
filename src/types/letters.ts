@@ -1,4 +1,4 @@
-export interface Letter {
+interface Letter {
   letterId: string;
   imageUrl: string;
   correspondenceId: string;
@@ -11,3 +11,5 @@ export interface Letter {
   createdAt: string;
   updatedAt: string;
 }
+
+export { Letter };

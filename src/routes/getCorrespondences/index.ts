@@ -2,7 +2,7 @@ import { APIGatewayProxyHandler } from 'aws-lambda';
 import { ScanCommand, GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { dynamoClient, logger } from '../../common/util';
 import { DatabaseError } from '../../common/errors';
-import { Letter } from 'types';
+import { Letter } from '../../types';
 
 export const handler: APIGatewayProxyHandler = async () => {
   try {
@@ -53,7 +53,6 @@ export const handler: APIGatewayProxyHandler = async () => {
             error,
           );
         }
-
         return {
           ...correspondence,
           person,
