@@ -5,7 +5,7 @@ import {
   TransactWriteCommand,
   QueryCommand,
   GetCommand,
-} from '@aws-sdk/lib-dynamodb'; // Import GetCommand
+} from '@aws-sdk/lib-dynamodb';
 import { dynamoClient, logger } from '../../common/util';
 
 export const handler: APIGatewayProxyHandler = async (
@@ -63,10 +63,12 @@ export const handler: APIGatewayProxyHandler = async (
   try {
     const queryParams = {
       TableName: 'OneHundredLettersLetterTable',
+      IndexName: 'CorrespondenceIndex', // Ensure this matches your GSI if applicable
       KeyConditionExpression: 'correspondenceId = :correspondenceId',
       ExpressionAttributeValues: {
         ':correspondenceId': correspondenceId,
       },
+      ProjectionExpression: 'correspondenceId, letterId',
     };
 
     const letterData = await dynamoClient.send(new QueryCommand(queryParams));
@@ -77,7 +79,10 @@ export const handler: APIGatewayProxyHandler = async (
       letters.forEach((letter) => {
         const deleteLetterParams = {
           TableName: 'OneHundredLettersLetterTable',
-          Key: { letterId: letter.letterId },
+          Key: {
+            correspondenceId: letter.correspondenceId, // Ensure this matches the partition key
+            letterId: letter.letterId, // Ensure this matches the sort key
+          },
         };
         transactItems.push({ Delete: deleteLetterParams });
       });
