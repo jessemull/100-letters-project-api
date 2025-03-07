@@ -13,8 +13,7 @@ const numLetters = 30;
 
 function generatePersonData(id) {
   return {
-    PK: { S: `PERSON#${id}` },
-    SK: { S: 'PROFILE' },
+    personId: { S: `PERSON#${id}` },
     firstName: { S: faker.person.firstName() },
     lastName: { S: faker.person.lastName() },
     address: { S: faker.location.streetAddress() },
@@ -25,8 +24,8 @@ function generatePersonData(id) {
 
 function generateCorrespondenceData(personId, correspondenceId) {
   return {
-    PK: { S: `CORRESPONDENCE#${correspondenceId}` },
-    SK: { S: `PERSON#${personId}` },
+    correspondenceId: { S: `CORRESPONDENCE#${correspondenceId}` },
+    personId: { S: `PERSON#${personId}` }, 
     reason: { S: faker.lorem.sentence() },
     createdAt: { S: faker.date.past().toISOString() },
     updatedAt: { S: faker.date.recent().toISOString() }
@@ -35,8 +34,8 @@ function generateCorrespondenceData(personId, correspondenceId) {
 
 function generateLetterData(correspondenceId, letterId) {
   return {
-    PK: { S: `CORRESPONDENCE#${correspondenceId}` },
-    SK: { S: `LETTER#${letterId}` },
+    letterId: { S: `LETTER#${letterId}` },
+    correspondenceId: { S: `CORRESPONDENCE#${correspondenceId}` }, 
     type: { S: faker.helpers.arrayElement(['email', 'physical mail']) },
     date: { S: faker.date.past().toISOString() },
     text: { S: faker.lorem.paragraph() },
@@ -59,7 +58,7 @@ async function seedData() {
       };
       const command = new PutItemCommand(params);
       await dynamoDBClient.send(command);
-      console.log(`Inserted person: ${person.PK.S}`);
+      console.log(`Inserted person: ${person.personId.S}`);
     }
 
     for (let i = 1; i <= numCorrespondences; i++) {
@@ -71,7 +70,7 @@ async function seedData() {
       };
       const command = new PutItemCommand(params);
       await dynamoDBClient.send(command);
-      console.log(`Inserted correspondence: ${correspondence.PK.S}`);
+      console.log(`Inserted correspondence: ${correspondence.correspondenceId.S}`);
     }
 
     for (let i = 1; i <= numLetters; i++) {
@@ -83,7 +82,7 @@ async function seedData() {
       };
       const command = new PutItemCommand(params);
       await dynamoDBClient.send(command);
-      console.log(`Inserted letter: ${letter.PK.S}`);
+      console.log(`Inserted letter: ${letter.letterId.S}`);
     }
     console.log('Seed data inserted successfully...');
   } catch (error) {

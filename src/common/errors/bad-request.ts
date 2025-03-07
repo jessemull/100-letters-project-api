@@ -1,9 +1,9 @@
-class DatabaseError extends Error {
+class BadRequestError extends Error {
   statusCode: number;
   constructor(message: string) {
     super(message);
-    this.name = 'DatabaseError';
-    this.statusCode = 500;
+    this.name = 'BadRequestError';
+    this.statusCode = 400;
   }
 
   build() {
@@ -17,4 +17,4 @@ class DatabaseError extends Error {
   }
 }
 
-export { DatabaseError };
+export { BadRequestError };

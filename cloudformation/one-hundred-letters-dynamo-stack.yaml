@@ -6,15 +6,11 @@ Resources:
     Properties:
       TableName: "OneHundredLettersPersonTable"
       AttributeDefinitions:
-        - AttributeName: "PK"
-          AttributeType: "S"
-        - AttributeName: "SK"
+        - AttributeName: "personId"
           AttributeType: "S"
       KeySchema:
-        - AttributeName: "PK"
+        - AttributeName: "personId"
           KeyType: "HASH"
-        - AttributeName: "SK"
-          KeyType: "RANGE"
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
@@ -30,15 +26,11 @@ Resources:
     Properties:
       TableName: "OneHundredLettersCorrespondenceTable"
       AttributeDefinitions:
-        - AttributeName: "PK"
-          AttributeType: "S"
-        - AttributeName: "SK"
+        - AttributeName: "correspondenceId"
           AttributeType: "S"
       KeySchema:
-        - AttributeName: "PK"
+        - AttributeName: "correspondenceId"
           KeyType: "HASH"
-        - AttributeName: "SK"
-          KeyType: "RANGE"
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
@@ -54,15 +46,11 @@ Resources:
     Properties:
       TableName: "OneHundredLettersLetterTable"
       AttributeDefinitions:
-        - AttributeName: "PK"
-          AttributeType: "S"
-        - AttributeName: "SK"
+        - AttributeName: "letterId"
           AttributeType: "S"
       KeySchema:
-        - AttributeName: "PK"
+        - AttributeName: "letterId"
           KeyType: "HASH"
-        - AttributeName: "SK"
-          KeyType: "RANGE"
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
