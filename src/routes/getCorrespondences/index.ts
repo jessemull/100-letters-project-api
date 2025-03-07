@@ -1,10 +1,72 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
+import { ScanCommand, GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
+import { dynamoClient, logger } from '../../common/util';
+import { DatabaseError } from '../../common/errors';
+import { Letter } from '../../types';
 
 export const handler: APIGatewayProxyHandler = async () => {
-  return {
-    statusCode: 200,
-    body: JSON.stringify({
-      message: 'getCorrespondences',
-    }),
-  };
+  try {
+    const correspondenceParams = {
+      TableName: 'OneHundredLettersCorrespondenceTable',
+    };
+
+    const correspondenceCommand = new ScanCommand(correspondenceParams);
+    const correspondenceResult = await dynamoClient.send(correspondenceCommand);
+    const correspondences = correspondenceResult.Items || [];
+
+    const results = await Promise.all(
+      correspondences.map(async (correspondence) => {
+        const personParams = {
+          TableName: 'OneHundredLettersPersonTable',
+          Key: { personId: correspondence.personId },
+        };
+
+        let person = null;
+        try {
+          const personCommand = new GetCommand(personParams);
+          const personResult = await dynamoClient.send(personCommand);
+          person = personResult.Item || null;
+        } catch (error) {
+          logger.error(
+            `Error fetching person with ID ${correspondence.personId}: `,
+            error,
+          );
+        }
+
+        const lettersParams = {
+          TableName: 'OneHundredLettersLetterTable',
+          IndexName: 'CorrespondenceIndex',
+          KeyConditionExpression: 'correspondenceId = :correspondenceId',
+          ExpressionAttributeValues: {
+            ':correspondenceId': correspondence.correspondenceId,
+          },
+        };
+
+        let letters: Letter[] = [];
+        try {
+          const lettersCommand = new QueryCommand(lettersParams);
+          const lettersResult = await dynamoClient.send(lettersCommand);
+          letters = (lettersResult.Items as Letter[]) || [];
+        } catch (error) {
+          logger.error(
+            `Error fetching letters for correspondence ID ${correspondence.correspondenceId}: `,
+            error,
+          );
+        }
+        return {
+          ...correspondence,
+          person,
+          letters,
+        };
+      }),
+    );
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ data: results }),
+    };
+  } catch (error) {
+    logger.error('Error fetching correspondences:', error);
+    return new DatabaseError('Internal Server Error').build();
+  }
 };
