@@ -9,7 +9,7 @@ import {
 import { Letter } from '../../types';
 
 export const handler: APIGatewayProxyHandler = async (event) => {
-  const correspondenceId = event.pathParameters?.correspondenceId;
+  const correspondenceId = event.pathParameters?.id;
 
   if (!correspondenceId) {
     return new BadRequestError('Correspondence ID is required.').build();
