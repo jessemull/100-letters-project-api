@@ -12,6 +12,14 @@ Resources:
       Name: OneHundredLettersApi
       Description: API for managing correspondence and recipients
 
+  ApiGatewayRequestValidator:
+    Type: AWS::ApiGateway::RequestValidator
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      Name: "RequestValidator"
+      ValidateRequestBody: true
+      ValidateRequestParameters: false
+
   ApiGatewayAuthorizer:
     Type: AWS::ApiGateway::Authorizer
     Properties:
@@ -23,6 +31,67 @@ Resources:
         - !Sub "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}"
 
   # Correspondence Resources/Methods
+
+  ApiGatewayCorrespondenceModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ContentType: "application/json"
+      Name: "CorrespondenceModel"
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          correspondence:
+            type: "object"
+            properties:
+              reason:
+                type: "string"
+            required: ["reason"]
+          person:
+            type: "object"
+            properties:
+              address:
+                type: "string"
+              firstName:
+                type: "string"
+              lastName:
+                type: "string"
+              description:
+                type: "string"
+              occupation:
+                type: "string"
+            required: ["address", "firstName", "lastName"]
+          letters:
+            type: "array"
+            items:
+              type: "object"
+              properties:
+                date:
+                  type: "string"
+                  format: "date-time"
+                description:
+                  type: "string"
+                imageURL:
+                  type: "string"
+                  format: "uri"
+                method:
+                  type: "string"
+                  enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
+                status:
+                  type: "string"
+                  enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
+                text:
+                  type: "string"
+                title:
+                  type: "string"
+                type:
+                  type: "string"
+                  enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
+              required: ["date", "imageURL", "method", "status", "text", "title", "type"]
+        required: ["correspondence", "person", "letters"]
+
+
 
   ApiGatewayCorrespondence:
     Type: AWS::ApiGateway::Resource
@@ -64,6 +133,9 @@ Resources:
       AuthorizationType: COGNITO_USER_POOLS
       AuthorizerId: !Ref ApiGatewayAuthorizer
       HttpMethod: POST
+      RequestValidatorId: !Ref ApiGatewayRequestValidator
+      RequestModels:
+        "application/json": !Ref ApiGatewayCorrespondenceModel
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
