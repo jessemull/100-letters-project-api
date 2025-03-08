@@ -48,7 +48,7 @@ Resources:
               reason:
                 type: "string"
             required: ["reason"]
-          person:
+          recipient:
             type: "object"
             properties:
               address:
@@ -89,7 +89,7 @@ Resources:
                   type: "string"
                   enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
               required: ["date", "imageURL", "method", "status", "text", "title", "type"]
-        required: ["correspondence", "person", "letters"]
+        required: ["correspondence", "recipient", "letters"]
 
   ApiGatewayCorrespondenceUpdateInputModel:
     Type: AWS::ApiGateway::Model
@@ -109,10 +109,10 @@ Resources:
               reason:
                 type: "string"
             required: ["correspondenceId", "reason"]
-          person:
+          recipient:
             type: "object"
             properties:
-              personId:
+              recipientId:
                 type: "string"
               address:
                 type: "string"
@@ -124,7 +124,7 @@ Resources:
                 type: "string"
               occupation:
                 type: "string"
-            required: ["personId", "address", "firstName", "lastName"]
+            required: ["recipientId", "address", "firstName", "lastName"]
           letters:
             type: "array"
             items:
@@ -154,7 +154,7 @@ Resources:
                   type: "string"
                   enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
               required: ["date", "imageURL", "method", "status", "text", "title", "type"]
-        required: ["correspondence", "person", "letters"]
+        required: ["correspondence", "recipient", "letters"]
 
   ApiGatewayCorrespondence:
     Type: AWS::ApiGateway::Resource

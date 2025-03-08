@@ -1,4 +1,4 @@
-export type PersonInput = {
+export type RecipientInput = {
   address: string;
   description?: string;
   firstName: string;
@@ -6,11 +6,11 @@ export type PersonInput = {
   occupation?: string;
 };
 
-export type Person = {
+export type Recipient = {
   address: string;
   description?: string;
   firstName: string;
   lastName: string;
   occupation?: string;
-  personId: string;
+  recipientId: string;
 };

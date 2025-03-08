@@ -11,26 +11,26 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       return new BadRequestError('Request body is required.').build();
     }
 
-    const { person, correspondence, letters } = JSON.parse(event.body);
+    const { recipient, correspondence, letters } = JSON.parse(event.body);
 
-    if (!person || !correspondence || !letters) {
+    if (!recipient || !correspondence || !letters) {
       return new BadRequestError(
-        'Person, correspondence, and letters are required.',
+        'Recipient, correspondence, and letters are required.',
       ).build();
     }
 
-    const personId = uuidv4();
+    const recipientId = uuidv4();
     const correspondenceId = uuidv4();
 
     const transactItems = [
       {
         Put: {
-          TableName: 'OneHundredLettersPersonTable',
+          TableName: 'OneHundredLettersRecipientTable',
           Item: {
-            personId,
-            ...person,
+            recipientId,
+            ...recipient,
           },
-          ConditionExpression: 'attribute_not_exists(personId)',
+          ConditionExpression: 'attribute_not_exists(recipientId)',
         },
       },
       {
@@ -38,7 +38,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           TableName: 'OneHundredLettersCorrespondenceTable',
           Item: {
             correspondenceId,
-            personId,
+            recipientId,
             ...correspondence,
           },
           ConditionExpression: 'attribute_not_exists(correspondenceId)',
@@ -72,7 +72,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       body: JSON.stringify({
         message: 'Correspondence created successfully.',
         correspondenceId,
-        personId,
+        recipientId,
         letterIds,
       }),
     };

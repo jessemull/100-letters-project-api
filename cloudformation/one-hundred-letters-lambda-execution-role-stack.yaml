@@ -41,7 +41,7 @@ Resources:
                   - dynamodb:GetItem
                   - dynamodb:DeleteItem
                 Resource:
-                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OneHundredLettersPersonTable
+                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OneHundredLettersRecipientTable
                   - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OneHundredLettersCorrespondenceTable
                   - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OneHundredLettersLetterTable
                   - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OneHundredLettersLetterTable/index/CorrespondenceIndex # Add this line to allow querying the index

@@ -84,16 +84,16 @@ export const handler: APIGatewayProxyHandler = async (
       });
     }
 
-    // Step 4: Get and delete the person associated with the correspondence.
+    // Step 4: Get and delete the recipient associated with the correspondence.
 
-    const personId = correspondenceData.Item.personId;
+    const recipientId = correspondenceData.Item.recipientId;
 
-    if (personId) {
-      const deletePersonParams = {
-        TableName: 'OneHundredLettersPersonTable',
-        Key: { personId },
+    if (recipientId) {
+      const deleteRecipientParams = {
+        TableName: 'OneHundredLettersRecipientTable',
+        Key: { recipientId },
       };
-      transactItems.push({ Delete: deletePersonParams });
+      transactItems.push({ Delete: deleteRecipientParams });
     }
 
     // Step 5: Perform the transaction.
@@ -107,8 +107,8 @@ export const handler: APIGatewayProxyHandler = async (
     return {
       statusCode: 200,
       body: JSON.stringify({
-        message: 'Successfully deleted correspondence, person, and letters.',
-        personId,
+        message: 'Successfully deleted correspondence, recipient, and letters.',
+        recipientId,
         correspondenceId,
         letterIds,
       }),

@@ -46,10 +46,10 @@ describe('Handler tests', () => {
     expect(JSON.parse(response.body).message).toBe('Request body is required.');
   });
 
-  it('should return 400 if correspondenceId, person, correspondence, or letters are missing', async () => {
+  it('should return 400 if correspondenceId, recipient, correspondence, or letters are missing', async () => {
     const event = {
       body: JSON.stringify({
-        person: {},
+        recipient: {},
         correspondence: {},
         letters: null,
       }),
@@ -64,14 +64,14 @@ describe('Handler tests', () => {
 
     expect(response.statusCode).toBe(400);
     expect(JSON.parse(response.body).message).toBe(
-      'Person, correspondence, and letters are required.',
+      'Recipient, correspondence, and letters are required.',
     );
   });
 
   it('should return 500 if there is an error during the transaction', async () => {
     const event = {
       body: JSON.stringify({
-        person: { personId: 'mock-person-id' },
+        recipient: { recipientId: 'mock-recipient-id' },
         correspondence: { reason: 'Test reason' },
         letters: [{ letterId: 'letter123', text: 'Hello' }],
       }),
@@ -95,7 +95,7 @@ describe('Handler tests', () => {
   it('should return 200 when correspondence is successfully updated', async () => {
     const event = {
       body: JSON.stringify({
-        person: { personId: 'mock-person-id' },
+        recipient: { recipientId: 'mock-recipient-id' },
         correspondence: { reason: 'Test reason' },
         letters: [{ letterId: 'letter123', text: 'Hello' }],
       }),
@@ -120,7 +120,7 @@ describe('Handler tests', () => {
   it('should correctly handle new letters and generate a UUID', async () => {
     const event = {
       body: JSON.stringify({
-        person: { personId: 'mock-person-id' },
+        recipient: { recipientId: 'mock-recipient-id' },
         correspondence: { reason: 'Test reason' },
         letters: [{ text: 'New Letter' }],
       }),
@@ -143,7 +143,7 @@ describe('Handler tests', () => {
   it('should handle missing letterId and create a new letter with a UUID', async () => {
     const event = {
       body: JSON.stringify({
-        person: { personId: 'mock-person-id' },
+        recipient: { recipientId: 'mock-recipient-id' },
         correspondence: { reason: 'Test reason' },
         letters: [{ text: 'New Letter Without ID' }],
       }),
@@ -167,7 +167,7 @@ describe('Handler tests', () => {
   it('should return 400 if letters array is missing', async () => {
     const event = {
       body: JSON.stringify({
-        person: { personId: 'mock-person-id' },
+        recipient: { recipientId: 'mock-recipient-id' },
         correspondence: { reason: 'Test reason' },
       }),
       pathParameters: { id: 'mock-id' },
@@ -181,14 +181,14 @@ describe('Handler tests', () => {
 
     expect(response.statusCode).toBe(400);
     expect(JSON.parse(response.body).message).toBe(
-      'Person, correspondence, and letters are required.',
+      'Recipient, correspondence, and letters are required.',
     );
   });
 
   it('should call logger.error if there is an internal error', async () => {
     const event = {
       body: JSON.stringify({
-        person: { personId: 'mock-person-id' },
+        recipient: { recipientId: 'mock-recipient-id' },
         correspondence: { reason: 'Test reason' },
         letters: [{ letterId: 'letter123', text: 'Hello' }],
       }),
@@ -207,12 +207,12 @@ describe('Handler tests', () => {
     );
   });
 
-  it('should correctly handle description and occupation updates for person and description update for letter', async () => {
+  it('should correctly handle description and occupation updates for recipient and description update for letter', async () => {
     const event = {
       body: JSON.stringify({
         correspondenceId: 'mock-id',
-        person: {
-          personId: 'mock-person-id',
+        recipient: {
+          recipientId: 'mock-recipient-id',
           firstName: 'John',
           lastName: 'Doe',
           address: '123 Main St',
@@ -252,7 +252,7 @@ describe('Handler tests', () => {
     expect(receivedString).toContain(':occupation":"Engineer');
     expect(receivedString).toContain(':description":"Letter description');
     expect(receivedString).toContain(
-      'TableName":"OneHundredLettersPersonTable',
+      'TableName":"OneHundredLettersRecipientTable',
     );
     expect(receivedString).toContain(
       'TableName":"OneHundredLettersLetterTable',
@@ -263,7 +263,7 @@ describe('Handler tests', () => {
   it('should return 400 if correspondenceId is missing in path parameters', async () => {
     const event = {
       body: JSON.stringify({
-        person: { personId: 'mock-person-id' },
+        recipient: { recipientId: 'mock-recipient-id' },
         correspondence: { reason: 'Test reason' },
         letters: [{ letterId: 'letter123', text: 'Hello' }],
       }),

@@ -32,30 +32,30 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       return new NotFoundError('Correspondence not found!').build();
     }
 
-    // Step 2: Get associated person details.
+    // Step 2: Get associated recipient details.
 
-    let person = null;
-    if (correspondence.personId) {
-      const personParams = {
-        TableName: 'OneHundredLettersPersonTable',
-        Key: { personId: correspondence.personId },
+    let recipient = null;
+    if (correspondence.recipientId) {
+      const recipientParams = {
+        TableName: 'OneHundredLettersRecipientTable',
+        Key: { recipientId: correspondence.recipientId },
       };
 
       try {
-        const personCommand = new GetCommand(personParams);
-        const personResult = await dynamoClient.send(personCommand);
-        person = personResult.Item || null;
+        const recipientCommand = new GetCommand(recipientParams);
+        const recipientResult = await dynamoClient.send(recipientCommand);
+        recipient = recipientResult.Item || null;
       } catch (error) {
         logger.error(
-          `Error fetching person with ID ${correspondence.personId}: `,
+          `Error fetching recipient with ID ${correspondence.recipientId}: `,
           error,
         );
         return new DatabaseError('Internal Server Error').build();
       }
     }
 
-    if (person === null) {
-      return new NotFoundError('Person not found!').build();
+    if (recipient === null) {
+      return new NotFoundError('Recipient not found!').build();
     }
 
     // Step 3: Get associated letters.
@@ -87,7 +87,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       body: JSON.stringify({
         data: {
           correspondence,
-          person,
+          recipient,
           letters,
         },
       }),

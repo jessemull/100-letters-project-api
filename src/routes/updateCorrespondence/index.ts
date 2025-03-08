@@ -19,44 +19,45 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       ).build();
     }
 
-    const { person, correspondence, letters } = JSON.parse(event.body);
+    const { recipient, correspondence, letters } = JSON.parse(event.body);
 
-    if (!person || !correspondence || !letters) {
+    if (!recipient || !correspondence || !letters) {
       return new BadRequestError(
-        'Person, correspondence, and letters are required.',
+        'Recipient, correspondence, and letters are required.',
       ).build();
     }
 
     const transactItems: TransactionItem[] = [];
     const letterIds: string[] = [];
 
-    const personUpdateExpressionParts: string[] = [
+    const recipientUpdateExpressionParts: string[] = [
       '#firstName = :firstName',
       '#lastName = :lastName',
       '#address = :address',
     ];
 
-    const personExpressionAttributeValues: { [key: string]: unknown } = {
-      ':firstName': person.firstName,
-      ':lastName': person.lastName,
-      ':address': person.address,
+    const recipientExpressionAttributeValues: { [key: string]: unknown } = {
+      ':firstName': recipient.firstName,
+      ':lastName': recipient.lastName,
+      ':address': recipient.address,
     };
 
-    if (person.description) {
-      personUpdateExpressionParts.push('#description = :description');
-      personExpressionAttributeValues[':description'] = person.description;
+    if (recipient.description) {
+      recipientUpdateExpressionParts.push('#description = :description');
+      recipientExpressionAttributeValues[':description'] =
+        recipient.description;
     }
 
-    if (person.occupation) {
-      personUpdateExpressionParts.push('#occupation = :occupation');
-      personExpressionAttributeValues[':occupation'] = person.occupation;
+    if (recipient.occupation) {
+      recipientUpdateExpressionParts.push('#occupation = :occupation');
+      recipientExpressionAttributeValues[':occupation'] = recipient.occupation;
     }
 
     transactItems.push({
       Update: {
-        TableName: 'OneHundredLettersPersonTable',
-        Key: { personId: person.personId },
-        UpdateExpression: `SET ${personUpdateExpressionParts.join(', ')}`,
+        TableName: 'OneHundredLettersRecipientTable',
+        Key: { recipientId: recipient.recipientId },
+        UpdateExpression: `SET ${recipientUpdateExpressionParts.join(', ')}`,
         ExpressionAttributeNames: {
           '#firstName': 'firstName',
           '#lastName': 'lastName',
@@ -64,7 +65,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           '#description': 'description',
           '#occupation': 'occupation',
         },
-        ExpressionAttributeValues: personExpressionAttributeValues,
+        ExpressionAttributeValues: recipientExpressionAttributeValues,
       },
     });
 
@@ -158,7 +159,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       body: JSON.stringify({
         message: 'Correspondence updated successfully.',
         correspondenceId,
-        personId: person.personId,
+        recipientId: recipient.recipientId,
         letterIds,
       }),
     };

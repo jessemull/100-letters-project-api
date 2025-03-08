@@ -1,20 +1,20 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
 Resources:
-  PersonTable:
+  RecipientTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: "OneHundredLettersPersonTable"
+      TableName: "OneHundredLettersRecipientTable"
       AttributeDefinitions:
-        - AttributeName: "personId"
+        - AttributeName: "recipientId"
           AttributeType: "S"
       KeySchema:
-        - AttributeName: "personId"
+        - AttributeName: "recipientId"
           KeyType: "HASH"
       BillingMode: PAY_PER_REQUEST
       Tags:
         - Key: "Name"
-          Value: "OneHundredLettersPersonTable"
+          Value: "OneHundredLettersRecipientTable"
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
 
@@ -59,9 +59,9 @@ Resources:
             ProjectionType: "ALL"
 
 Outputs:
-  PersonTable:
-    Value: !Ref PersonTable
-    Description: "DynamoDB table for Person"
+  RecipientTable:
+    Value: !Ref RecipientTable
+    Description: "DynamoDB table for Recipient"
   CorrespondenceTable:
     Value: !Ref CorrespondenceTable
     Description: "DynamoDB table for Correspondence"
