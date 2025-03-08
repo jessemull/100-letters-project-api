@@ -42,15 +42,23 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       ':address': recipient.address,
     };
 
+    const recipientExpressionAttributeNames: { [key: string]: string } = {
+      '#firstName': 'firstName',
+      '#lastName': 'lastName',
+      '#address': 'address',
+    };
+
     if (recipient.description) {
       recipientUpdateExpressionParts.push('#description = :description');
       recipientExpressionAttributeValues[':description'] =
         recipient.description;
+      recipientExpressionAttributeNames['#description'] = 'description';
     }
 
     if (recipient.occupation) {
       recipientUpdateExpressionParts.push('#occupation = :occupation');
       recipientExpressionAttributeValues[':occupation'] = recipient.occupation;
+      recipientExpressionAttributeNames['#occupation'] = 'occupation';
     }
 
     transactItems.push({
@@ -58,13 +66,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         TableName: 'OneHundredLettersRecipientTable',
         Key: { recipientId: recipient.recipientId },
         UpdateExpression: `SET ${recipientUpdateExpressionParts.join(', ')}`,
-        ExpressionAttributeNames: {
-          '#firstName': 'firstName',
-          '#lastName': 'lastName',
-          '#address': 'address',
-          '#description': 'description',
-          '#occupation': 'occupation',
-        },
+        ExpressionAttributeNames: recipientExpressionAttributeNames,
         ExpressionAttributeValues: recipientExpressionAttributeValues,
       },
     });
@@ -105,10 +107,21 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         ':type': letterData.type,
       };
 
+      const letterExpressionAttributeNames: { [key: string]: string } = {
+        '#date': 'date',
+        '#imageURL': 'imageURL',
+        '#method': 'method',
+        '#status': 'status',
+        '#text': 'text',
+        '#title': 'title',
+        '#type': 'type',
+      };
+
       if (letterData.description) {
         letterUpdateExpressionParts.push('#description = :description');
         letterExpressionAttributeValues[':description'] =
           letterData.description;
+        letterExpressionAttributeNames['#description'] = 'description';
       }
 
       if (letterId) {
@@ -120,16 +133,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
               letterId: string;
             },
             UpdateExpression: `SET ${letterUpdateExpressionParts.join(', ')}`,
-            ExpressionAttributeNames: {
-              '#date': 'date',
-              '#description': 'description',
-              '#imageURL': 'imageURL',
-              '#method': 'method',
-              '#status': 'status',
-              '#text': 'text',
-              '#title': 'title',
-              '#type': 'type',
-            },
+            ExpressionAttributeNames: letterExpressionAttributeNames,
             ExpressionAttributeValues: letterExpressionAttributeValues,
           },
         });
