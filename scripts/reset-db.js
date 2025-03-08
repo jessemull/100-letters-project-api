@@ -3,7 +3,7 @@ const { DynamoDBClient, ScanCommand, DeleteItemCommand } = require('@aws-sdk/cli
 const dynamoDBClient = new DynamoDBClient({ region: 'us-west-2' });
 
 const tableNames = [
-  'OneHundredLettersPersonTable',
+  'OneHundredLettersRecipientTable',
   'OneHundredLettersCorrespondenceTable',
   'OneHundredLettersLetterTable',
 ];
@@ -24,8 +24,8 @@ async function deleteTableItems(tableName) {
 
   for (let i = 0; i < data.Items.length; i++) {
     let key;
-    if (tableName === 'OneHundredLettersPersonTable') {
-      key = { personId: data.Items[i].personId };
+    if (tableName === 'OneHundredLettersRecipientTable') {
+      key = { recipientId: data.Items[i].recipientId };
     } else if (tableName === 'OneHundredLettersCorrespondenceTable') {
       key = { correspondenceId: data.Items[i].correspondenceId };
     } else if (tableName === 'OneHundredLettersLetterTable') {

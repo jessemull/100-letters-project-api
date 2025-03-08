@@ -3,17 +3,17 @@ const { faker } = require('@faker-js/faker');
 
 const dynamoDBClient = new DynamoDBClient({ region: 'us-west-2' });
 
-const personTableName = 'OneHundredLettersPersonTable';
+const recipientTableName = 'OneHundredLettersRecipientTable';
 const correspondenceTableName = 'OneHundredLettersCorrespondenceTable';
 const letterTableName = 'OneHundredLettersLetterTable';
 
-const numPersons = 10;
+const numRecipients = 10;
 const numCorrespondences = 20;
 const numLetters = 30;
 
-function generatePersonData(id) {
+function generateRecipientData(id) {
   return {
-    personId: { S: `PERSON#${id}` },
+    recipientId: { S: `RECIPIENT#${id}` },
     firstName: { S: faker.person.firstName() },
     lastName: { S: faker.person.lastName() },
     address: { S: faker.location.streetAddress() },
@@ -22,10 +22,10 @@ function generatePersonData(id) {
   };
 }
 
-function generateCorrespondenceData(personId, correspondenceId) {
+function generateCorrespondenceData(recipientId, correspondenceId) {
   return {
     correspondenceId: { S: `CORRESPONDENCE#${correspondenceId}` },
-    personId: { S: `PERSON#${personId}` }, 
+    recipientId: { S: `RECIPIENT#${recipientId}` }, 
     reason: { S: faker.lorem.sentence() },
     createdAt: { S: faker.date.past().toISOString() },
     updatedAt: { S: faker.date.recent().toISOString() }
@@ -50,20 +50,20 @@ function generateLetterData(correspondenceId, letterId) {
 
 async function seedData() {
   try {
-    for (let i = 1; i <= numPersons; i++) {
-      const person = generatePersonData(i);
+    for (let i = 1; i <= numRecipients; i++) {
+      const recipient = generateRecipientData(i);
       const params = {
-        TableName: personTableName,
-        Item: person
+        TableName: recipientTableName,
+        Item: recipient
       };
       const command = new PutItemCommand(params);
       await dynamoDBClient.send(command);
-      console.log(`Inserted person: ${person.personId.S}`);
+      console.log(`Inserted recipient: ${recipient.recipientId.S}`);
     }
 
     for (let i = 1; i <= numCorrespondences; i++) {
-      const personId = faker.helpers.arrayElement([...Array(numPersons).keys()].map(i => i + 1));
-      const correspondence = generateCorrespondenceData(personId, i);
+      const recipientId = faker.helpers.arrayElement([...Array(numRecipients).keys()].map(i => i + 1));
+      const correspondence = generateCorrespondenceData(recipientId, i);
       const params = {
         TableName: correspondenceTableName,
         Item: correspondence

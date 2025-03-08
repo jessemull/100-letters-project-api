@@ -21,13 +21,13 @@ describe('getCorrespondences', () => {
     jest.clearAllMocks();
   });
 
-  it('should return all correspondences with person and letters', async () => {
+  it('should return all correspondences with recipient and letters', async () => {
     const mockCorrespondences = [
-      { correspondenceId: '1', personId: '123' },
-      { correspondenceId: '2', personId: '456' },
+      { correspondenceId: '1', recipientId: '123' },
+      { correspondenceId: '2', recipientId: '456' },
     ];
 
-    const mockPerson = { personId: '123', name: 'John Doe' };
+    const mockRecipient = { recipientId: '123', name: 'John Doe' };
     const mockLetters = [{ correspondenceId: '1', text: 'Letter 1' }];
 
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
@@ -35,7 +35,7 @@ describe('getCorrespondences', () => {
     });
 
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Item: mockPerson,
+      Item: mockRecipient,
     });
 
     (dynamoClient.send as jest.Mock).mockResolvedValue({
@@ -66,14 +66,14 @@ describe('getCorrespondences', () => {
     expect(JSON.parse(result.body || '').data).toEqual([
       {
         correspondenceId: '1',
-        personId: '123',
-        person: mockPerson,
+        recipientId: '123',
+        recipient: mockRecipient,
         letters: mockLetters,
       },
       {
         correspondenceId: '2',
-        personId: '456',
-        person: null,
+        recipientId: '456',
+        recipient: null,
         letters: mockLetters,
       },
     ]);
@@ -142,8 +142,8 @@ describe('getCorrespondences', () => {
     );
   });
 
-  it('should return an error if fetching person data fails', async () => {
-    const mockCorrespondences = [{ correspondenceId: '1', personId: '123' }];
+  it('should return an error if fetching recipient data fails', async () => {
+    const mockCorrespondences = [{ correspondenceId: '1', recipientId: '123' }];
 
     const mockLetters = [{ correspondenceId: '1', text: 'Letter 1' }];
 
@@ -152,7 +152,7 @@ describe('getCorrespondences', () => {
     });
 
     (dynamoClient.send as jest.Mock).mockRejectedValueOnce(
-      new Error('Person fetch error'),
+      new Error('Recipient fetch error'),
     );
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
       Items: mockLetters,
@@ -182,28 +182,28 @@ describe('getCorrespondences', () => {
     expect(JSON.parse(result.body || '').data).toEqual([
       {
         correspondenceId: '1',
-        personId: '123',
-        person: null,
+        recipientId: '123',
+        recipient: null,
         letters: mockLetters,
       },
     ]);
     expect(logger.error).toHaveBeenCalledWith(
-      'Error fetching person with ID 123: ',
+      'Error fetching recipient with ID 123: ',
       expect.any(Error),
     );
   });
 
   it('should return an error if fetching letters data fails', async () => {
-    const mockCorrespondences = [{ correspondenceId: '1', personId: '123' }];
+    const mockCorrespondences = [{ correspondenceId: '1', recipientId: '123' }];
 
-    const mockPerson = { personId: '123', name: 'John Doe' };
+    const mockRecipient = { recipientId: '123', name: 'John Doe' };
 
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
       Items: mockCorrespondences,
     });
 
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Item: mockPerson,
+      Item: mockRecipient,
     });
 
     (dynamoClient.send as jest.Mock).mockRejectedValueOnce(
@@ -234,8 +234,8 @@ describe('getCorrespondences', () => {
     expect(JSON.parse(result.body || '').data).toEqual([
       {
         correspondenceId: '1',
-        personId: '123',
-        person: mockPerson,
+        recipientId: '123',
+        recipient: mockRecipient,
         letters: [],
       },
     ]);
@@ -246,15 +246,15 @@ describe('getCorrespondences', () => {
   });
 
   it('should return empty letters array if letters result is undefined', async () => {
-    const mockCorrespondences = [{ correspondenceId: '1', personId: '123' }];
-    const mockPerson = { personId: '123', name: 'John Doe' };
+    const mockCorrespondences = [{ correspondenceId: '1', recipientId: '123' }];
+    const mockRecipient = { recipientId: '123', name: 'John Doe' };
 
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
       Items: mockCorrespondences,
     });
 
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Item: mockPerson,
+      Item: mockRecipient,
     });
 
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
@@ -285,8 +285,8 @@ describe('getCorrespondences', () => {
     expect(JSON.parse(result.body || '').data).toEqual([
       {
         correspondenceId: '1',
-        personId: '123',
-        person: mockPerson,
+        recipientId: '123',
+        recipient: mockRecipient,
         letters: [],
       },
     ]);

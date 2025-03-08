@@ -40,9 +40,9 @@ describe('Handler tests', () => {
     expect(JSON.parse(response.body).message).toBe('Request body is required.');
   });
 
-  it('should return 400 if person, correspondence, or letters are missing from body', async () => {
+  it('should return 400 if recipient, correspondence, or letters are missing from body', async () => {
     const event = {
-      body: JSON.stringify({ person: {}, correspondence: {} }),
+      body: JSON.stringify({ recipient: {}, correspondence: {} }),
     } as unknown as APIGatewayProxyEvent;
 
     const response = (await handler(
@@ -53,14 +53,14 @@ describe('Handler tests', () => {
 
     expect(response.statusCode).toBe(400);
     expect(JSON.parse(response.body).message).toBe(
-      'Person, correspondence, and letters are required.',
+      'Recipient, correspondence, and letters are required.',
     );
   });
 
   it('should return 500 if there is an error during the transaction', async () => {
     const event = {
       body: JSON.stringify({
-        person: { name: 'John Doe' },
+        recipient: { name: 'John Doe' },
         correspondence: { title: 'Test Correspondence' },
         letters: [{ letterId: 'letter123', content: 'Hello' }],
       }),
@@ -80,10 +80,10 @@ describe('Handler tests', () => {
     expect(JSON.parse(response.body).message).toBe('Internal Server Error');
   });
 
-  it('should return 201 when correspondence, person, and letters are successfully created', async () => {
+  it('should return 201 when correspondence, recipient, and letters are successfully created', async () => {
     const event = {
       body: JSON.stringify({
-        person: { name: 'John Doe' },
+        recipient: { name: 'John Doe' },
         correspondence: { title: 'Test Correspondence' },
         letters: [{ letterId: 'letter123', content: 'Hello' }],
       }),
@@ -103,10 +103,10 @@ describe('Handler tests', () => {
     );
   });
 
-  it('should correctly add UUIDs for correspondence and person', async () => {
+  it('should correctly add UUIDs for correspondence and recipient', async () => {
     const event = {
       body: JSON.stringify({
-        person: { name: 'John Doe' },
+        recipient: { name: 'John Doe' },
         correspondence: { title: 'Test Correspondence' },
         letters: [{ letterId: 'letter123', content: 'Hello' }],
       }),
@@ -123,13 +123,13 @@ describe('Handler tests', () => {
 
     expect(response.statusCode).toBe(201);
     expect(responseBody.correspondenceId).toHaveLength(36);
-    expect(responseBody.personId).toHaveLength(36);
+    expect(responseBody.recipientId).toHaveLength(36);
   });
 
   it('should return 400 if letters array is missing', async () => {
     const event = {
       body: JSON.stringify({
-        person: { name: 'John Doe' },
+        recipient: { name: 'John Doe' },
         correspondence: { title: 'Test Correspondence' },
       }),
     } as unknown as APIGatewayProxyEvent;
@@ -142,14 +142,14 @@ describe('Handler tests', () => {
 
     expect(response.statusCode).toBe(400);
     expect(JSON.parse(response.body).message).toBe(
-      'Person, correspondence, and letters are required.',
+      'Recipient, correspondence, and letters are required.',
     );
   });
 
   it('should return 500 if there is an error during the put request', async () => {
     const event = {
       body: JSON.stringify({
-        person: { name: 'John Doe' },
+        recipient: { name: 'John Doe' },
         correspondence: { title: 'Test Correspondence' },
         letters: [{ letterId: 'letter123', content: 'Hello' }],
       }),

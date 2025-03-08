@@ -67,9 +67,9 @@ describe('Handler tests', () => {
     expect(JSON.parse(response.body).message).toBe('Internal Server Error');
   });
 
-  it('should delete correspondence, person, and letters if they exist', async () => {
+  it('should delete correspondence, recipient, and letters if they exist', async () => {
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Item: { correspondenceId: '123', personId: '456' },
+      Item: { correspondenceId: '123', recipientId: '456' },
     });
 
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
@@ -89,7 +89,7 @@ describe('Handler tests', () => {
 
     expect(response.statusCode).toBe(200);
     expect(JSON.parse(response.body).message).toBe(
-      'Successfully deleted correspondence, person, and letters.',
+      'Successfully deleted correspondence, recipient, and letters.',
     );
     expect(dynamoClient.send).toHaveBeenCalledWith(
       expect.any(TransactWriteCommand),
@@ -98,7 +98,7 @@ describe('Handler tests', () => {
 
   it('should return 500 if there is an error performing the transaction', async () => {
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Item: { correspondenceId: '123', personId: '456' },
+      Item: { correspondenceId: '123', recipientId: '456' },
     });
 
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({

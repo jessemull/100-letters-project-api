@@ -16,19 +16,19 @@ export const handler: APIGatewayProxyHandler = async () => {
 
     const results = await Promise.all(
       correspondences.map(async (correspondence) => {
-        const personParams = {
-          TableName: 'OneHundredLettersPersonTable',
-          Key: { personId: correspondence.personId },
+        const recipientParams = {
+          TableName: 'OneHundredLettersRecipientTable',
+          Key: { recipientId: correspondence.recipientId },
         };
 
-        let person = null;
+        let recipient = null;
         try {
-          const personCommand = new GetCommand(personParams);
-          const personResult = await dynamoClient.send(personCommand);
-          person = personResult.Item || null;
+          const recipientCommand = new GetCommand(recipientParams);
+          const recipientResult = await dynamoClient.send(recipientCommand);
+          recipient = recipientResult.Item || null;
         } catch (error) {
           logger.error(
-            `Error fetching person with ID ${correspondence.personId}: `,
+            `Error fetching recipient with ID ${correspondence.recipientId}: `,
             error,
           );
         }
@@ -55,7 +55,7 @@ export const handler: APIGatewayProxyHandler = async () => {
         }
         return {
           ...correspondence,
-          person,
+          recipient,
           letters,
         };
       }),

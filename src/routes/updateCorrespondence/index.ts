@@ -19,52 +19,55 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       ).build();
     }
 
-    const { person, correspondence, letters } = JSON.parse(event.body);
+    const { recipient, correspondence, letters } = JSON.parse(event.body);
 
-    if (!person || !correspondence || !letters) {
+    if (!recipient || !correspondence || !letters) {
       return new BadRequestError(
-        'Person, correspondence, and letters are required.',
+        'Recipient, correspondence, and letters are required.',
       ).build();
     }
 
     const transactItems: TransactionItem[] = [];
     const letterIds: string[] = [];
 
-    const personUpdateExpressionParts: string[] = [
+    const recipientUpdateExpressionParts: string[] = [
       '#firstName = :firstName',
       '#lastName = :lastName',
       '#address = :address',
     ];
 
-    const personExpressionAttributeValues: { [key: string]: unknown } = {
-      ':firstName': person.firstName,
-      ':lastName': person.lastName,
-      ':address': person.address,
+    const recipientExpressionAttributeValues: { [key: string]: unknown } = {
+      ':firstName': recipient.firstName,
+      ':lastName': recipient.lastName,
+      ':address': recipient.address,
     };
 
-    if (person.description) {
-      personUpdateExpressionParts.push('#description = :description');
-      personExpressionAttributeValues[':description'] = person.description;
+    const recipientExpressionAttributeNames: { [key: string]: string } = {
+      '#firstName': 'firstName',
+      '#lastName': 'lastName',
+      '#address': 'address',
+    };
+
+    if (recipient.description) {
+      recipientUpdateExpressionParts.push('#description = :description');
+      recipientExpressionAttributeValues[':description'] =
+        recipient.description;
+      recipientExpressionAttributeNames['#description'] = 'description';
     }
 
-    if (person.occupation) {
-      personUpdateExpressionParts.push('#occupation = :occupation');
-      personExpressionAttributeValues[':occupation'] = person.occupation;
+    if (recipient.occupation) {
+      recipientUpdateExpressionParts.push('#occupation = :occupation');
+      recipientExpressionAttributeValues[':occupation'] = recipient.occupation;
+      recipientExpressionAttributeNames['#occupation'] = 'occupation';
     }
 
     transactItems.push({
       Update: {
-        TableName: 'OneHundredLettersPersonTable',
-        Key: { personId: person.personId },
-        UpdateExpression: `SET ${personUpdateExpressionParts.join(', ')}`,
-        ExpressionAttributeNames: {
-          '#firstName': 'firstName',
-          '#lastName': 'lastName',
-          '#address': 'address',
-          '#description': 'description',
-          '#occupation': 'occupation',
-        },
-        ExpressionAttributeValues: personExpressionAttributeValues,
+        TableName: 'OneHundredLettersRecipientTable',
+        Key: { recipientId: recipient.recipientId },
+        UpdateExpression: `SET ${recipientUpdateExpressionParts.join(', ')}`,
+        ExpressionAttributeNames: recipientExpressionAttributeNames,
+        ExpressionAttributeValues: recipientExpressionAttributeValues,
       },
     });
 
@@ -104,10 +107,21 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         ':type': letterData.type,
       };
 
+      const letterExpressionAttributeNames: { [key: string]: string } = {
+        '#date': 'date',
+        '#imageURL': 'imageURL',
+        '#method': 'method',
+        '#status': 'status',
+        '#text': 'text',
+        '#title': 'title',
+        '#type': 'type',
+      };
+
       if (letterData.description) {
         letterUpdateExpressionParts.push('#description = :description');
         letterExpressionAttributeValues[':description'] =
           letterData.description;
+        letterExpressionAttributeNames['#description'] = 'description';
       }
 
       if (letterId) {
@@ -119,16 +133,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
               letterId: string;
             },
             UpdateExpression: `SET ${letterUpdateExpressionParts.join(', ')}`,
-            ExpressionAttributeNames: {
-              '#date': 'date',
-              '#description': 'description',
-              '#imageURL': 'imageURL',
-              '#method': 'method',
-              '#status': 'status',
-              '#text': 'text',
-              '#title': 'title',
-              '#type': 'type',
-            },
+            ExpressionAttributeNames: letterExpressionAttributeNames,
             ExpressionAttributeValues: letterExpressionAttributeValues,
           },
         });
@@ -158,7 +163,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       body: JSON.stringify({
         message: 'Correspondence updated successfully.',
         correspondenceId,
-        personId: person.personId,
+        recipientId: recipient.recipientId,
         letterIds,
       }),
     };

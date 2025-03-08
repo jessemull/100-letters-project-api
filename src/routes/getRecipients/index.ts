@@ -6,7 +6,7 @@ import { dynamoClient, logger } from '../../common/util';
 export const handler: APIGatewayProxyHandler = async () => {
   try {
     const params = {
-      TableName: 'OneHundredLettersPersonTable',
+      TableName: 'OneHundredLettersRecipientTable',
     };
 
     const command = new ScanCommand(params);

@@ -85,9 +85,9 @@ describe('Handler tests', () => {
     expect(JSON.parse(response.body).message).toBe('Correspondence not found!');
   });
 
-  it('should return 404 if person is not found', async () => {
+  it('should return 404 if recipient is not found', async () => {
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Item: { correspondenceId: '123', personId: '456' },
+      Item: { correspondenceId: '123', recipientId: '456' },
     });
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({});
 
@@ -98,7 +98,7 @@ describe('Handler tests', () => {
     )) as APIGatewayProxyResult;
 
     expect(response.statusCode).toBe(404);
-    expect(JSON.parse(response.body).message).toBe('Person not found!');
+    expect(JSON.parse(response.body).message).toBe('Recipient not found!');
   });
 
   it('should return 500 if there is an error fetching correspondence', async () => {
@@ -116,9 +116,9 @@ describe('Handler tests', () => {
     expect(JSON.parse(response.body).message).toBe('Internal Server Error');
   });
 
-  it('should return 500 if there is an error fetching person', async () => {
+  it('should return 500 if there is an error fetching recipient', async () => {
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Item: { correspondenceId: '123', personId: '456' },
+      Item: { correspondenceId: '123', recipientId: '456' },
     });
     (dynamoClient.send as jest.Mock).mockRejectedValueOnce(
       new Error('DynamoDB error'),
@@ -136,10 +136,10 @@ describe('Handler tests', () => {
 
   it('should return 500 if there is an error fetching letters', async () => {
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Item: { correspondenceId: '123', personId: '456' },
+      Item: { correspondenceId: '123', recipientId: '456' },
     });
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Item: { personId: '456' },
+      Item: { recipientId: '456' },
     });
     (dynamoClient.send as jest.Mock).mockRejectedValueOnce(
       new Error('DynamoDB error'),
@@ -155,12 +155,12 @@ describe('Handler tests', () => {
     expect(JSON.parse(response.body).message).toBe('Internal Server Error');
   });
 
-  it('should return 200 with correspondence, person, and letters', async () => {
+  it('should return 200 with correspondence, recipient, and letters', async () => {
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Item: { correspondenceId: '123', personId: '456' },
+      Item: { correspondenceId: '123', recipientId: '456' },
     });
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Item: { personId: '456' },
+      Item: { recipientId: '456' },
     });
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
       Items: [{ letterId: 'abc', correspondenceId: '123' }],
@@ -175,15 +175,17 @@ describe('Handler tests', () => {
     expect(response.statusCode).toBe(200);
     expect(JSON.parse(response.body).data.correspondence).toEqual({
       correspondenceId: '123',
-      personId: '456',
+      recipientId: '456',
     });
-    expect(JSON.parse(response.body).data.person).toEqual({ personId: '456' });
+    expect(JSON.parse(response.body).data.recipient).toEqual({
+      recipientId: '456',
+    });
     expect(JSON.parse(response.body).data.letters).toEqual([
       { letterId: 'abc', correspondenceId: '123' },
     ]);
   });
 
-  it('should handle undefined or null person in correspondence', async () => {
+  it('should handle undefined or null recipient in correspondence', async () => {
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
       Item: { correspondenceId: '123' },
     });
@@ -196,16 +198,16 @@ describe('Handler tests', () => {
     )) as APIGatewayProxyResult;
 
     expect(response.statusCode).toBe(404);
-    expect(JSON.parse(response.body).message).toBe('Person not found!');
+    expect(JSON.parse(response.body).message).toBe('Recipient not found!');
   });
 
   it('should return empty array for letters when no letters are found', async () => {
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Item: { correspondenceId: '123', personId: '456' },
+      Item: { correspondenceId: '123', recipientId: '456' },
     });
 
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Item: { personId: '456', name: 'John Doe' },
+      Item: { recipientId: '456', name: 'John Doe' },
     });
 
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({});

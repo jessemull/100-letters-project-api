@@ -1,5 +1,5 @@
 import { LetterInput } from './letters';
-import { PersonInput } from './people';
+import { RecipientInput } from './recipients';
 
 export type CorrespondenceInput = {
   reason: string;
@@ -7,14 +7,14 @@ export type CorrespondenceInput = {
 
 export type CreateOrUpdateCorrespondenceInput = {
   correspondence: CorrespondenceInput;
-  person: PersonInput;
+  recipient: RecipientInput;
   letters: LetterInput[];
 };
 
 export type Correspondence = {
   correspondenceId: string;
   createdAt: string;
-  personId: string;
+  recipientId: string;
   reason: string;
   updatedAt: string;
 };
