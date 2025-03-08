@@ -11,13 +11,19 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       return new BadRequestError('Request body is required.').build();
     }
 
-    const { correspondenceId, person, correspondence, letters } = JSON.parse(
-      event.body,
-    );
+    const correspondenceId = event.pathParameters?.id;
 
-    if (!correspondenceId || !person || !correspondence || !letters) {
+    if (!correspondenceId) {
       return new BadRequestError(
-        'Correspondence ID, person, correspondence, and letters are required.',
+        'Correspondence ID is required in the path parameters.',
+      ).build();
+    }
+
+    const { person, correspondence, letters } = JSON.parse(event.body);
+
+    if (!person || !correspondence || !letters) {
+      return new BadRequestError(
+        'Person, correspondence, and letters are required.',
       ).build();
     }
 

@@ -45,12 +45,16 @@ Resources:
           correspondence:
             type: "object"
             properties:
+              correspondenceId:
+                type: "string"  # Make this optional
               reason:
                 type: "string"
-            required: ["reason"]
+            required: ["reason"]  # correspondenceId is optional for update
           person:
             type: "object"
             properties:
+              personId:
+                type: "string"  # Make this optional
               address:
                 type: "string"
               firstName:
@@ -61,12 +65,14 @@ Resources:
                 type: "string"
               occupation:
                 type: "string"
-            required: ["address", "firstName", "lastName"]
+            required: ["address", "firstName", "lastName"]  # personId is optional for update
           letters:
             type: "array"
             items:
               type: "object"
               properties:
+                letterId:
+                  type: "string"  # Make this optional
                 date:
                   type: "string"
                   format: "date-time"
@@ -91,6 +97,7 @@ Resources:
               required: ["date", "imageURL", "method", "status", "text", "title", "type"]
         required: ["correspondence", "person", "letters"]
 
+
   ApiGatewayCorrespondence:
     Type: AWS::ApiGateway::Resource
     Properties:
@@ -110,19 +117,6 @@ Resources:
         Type: AWS_PROXY
         Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getCorrespondences/invocations"
 
-  ApiGatewayCorrespondenceUpdateMethod:
-    Type: AWS::ApiGateway::Method
-    Properties:
-      RestApiId: !Ref OneHundredLettersApi
-      ResourceId: !Ref ApiGatewayCorrespondence
-      AuthorizationType: COGNITO_USER_POOLS
-      AuthorizerId: !Ref ApiGatewayAuthorizer
-      HttpMethod: PUT
-      Integration:
-        IntegrationHttpMethod: POST
-        Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:updateCorrespondence/invocations"
-
   ApiGatewayCorrespondenceCreateMethod:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -139,18 +133,18 @@ Resources:
         Type: AWS_PROXY
         Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createCorrespondence/invocations"
 
-  ApiGatewayGetCorrespondencesById:
+  ApiGatewayCorrespondencesById:
     Type: AWS::ApiGateway::Resource
     Properties:
       RestApiId: !Ref OneHundredLettersApi
       ParentId: !Ref ApiGatewayCorrespondence
       PathPart: "{id}"
       
-  ApiGatewayGetCorrespondencesByIdMethod:
+  ApiGatewayCorrespondencesByIdMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       RestApiId: !Ref OneHundredLettersApi
-      ResourceId: !Ref ApiGatewayGetCorrespondencesById
+      ResourceId: !Ref ApiGatewayCorrespondencesById
       HttpMethod: GET
       AuthorizationType: NONE
       Integration:
@@ -160,11 +154,29 @@ Resources:
       RequestParameters:
         method.request.path.id: true
 
+  ApiGatewayCorrespondenceUpdateMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ResourceId: !Ref ApiGatewayCorrespondencesById
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !Ref ApiGatewayAuthorizer
+      HttpMethod: PUT
+      RequestValidatorId: !Ref ApiGatewayRequestValidator
+      RequestModels:
+        "application/json": !Ref ApiGatewayCorrespondenceInputModel
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:updateCorrespondence/invocations"
+      RequestParameters:
+        method.request.path.id: true
+
   ApiGatewayCorrespondenceDeleteMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       RestApiId: !Ref OneHundredLettersApi
-      ResourceId: !Ref ApiGatewayGetCorrespondencesById
+      ResourceId: !Ref ApiGatewayCorrespondencesById
       AuthorizationType: COGNITO_USER_POOLS
       AuthorizerId: !Ref ApiGatewayAuthorizer
       HttpMethod: DELETE
