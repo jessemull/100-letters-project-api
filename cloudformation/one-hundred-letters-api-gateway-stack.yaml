@@ -32,12 +32,12 @@ Resources:
 
   # Correspondence Resources/Methods
 
-  ApiGatewayCorrespondenceInputModel:
+  ApiGatewayCorrespondenceCreateInputModel:
     Type: AWS::ApiGateway::Model
     Properties:
       RestApiId: !Ref OneHundredLettersApi
       ContentType: "application/json"
-      Name: "CorrespondenceModel"
+      Name: "CorrespondenceCreateModel"
       Schema:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
@@ -45,16 +45,12 @@ Resources:
           correspondence:
             type: "object"
             properties:
-              correspondenceId:
-                type: "string"  # Make this optional
               reason:
                 type: "string"
-            required: ["reason"]  # correspondenceId is optional for update
+            required: ["reason"]
           person:
             type: "object"
             properties:
-              personId:
-                type: "string"  # Make this optional
               address:
                 type: "string"
               firstName:
@@ -65,14 +61,12 @@ Resources:
                 type: "string"
               occupation:
                 type: "string"
-            required: ["address", "firstName", "lastName"]  # personId is optional for update
+            required: ["address", "firstName", "lastName"]
           letters:
             type: "array"
             items:
               type: "object"
               properties:
-                letterId:
-                  type: "string"  # Make this optional
                 date:
                   type: "string"
                   format: "date-time"
@@ -97,6 +91,70 @@ Resources:
               required: ["date", "imageURL", "method", "status", "text", "title", "type"]
         required: ["correspondence", "person", "letters"]
 
+  ApiGatewayCorrespondenceUpdateInputModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ContentType: "application/json"
+      Name: "CorrespondenceUpdateModel"
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          correspondence:
+            type: "object"
+            properties:
+              correspondenceId:
+                type: "string"
+              reason:
+                type: "string"
+            required: ["correspondenceId", "reason"]
+          person:
+            type: "object"
+            properties:
+              personId:
+                type: "string"
+              address:
+                type: "string"
+              firstName:
+                type: "string"
+              lastName:
+                type: "string"
+              description:
+                type: "string"
+              occupation:
+                type: "string"
+            required: ["personId", "address", "firstName", "lastName"]
+          letters:
+            type: "array"
+            items:
+              type: "object"
+              properties:
+                letterId:
+                  type: "string"
+                date:
+                  type: "string"
+                  format: "date-time"
+                description:
+                  type: "string"
+                imageURL:
+                  type: "string"
+                  format: "uri"
+                method:
+                  type: "string"
+                  enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
+                status:
+                  type: "string"
+                  enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
+                text:
+                  type: "string"
+                title:
+                  type: "string"
+                type:
+                  type: "string"
+                  enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
+              required: ["letterId", "date", "imageURL", "method", "status", "text", "title", "type"]
+        required: ["correspondence", "person", "letters"]
 
   ApiGatewayCorrespondence:
     Type: AWS::ApiGateway::Resource
@@ -127,7 +185,7 @@ Resources:
       HttpMethod: POST
       RequestValidatorId: !Ref ApiGatewayRequestValidator
       RequestModels:
-        "application/json": !Ref ApiGatewayCorrespondenceInputModel
+        "application/json": !Ref ApiGatewayCorrespondenceCreateInputModel
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
@@ -164,7 +222,7 @@ Resources:
       HttpMethod: PUT
       RequestValidatorId: !Ref ApiGatewayRequestValidator
       RequestModels:
-        "application/json": !Ref ApiGatewayCorrespondenceInputModel
+        "application/json": !Ref ApiGatewayCorrespondenceUpdateInputModel
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
