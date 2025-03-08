@@ -135,7 +135,7 @@ describe('Handler tests', () => {
     )) as APIGatewayProxyResult;
 
     expect(response.statusCode).toBe(200);
-    expect(uuidv4).toHaveBeenCalledTimes(1); // Check if UUID was generated
+    expect(uuidv4).toHaveBeenCalledTimes(1);
     expect(JSON.parse(response.body).correspondenceId).toBe('mock-id');
   });
 
@@ -204,5 +204,57 @@ describe('Handler tests', () => {
       'Error updating correspondence: ',
       expect.any(Error),
     );
+  });
+
+  it('should correctly handle description and occupation updates for person and description update for letter', async () => {
+    const event = {
+      body: JSON.stringify({
+        correspondenceId: 'mock-id',
+        person: {
+          personId: 'mock-person-id',
+          firstName: 'John',
+          lastName: 'Doe',
+          address: '123 Main St',
+          description: 'Test description',
+          occupation: 'Engineer',
+        },
+        correspondence: { reason: 'Test reason' },
+        letters: [
+          {
+            letterId: 'letter123',
+            text: 'Hello',
+            description: 'Letter description',
+          },
+        ],
+      }),
+    } as unknown as APIGatewayProxyEvent;
+
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({});
+
+    const response = (await handler(
+      event,
+      mockContext,
+      mockCallback,
+    )) as APIGatewayProxyResult;
+
+    expect(response.statusCode).toBe(200);
+    const responseBody = JSON.parse(response.body);
+
+    expect(responseBody.correspondenceId).toBe('mock-id');
+
+    const receivedString = JSON.stringify(
+      (dynamoClient.send as jest.Mock).mock.calls[0][0],
+    );
+
+    expect(receivedString).toContain(':description":"Test description');
+    expect(receivedString).toContain(':occupation":"Engineer');
+    expect(receivedString).toContain(':description":"Letter description');
+    expect(receivedString).toContain(
+      'TableName":"OneHundredLettersPersonTable',
+    );
+    expect(receivedString).toContain(
+      'TableName":"OneHundredLettersLetterTable',
+    );
+    expect(receivedString).toContain('#description = :description');
   });
 });

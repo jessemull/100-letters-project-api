@@ -24,12 +24,33 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const transactItems: TransactionItem[] = [];
     const letterIds: string[] = [];
 
+    const personUpdateExpressionParts: string[] = [
+      '#firstName = :firstName',
+      '#lastName = :lastName',
+      '#address = :address',
+    ];
+
+    const personExpressionAttributeValues: { [key: string]: unknown } = {
+      ':firstName': person.firstName,
+      ':lastName': person.lastName,
+      ':address': person.address,
+    };
+
+    if (person.description) {
+      personUpdateExpressionParts.push('#description = :description');
+      personExpressionAttributeValues[':description'] = person.description;
+    }
+
+    if (person.occupation) {
+      personUpdateExpressionParts.push('#occupation = :occupation');
+      personExpressionAttributeValues[':occupation'] = person.occupation;
+    }
+
     transactItems.push({
       Update: {
         TableName: 'OneHundredLettersPersonTable',
         Key: { personId: person.personId },
-        UpdateExpression:
-          'SET #firstName = :firstName, #lastName = :lastName, #address = :address, #description = :description, #occupation = :occupation',
+        UpdateExpression: `SET ${personUpdateExpressionParts.join(', ')}`,
         ExpressionAttributeNames: {
           '#firstName': 'firstName',
           '#lastName': 'lastName',
@@ -37,13 +58,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           '#description': 'description',
           '#occupation': 'occupation',
         },
-        ExpressionAttributeValues: {
-          ':firstName': person.firstName,
-          ':lastName': person.lastName,
-          ':address': person.address,
-          ':description': person.description,
-          ':occupation': person.occupation,
-        },
+        ExpressionAttributeValues: personExpressionAttributeValues,
       },
     });
 
@@ -64,6 +79,31 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     letters.forEach((letter: LetterInput) => {
       const { letterId, ...letterData } = letter;
 
+      const letterUpdateExpressionParts: string[] = [
+        '#date = :date',
+        '#imageURL = :imageURL',
+        '#method = :method',
+        '#status = :status',
+        '#text = :text',
+        '#title = :title',
+        '#type = :type',
+      ];
+      const letterExpressionAttributeValues: { [key: string]: unknown } = {
+        ':date': letterData.date,
+        ':imageURL': letterData.imageURL,
+        ':method': letterData.method,
+        ':status': letterData.status,
+        ':text': letterData.text,
+        ':title': letterData.title,
+        ':type': letterData.type,
+      };
+
+      if (letterData.description) {
+        letterUpdateExpressionParts.push('#description = :description');
+        letterExpressionAttributeValues[':description'] =
+          letterData.description;
+      }
+
       if (letterId) {
         transactItems.push({
           Update: {
@@ -72,8 +112,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
               correspondenceId: string;
               letterId: string;
             },
-            UpdateExpression:
-              'SET #date = :date, #description = :description, #imageURL = :imageURL, #method = :method, #status = :status, #text = :text, #title = :title, #type = :type',
+            UpdateExpression: `SET ${letterUpdateExpressionParts.join(', ')}`,
             ExpressionAttributeNames: {
               '#date': 'date',
               '#description': 'description',
@@ -84,16 +123,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
               '#title': 'title',
               '#type': 'type',
             },
-            ExpressionAttributeValues: {
-              ':date': letterData.date,
-              ':description': letterData.description,
-              ':imageURL': letterData.imageURL,
-              ':method': letterData.method,
-              ':status': letterData.status,
-              ':text': letterData.text,
-              ':title': letterData.title,
-              ':type': letterData.type,
-            },
+            ExpressionAttributeValues: letterExpressionAttributeValues,
           },
         });
         letterIds.push(letterId);
