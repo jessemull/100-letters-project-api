@@ -266,18 +266,18 @@ Resources:
         Type: AWS_PROXY
         Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRecipients/invocations"
 
-  ApiGatewayGetRecipientById:
+  ApiGatewayRecipientById:
     Type: AWS::ApiGateway::Resource
     Properties:
       RestApiId: !Ref OneHundredLettersApi
       ParentId: !Ref ApiGatewayGetRecipients
       PathPart: "{id}"
 
-  ApiGatewayGetRecipientByIdMethod:
+  ApiGatewayRecipientByIdMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       RestApiId: !Ref OneHundredLettersApi
-      ResourceId: !Ref ApiGatewayGetRecipientById
+      ResourceId: !Ref ApiGatewayRecipientById
       HttpMethod: GET
       AuthorizationType: NONE
       Integration:
@@ -304,7 +304,7 @@ Resources:
     Type: AWS::ApiGateway::Method
     Properties:
       RestApiId: !Ref OneHundredLettersApi
-      ResourceId: !Ref ApiGatewayGetRecipientById
+      ResourceId: !Ref ApiGatewayRecipientById
       HttpMethod: PUT
       AuthorizationType: COGNITO_USER_POOLS
       AuthorizerId: !Ref ApiGatewayAuthorizer
@@ -319,7 +319,7 @@ Resources:
     Type: AWS::ApiGateway::Method
     Properties:
       RestApiId: !Ref OneHundredLettersApi
-      ResourceId: !Ref ApiGatewayGetRecipientById
+      ResourceId: !Ref ApiGatewayRecipientById
       HttpMethod: DELETE
       AuthorizationType: COGNITO_USER_POOLS
       AuthorizerId: !Ref ApiGatewayAuthorizer

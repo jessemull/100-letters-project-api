@@ -9,12 +9,15 @@ on:
         type: choice
         options:
           - createCorrespondence
+          - createRecipient
           - deleteCorrespondence
+          - deleteRecipient
           - getCorrespondences
           - getCorrespondenceById
           - getRecipientById
           - getRecipients
           - updateCorrespondence
+          - updateRecipient
       s3_zip_file:
         description: "Zip file name in S3 (e.g., previous.zip)"
         required: true
