@@ -12,12 +12,12 @@
     "typescript": "^5.2.2"
   },
   "main": "dist/index.js",
-  "name": "{{routeName}}",
+  "name": "deleteRecipient",
   "scripts": {
     "build": "tsc && npm run postbuild",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
-    "package": "cd dist && zip -rq {{routeName}}.zip ./*",
+    "package": "cd dist && zip -rq deleteRecipient.zip ./*",
     "postbuild": "cp package.json dist/ && [ -f package-lock.json ] && cp package-lock.json dist/ || true && cd dist && npm install --omit=dev",
     "prebuild": "rm -rf dist",
     "test": "jest",
