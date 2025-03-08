@@ -265,7 +265,7 @@ Resources:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
         Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRecipients/invocations"
-  
+
   ApiGatewayGetRecipientById:
     Type: AWS::ApiGateway::Resource
     Properties:
@@ -286,4 +286,51 @@ Resources:
         Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRecipientById/invocations"
       RequestParameters:
         method.request.path.id: true
-  
+
+  ApiGatewayCreateRecipientMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ResourceId: !Ref ApiGatewayGetRecipients
+      HttpMethod: POST
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !Ref ApiGatewayAuthorizer
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createRecipient/invocations"
+
+  ApiGatewayUpdateRecipientMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ResourceId: !Ref ApiGatewayGetRecipientById
+      HttpMethod: PUT
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !Ref ApiGatewayAuthorizer
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:updateRecipient/invocations"
+      RequestParameters:
+        method.request.path.id: true
+
+  ApiGatewayDeleteRecipientMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ResourceId: !Ref ApiGatewayGetRecipientById
+      HttpMethod: DELETE
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !Ref ApiGatewayAuthorizer
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:deleteRecipient/invocations"
+      RequestParameters:
+        method.request.path.id: true
+
+Outputs:
+  ApiGatewayUrl:
+    Value: !Sub "https://${OneHundredLettersApi}.execute-api.${AWS::Region}.amazonaws.com/prod"
+    Description: "URL of the deployed API Gateway"
