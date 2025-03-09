@@ -43,8 +43,9 @@ Resources:
                 Resource:
                   - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OneHundredLettersRecipientTable
                   - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OneHundredLettersCorrespondenceTable
+                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OneHundredLettersCorrespondenceTable/index/RecipientIndex
                   - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OneHundredLettersLetterTable
-                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OneHundredLettersLetterTable/index/CorrespondenceIndex # Add this line to allow querying the index
+                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OneHundredLettersLetterTable/index/CorrespondenceIndex
                   
 Outputs:
   LambdaExecutionRoleArn:
