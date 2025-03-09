@@ -1,4 +1,13 @@
-export type RecipientInput = {
+export type Recipient = {
+  address: string;
+  description?: string;
+  firstName: string;
+  lastName: string;
+  occupation?: string;
+  recipientId: string;
+};
+
+export type RecipientCreateInput = {
   address: string;
   description?: string;
   firstName: string;
@@ -6,7 +15,7 @@ export type RecipientInput = {
   occupation?: string;
 };
 
-export type Recipient = {
+export type RecipientUpdateInput = {
   address: string;
   description?: string;
   firstName: string;

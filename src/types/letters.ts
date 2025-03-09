@@ -35,7 +35,19 @@ export interface Letter {
   updatedAt: string;
 }
 
-export type LetterInput = {
+export type LetterCreateInput = {
+  date: string;
+  description?: string;
+  imageURL: string;
+  letterId?: string;
+  method: LetterMethod;
+  status: LetterStatus;
+  text: string;
+  title: string;
+  type: LetterType;
+};
+
+export type LetterUpdateInput = {
   date: string;
   description?: string;
   imageURL: string;

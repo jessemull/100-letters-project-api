@@ -247,6 +247,60 @@ Resources:
 
   # Recipient Resources/Methods
 
+  ApiGatewayRecipientCreateInputModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ContentType: "application/json"
+      Name: "RecipientCreateModel"
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          recipient:
+            type: "object"
+            properties:
+              address:
+                type: "string"
+              firstName:
+                type: "string"
+              lastName:
+                type: "string"
+              description:
+                type: "string"
+              occupation:
+                type: "string"
+            required: ["address", "firstName", "lastName"]
+        required: ["recipient"]
+
+  ApiGatewayRecipientUpdateInputModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ContentType: "application/json"
+      Name: "RecipientUpdateModel"
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          recipient:
+            type: "object"
+            properties:
+              recipientId:
+                type: "string"
+              address:
+                type: "string"
+              firstName:
+                type: "string"
+              lastName:
+                type: "string"
+              description:
+                type: "string"
+              occupation:
+                type: "string"
+            required: ["recipientId", "address", "firstName", "lastName"]
+        required: ["recipient"]
+
   ApiGatewayGetRecipients:
     Type: AWS::ApiGateway::Resource
     Properties:
@@ -295,6 +349,8 @@ Resources:
       HttpMethod: POST
       AuthorizationType: COGNITO_USER_POOLS
       AuthorizerId: !Ref ApiGatewayAuthorizer
+      RequestModels:
+        "application/json": !Ref ApiGatewayRecipientCreateInputModel
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
@@ -308,6 +364,8 @@ Resources:
       HttpMethod: PUT
       AuthorizationType: COGNITO_USER_POOLS
       AuthorizerId: !Ref ApiGatewayAuthorizer
+      RequestModels:
+        "application/json": !Ref ApiGatewayRecipientUpdateInputModel
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
