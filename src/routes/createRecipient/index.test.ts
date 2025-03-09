@@ -5,6 +5,7 @@ import {
 } from 'aws-lambda';
 import { dynamoClient, logger } from '../../common/util';
 import { handler } from './index';
+import { v4 as uuidv4 } from 'uuid';
 
 jest.mock('../../common/util', () => ({
   dynamoClient: {
@@ -16,12 +17,18 @@ jest.mock('../../common/util', () => ({
   },
 }));
 
+jest.mock('uuid', () => ({
+  v4: jest.fn(), // Mock the v4 function from uuid
+}));
+
 describe('createRecipient', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
 
   it('should successfully create a recipient when required fields are provided', async () => {
+    (uuidv4 as jest.Mock).mockReturnValueOnce('mock-uuid');
+
     const body = {
       firstName: 'John',
       lastName: 'Doe',
@@ -54,7 +61,7 @@ describe('createRecipient', () => {
     const responseBody = JSON.parse(result.body || '');
     expect(responseBody.message).toBe('Recipient created successfully!');
     expect(responseBody.data).toEqual({
-      recipientId: 'john-doe',
+      recipientId: 'mock-uuid',
       firstName: 'John',
       lastName: 'Doe',
       address: '123 Street',

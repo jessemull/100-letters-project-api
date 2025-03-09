@@ -3,6 +3,7 @@ import { BadRequestError, DatabaseError } from '../../common/errors';
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import { Recipient } from '../../types';
 import { dynamoClient, logger } from '../../common/util';
+import { v4 as uuidv4 } from 'uuid';
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
@@ -20,7 +21,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       ).build();
     }
 
-    const recipientId = `${firstName.toLowerCase()}-${lastName.toLowerCase()}`;
+    const recipientId = uuidv4();
 
     const recipientData: Recipient = {
       address,
