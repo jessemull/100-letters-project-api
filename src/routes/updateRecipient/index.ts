@@ -6,24 +6,23 @@ import { dynamoClient, logger } from '../../common/util';
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
+    const recipientId = event.pathParameters?.id;
+
+    if (!recipientId) {
+      return new BadRequestError('Recipient ID is required.').build();
+    }
+
     if (!event.body) {
       return new BadRequestError('Request body is required.').build();
     }
 
     const body = JSON.parse(event.body);
 
-    const {
-      recipientId,
-      address,
-      description,
-      firstName,
-      lastName,
-      occupation,
-    } = body;
+    const { address, description, firstName, lastName, occupation } = body;
 
-    if (!recipientId || !firstName || !lastName || !address) {
+    if (!firstName || !lastName || !address) {
       return new BadRequestError(
-        'Recipient ID, first name, last name, and address are required.',
+        'First name, last name, and address are required.',
       ).build();
     }
 

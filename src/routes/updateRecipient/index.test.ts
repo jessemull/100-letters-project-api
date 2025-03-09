@@ -27,6 +27,7 @@ describe('updateRecipient', () => {
 
   it('should return 400 if request body is missing', async () => {
     const event = {
+      pathParameters: { id: '123' },
       body: null,
     } as unknown as APIGatewayProxyEvent;
 
@@ -42,7 +43,8 @@ describe('updateRecipient', () => {
 
   it('should return 400 if recipientId, firstName, lastName, or address is missing from body', async () => {
     const event = {
-      body: JSON.stringify({ recipientId: '123' }),
+      pathParameters: { id: '123' },
+      body: JSON.stringify({}),
     } as unknown as APIGatewayProxyEvent;
 
     const response = (await handler(
@@ -53,12 +55,13 @@ describe('updateRecipient', () => {
 
     expect(response.statusCode).toBe(400);
     expect(JSON.parse(response.body).message).toBe(
-      'Recipient ID, first name, last name, and address are required.',
+      'First name, last name, and address are required.',
     );
   });
 
-  it('should return 400 if recipientId is missing from the body', async () => {
+  it('should return 400 if recipientId is missing from the path parameters', async () => {
     const event = {
+      pathParameters: {},
       body: JSON.stringify({
         firstName: 'John',
         lastName: 'Doe',
@@ -73,15 +76,13 @@ describe('updateRecipient', () => {
     )) as APIGatewayProxyResult;
 
     expect(response.statusCode).toBe(400);
-    expect(JSON.parse(response.body).message).toBe(
-      'Recipient ID, first name, last name, and address are required.',
-    );
+    expect(JSON.parse(response.body).message).toBe('Recipient ID is required.');
   });
 
   it('should return 400 if description or occupation is provided but not addressed', async () => {
     const event = {
+      pathParameters: { id: '123' },
       body: JSON.stringify({
-        recipientId: '123',
         firstName: 'John',
         lastName: 'Doe',
       }),
@@ -95,14 +96,14 @@ describe('updateRecipient', () => {
 
     expect(response.statusCode).toBe(400);
     expect(JSON.parse(response.body).message).toBe(
-      'Recipient ID, first name, last name, and address are required.',
+      'First name, last name, and address are required.',
     );
   });
 
   it('should return 500 if there is an error during the update operation', async () => {
     const event = {
+      pathParameters: { id: '123' },
       body: JSON.stringify({
-        recipientId: '123',
         firstName: 'John',
         lastName: 'Doe',
         address: '123 Main St',
@@ -125,8 +126,8 @@ describe('updateRecipient', () => {
 
   it('should return 200 when recipient is updated successfully', async () => {
     const event = {
+      pathParameters: { id: '123' },
       body: JSON.stringify({
-        recipientId: '123',
         firstName: 'John',
         lastName: 'Doe',
         address: '123 Main St',
@@ -158,8 +159,8 @@ describe('updateRecipient', () => {
 
   it('should return 400 if the recipient is not found in DynamoDB', async () => {
     const event = {
+      pathParameters: { id: '123' },
       body: JSON.stringify({
-        recipientId: '123',
         firstName: 'John',
         lastName: 'Doe',
         address: '123 Main St',
@@ -180,8 +181,8 @@ describe('updateRecipient', () => {
 
   it('should correctly handle optional fields (description, occupation)', async () => {
     const event = {
+      pathParameters: { id: '123' },
       body: JSON.stringify({
-        recipientId: '123',
         firstName: 'John',
         lastName: 'Doe',
         address: '123 Main St',
@@ -215,5 +216,25 @@ describe('updateRecipient', () => {
     );
     expect(mockResult.Attributes.description).toBe('Test description');
     expect(mockResult.Attributes.occupation).toBe('Engineer');
+  });
+
+  it('should return 400 if pathParameters is undefined', async () => {
+    const event = {
+      pathParameters: undefined,
+      body: JSON.stringify({
+        firstName: 'John',
+        lastName: 'Doe',
+        address: '123 Main St',
+      }),
+    } as unknown as APIGatewayProxyEvent;
+
+    const response = (await handler(
+      event,
+      mockContext,
+      mockCallback,
+    )) as APIGatewayProxyResult;
+
+    expect(response.statusCode).toBe(400);
+    expect(JSON.parse(response.body).message).toBe('Recipient ID is required.');
   });
 });
