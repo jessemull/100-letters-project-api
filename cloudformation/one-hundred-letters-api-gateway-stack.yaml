@@ -257,21 +257,17 @@ Resources:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
         properties:
-          recipient:
-            type: "object"
-            properties:
-              address:
-                type: "string"
-              firstName:
-                type: "string"
-              lastName:
-                type: "string"
-              description:
-                type: "string"
-              occupation:
-                type: "string"
-            required: ["address", "firstName", "lastName"]
-        required: ["recipient"]
+          address:
+            type: "string"
+          firstName:
+            type: "string"
+          lastName:
+            type: "string"
+          description:
+            type: "string"
+          occupation:
+            type: "string"
+        required: ["address", "firstName", "lastName"]
 
   ApiGatewayRecipientUpdateInputModel:
     Type: AWS::ApiGateway::Model
@@ -283,23 +279,19 @@ Resources:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
         properties:
-          recipient:
-            type: "object"
-            properties:
-              recipientId:
-                type: "string"
-              address:
-                type: "string"
-              firstName:
-                type: "string"
-              lastName:
-                type: "string"
-              description:
-                type: "string"
-              occupation:
-                type: "string"
-            required: ["recipientId", "address", "firstName", "lastName"]
-        required: ["recipient"]
+          recipientId:
+            type: "string"
+          address:
+            type: "string"
+          firstName:
+            type: "string"
+          lastName:
+            type: "string"
+          description:
+            type: "string"
+          occupation:
+            type: "string"
+        required: ["recipientId", "address", "firstName", "lastName"]
 
   ApiGatewayGetRecipients:
     Type: AWS::ApiGateway::Resource
