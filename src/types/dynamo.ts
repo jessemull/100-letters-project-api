@@ -1,3 +1,5 @@
+import { ReturnValue } from '@aws-sdk/client-dynamodb';
+
 export type TransactionItem = {
   Update?: {
     TableName: string;
@@ -12,3 +14,18 @@ export type TransactionItem = {
     ConditionExpression?: string;
   };
 };
+
+export interface UpdateParams {
+  TableName: string;
+  Key: {
+    [key: string]: string;
+  };
+  UpdateExpression: string;
+  ExpressionAttributeNames: {
+    [key: string]: string;
+  };
+  ExpressionAttributeValues: {
+    [key: string]: string;
+  };
+  ReturnValues: ReturnValue;
+}
