@@ -1,7 +1,7 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { BadRequestError, DatabaseError } from '../../common/errors';
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
-import { Recipient } from 'types';
+import { Recipient } from '../../types';
 import { dynamoClient, logger } from '../../common/util';
 
 export const handler: APIGatewayProxyHandler = async (event) => {
