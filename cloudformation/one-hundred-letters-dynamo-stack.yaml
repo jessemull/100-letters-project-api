@@ -25,10 +25,19 @@ Resources:
       AttributeDefinitions:
         - AttributeName: "correspondenceId"
           AttributeType: "S"
+        - AttributeName: "recipientId"
+          AttributeType: "S"
       KeySchema:
         - AttributeName: "correspondenceId"
           KeyType: "HASH"
       BillingMode: PAY_PER_REQUEST
+      GlobalSecondaryIndexes:
+        - IndexName: "RecipientIndex"
+          KeySchema:
+            - AttributeName: "recipientId"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: "ALL"
       Tags:
         - Key: "Name"
           Value: "OneHundredLettersCorrespondenceTable"
