@@ -1,15 +1,5 @@
-import { LetterInput } from './letters';
-import { RecipientInput } from './recipients';
-
-export type CorrespondenceInput = {
-  reason: string;
-};
-
-export type CreateOrUpdateCorrespondenceInput = {
-  correspondence: CorrespondenceInput;
-  recipient: RecipientInput;
-  letters: LetterInput[];
-};
+import { LetterCreateInput, LetterUpdateInput } from './letters';
+import { RecipientCreateInput, RecipientUpdateInput } from './recipients';
 
 export type Correspondence = {
   correspondenceId: string;
@@ -17,4 +7,21 @@ export type Correspondence = {
   recipientId: string;
   reason: string;
   updatedAt: string;
+};
+
+export type CorrespondenceCreateInput = {
+  correspondence: {
+    reason: string;
+  };
+  recipient: RecipientCreateInput;
+  letters: LetterCreateInput[];
+};
+
+export type CorrespondenceUpdateInput = {
+  correspondence: {
+    correspondenceId: string;
+    reason: string;
+  };
+  recipient: RecipientUpdateInput;
+  letters: LetterUpdateInput[];
 };

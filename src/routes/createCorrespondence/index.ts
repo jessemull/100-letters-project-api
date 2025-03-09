@@ -1,6 +1,6 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { BadRequestError, DatabaseError } from '../../common/errors';
-import { LetterInput } from '../../types';
+import { LetterCreateInput } from '../../types';
 import { TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
 import { dynamoClient, logger } from '../../common/util';
 import { v4 as uuidv4 } from 'uuid';
@@ -48,7 +48,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     const letterIds: string[] = [];
 
-    letters.forEach((letter: LetterInput) => {
+    letters.forEach((letter: LetterCreateInput) => {
       const letterId = uuidv4();
       letterIds.push(letterId);
       transactItems.push({
