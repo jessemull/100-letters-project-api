@@ -341,6 +341,7 @@ Resources:
       HttpMethod: POST
       AuthorizationType: COGNITO_USER_POOLS
       AuthorizerId: !Ref ApiGatewayAuthorizer
+      RequestValidatorId: !Ref ApiGatewayRequestValidator
       RequestModels:
         "application/json": !Ref ApiGatewayRecipientCreateInputModel
       Integration:
@@ -356,6 +357,7 @@ Resources:
       HttpMethod: PUT
       AuthorizationType: COGNITO_USER_POOLS
       AuthorizerId: !Ref ApiGatewayAuthorizer
+      RequestValidatorId: !Ref ApiGatewayRequestValidator
       RequestModels:
         "application/json": !Ref ApiGatewayRecipientUpdateInputModel
       Integration:
