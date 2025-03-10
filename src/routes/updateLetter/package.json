@@ -1,0 +1,27 @@
+{
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.758.0",
+    "@aws-sdk/lib-dynamodb": "^3.758.0",
+    "bunyan": "^1.8.15",
+    "bunyan-cloudwatch": "^2.2.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.147",
+    "@types/bunyan": "^1.8.11",
+    "@types/node": "^22.13.9",
+    "typescript": "^5.2.2"
+  },
+  "main": "dist/index.js",
+  "name": "updateLetter",
+  "scripts": {
+    "build": "tsc && npm run postbuild",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "package": "cd dist && zip -rq updateLetter.zip ./*",
+    "postbuild": "cp package.json dist/ && [ -f package-lock.json ] && cp package-lock.json dist/ || true && cd dist && npm install --omit=dev",
+    "prebuild": "rm -rf dist",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "version": "1.0.0"
+}

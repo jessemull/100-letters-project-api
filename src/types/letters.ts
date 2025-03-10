@@ -39,7 +39,6 @@ export type LetterCreateInput = {
   date: string;
   description?: string;
   imageURL: string;
-  letterId?: string;
   method: LetterMethod;
   status: LetterStatus;
   text: string;

@@ -9,10 +9,10 @@ Resources:
   MyLambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: {{routeName}}
+      FunctionName: getLetterById
       Runtime: nodejs20.x
       Role: !ImportValue OneHundredLettersLambdaExecutionRoleArn
-      Handler: routes/{{routeName}}/index.handler
+      Handler: routes/getLetterById/index.handler
       Code:
         S3Bucket: !ImportValue LambdaS3BucketName
         S3Key: !Ref S3Key
@@ -24,6 +24,6 @@ Resources:
     DependsOn: MyLambdaFunction
     Properties:
       Action: lambda:InvokeFunction
-      FunctionName: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:{{routeName}}"
+      FunctionName: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getLetterById"
       Principal: apigateway.amazonaws.com
-      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/{{HTTPMethod}}/*"
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/GET/*"
