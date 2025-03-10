@@ -1,6 +1,6 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { BadRequestError, DatabaseError } from '../../common/errors';
-import { LetterCreateInput } from '../../types';
+import { LetterCreateInput, Letter } from '../../types';
 import { TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
 import { dynamoClient, logger } from '../../common/util';
 import { v4 as uuidv4 } from 'uuid';
@@ -22,47 +22,42 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const recipientId = uuidv4();
     const correspondenceId = uuidv4();
 
+    const recipientItem = { recipientId, ...recipient };
+    const correspondenceItem = {
+      correspondenceId,
+      recipientId,
+      ...correspondence,
+    };
+
+    const letterItems: Letter[] = letters.map((letter: LetterCreateInput) => ({
+      letterId: uuidv4(),
+      correspondenceId,
+      ...letter,
+    }));
+
     const transactItems = [
       {
         Put: {
           TableName: 'OneHundredLettersRecipientTable',
-          Item: {
-            recipientId,
-            ...recipient,
-          },
+          Item: recipientItem,
           ConditionExpression: 'attribute_not_exists(recipientId)',
         },
       },
       {
         Put: {
           TableName: 'OneHundredLettersCorrespondenceTable',
-          Item: {
-            correspondenceId,
-            recipientId,
-            ...correspondence,
-          },
+          Item: correspondenceItem,
           ConditionExpression: 'attribute_not_exists(correspondenceId)',
         },
       },
-    ];
-
-    const letterIds: string[] = [];
-
-    letters.forEach((letter: LetterCreateInput) => {
-      const letterId = uuidv4();
-      letterIds.push(letterId);
-      transactItems.push({
+      ...letterItems.map((letter) => ({
         Put: {
           TableName: 'OneHundredLettersLetterTable',
-          Item: {
-            correspondenceId,
-            letterId,
-            ...letter,
-          },
+          Item: letter,
           ConditionExpression: 'attribute_not_exists(letterId)',
         },
-      });
-    });
+      })),
+    ];
 
     const command = new TransactWriteCommand({ TransactItems: transactItems });
     await dynamoClient.send(command);
@@ -70,10 +65,12 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     return {
       statusCode: 201,
       body: JSON.stringify({
-        message: 'Correspondence created successfully.',
-        correspondenceId,
-        recipientId,
-        letterIds,
+        message: 'Correspondence created successfully!',
+        data: {
+          correspondence: correspondenceItem,
+          recipient: recipientItem,
+          letters: letterItems,
+        },
       }),
     };
   } catch (error) {

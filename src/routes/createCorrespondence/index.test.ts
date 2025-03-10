@@ -6,6 +6,7 @@ import {
 } from 'aws-lambda';
 import { handler } from './index';
 import { dynamoClient } from '../../common/util';
+import { v4 as uuidv4 } from 'uuid';
 
 jest.mock('../../common/util', () => ({
   dynamoClient: {
@@ -14,6 +15,10 @@ jest.mock('../../common/util', () => ({
   logger: {
     error: jest.fn(),
   },
+}));
+
+jest.mock('uuid', () => ({
+  v4: jest.fn(),
 }));
 
 describe('Handler tests', () => {
@@ -89,7 +94,28 @@ describe('Handler tests', () => {
       }),
     } as unknown as APIGatewayProxyEvent;
 
+    (uuidv4 as jest.Mock).mockReturnValue('mock-uuid');
+
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({});
+
+    const expected = {
+      correspondence: {
+        correspondenceId: 'mock-uuid',
+        recipientId: 'mock-uuid',
+        title: 'Test Correspondence',
+      },
+      recipient: {
+        recipientId: 'mock-uuid',
+        name: 'John Doe',
+      },
+      letters: [
+        {
+          letterId: 'letter123',
+          correspondenceId: 'mock-uuid',
+          content: 'Hello',
+        },
+      ],
+    };
 
     const response = (await handler(
       event,
@@ -99,31 +125,9 @@ describe('Handler tests', () => {
 
     expect(response.statusCode).toBe(201);
     expect(JSON.parse(response.body).message).toBe(
-      'Correspondence created successfully.',
+      'Correspondence created successfully!',
     );
-  });
-
-  it('should correctly add UUIDs for correspondence and recipient', async () => {
-    const event = {
-      body: JSON.stringify({
-        recipient: { name: 'John Doe' },
-        correspondence: { title: 'Test Correspondence' },
-        letters: [{ letterId: 'letter123', content: 'Hello' }],
-      }),
-    } as unknown as APIGatewayProxyEvent;
-
-    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({});
-    const response = (await handler(
-      event,
-      mockContext,
-      mockCallback,
-    )) as APIGatewayProxyResult;
-
-    const responseBody = JSON.parse(response.body);
-
-    expect(response.statusCode).toBe(201);
-    expect(responseBody.correspondenceId).toHaveLength(36);
-    expect(responseBody.recipientId).toHaveLength(36);
+    expect(JSON.parse(response.body).data).toEqual(expected);
   });
 
   it('should return 400 if letters array is missing', async () => {

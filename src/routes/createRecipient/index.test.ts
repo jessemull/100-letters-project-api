@@ -18,7 +18,7 @@ jest.mock('../../common/util', () => ({
 }));
 
 jest.mock('uuid', () => ({
-  v4: jest.fn(), // Mock the v4 function from uuid
+  v4: jest.fn(),
 }));
 
 describe('createRecipient', () => {

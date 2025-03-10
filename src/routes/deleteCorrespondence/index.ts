@@ -108,9 +108,11 @@ export const handler: APIGatewayProxyHandler = async (
       statusCode: 200,
       body: JSON.stringify({
         message: 'Successfully deleted correspondence, recipient, and letters.',
-        recipientId,
-        correspondenceId,
-        letterIds,
+        data: {
+          recipientId,
+          correspondenceId,
+          letterIds,
+        },
       }),
     };
   } catch (error) {

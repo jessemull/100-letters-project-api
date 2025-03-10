@@ -1,7 +1,7 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { BadRequestError, DatabaseError } from '../../common/errors';
 import { LetterUpdateInput, TransactionItem } from '../../types';
-import { TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
+import { TransactWriteCommand, GetCommand } from '@aws-sdk/lib-dynamodb';
 import { dynamoClient, logger } from '../../common/util';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -97,6 +97,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         '#title = :title',
         '#type = :type',
       ];
+
       const letterExpressionAttributeValues: { [key: string]: unknown } = {
         ':date': letterData.date,
         ':imageURL': letterData.imageURL,
@@ -128,10 +129,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         transactItems.push({
           Update: {
             TableName: 'OneHundredLettersLetterTable',
-            Key: { correspondenceId, letterId } as {
-              correspondenceId: string;
-              letterId: string;
-            },
+            Key: { correspondenceId, letterId },
             UpdateExpression: `SET ${letterUpdateExpressionParts.join(', ')}`,
             ExpressionAttributeNames: letterExpressionAttributeNames,
             ExpressionAttributeValues: letterExpressionAttributeValues,
@@ -158,13 +156,43 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const command = new TransactWriteCommand({ TransactItems: transactItems });
     await dynamoClient.send(command);
 
+    const correspondenceData = await dynamoClient.send(
+      new GetCommand({
+        TableName: 'OneHundredLettersCorrespondenceTable',
+        Key: { correspondenceId },
+      }),
+    );
+
+    const recipientData = await dynamoClient.send(
+      new GetCommand({
+        TableName: 'OneHundredLettersRecipientTable',
+        Key: { recipientId: recipient.recipientId },
+      }),
+    );
+
+    const letterDataPromises = letterIds.map((letterId) =>
+      dynamoClient.send(
+        new GetCommand({
+          TableName: 'OneHundredLettersLetterTable',
+          Key: { correspondenceId, letterId },
+        }),
+      ),
+    );
+
+    const lettersData = await Promise.all(letterDataPromises);
+    const lettersList = lettersData
+      .map((response) => response.Item)
+      .filter(Boolean);
+
     return {
       statusCode: 200,
       body: JSON.stringify({
         message: 'Correspondence updated successfully.',
-        correspondenceId,
-        recipientId: recipient.recipientId,
-        letterIds,
+        data: {
+          correspondence: correspondenceData.Item,
+          recipient: recipientData.Item,
+          letters: lettersList,
+        },
       }),
     };
   } catch (error) {
