@@ -24,7 +24,7 @@ describe('getLetterById', () => {
   it('should return the letter when found', async () => {
     const mockLetter = { letterId: '1', lastName: 'Xavier' };
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Items: [mockLetter], // Corrected response structure
+      Items: [mockLetter],
     });
     const context: Context = {} as Context;
     const event: APIGatewayProxyEvent = {
@@ -55,7 +55,7 @@ describe('getLetterById', () => {
       headers: {},
       httpMethod: 'GET',
       isBase64Encoded: false,
-      path: '/letter', // Path without ID
+      path: '/letter',
       pathParameters: null,
       queryStringParameters: null,
       stageVariables: null,
