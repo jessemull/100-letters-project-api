@@ -77,7 +77,7 @@ describe('createLetter', () => {
   });
 
   it('should return 400 error if required fields are missing', async () => {
-    const body = { correspondenceId: 'mock-correspondence-id' }; // Missing required fields
+    const body = { correspondenceId: 'mock-correspondence-id' };
     const context: Context = {} as Context;
     const event: APIGatewayProxyEvent = {
       body: JSON.stringify(body),
@@ -189,7 +189,7 @@ describe('createLetter', () => {
       text: 'Hello, this is a letter.',
       title: 'Letter to John',
       type: 'sent',
-      description: 'This is a description of the letter.', // Include description
+      description: 'This is a description of the letter.',
     };
 
     const context: Context = {} as Context;
@@ -225,7 +225,7 @@ describe('createLetter', () => {
       text: 'Hello, this is a letter.',
       title: 'Letter to John',
       type: 'sent',
-      description: 'This is a description of the letter.', // Ensure description is present
+      description: 'This is a description of the letter.',
     });
   });
 });

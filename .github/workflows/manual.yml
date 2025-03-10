@@ -51,7 +51,7 @@ jobs:
           npm install
           npm run build
           npm run package
-          cd ../../  # Go back to root directory
+          cd ../../
 
       - name: Generate Artifact Name
         run: |
@@ -164,7 +164,6 @@ jobs:
               echo "Stack update completed successfully!"
               echo "Status: $STATUS"
               break
-            # Check if the status is one of the 'failed' statuses
             elif [[ " ${FAILED_STATUSES[@]} " =~ " ${STATUS} " ]]; then
               echo "Stack failed to update!"
               echo "Status: $STATUS"

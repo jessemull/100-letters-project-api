@@ -84,10 +84,10 @@ describe('deleteRecipient', () => {
       pathParameters: { id: '123' },
     } as unknown as APIGatewayProxyEvent;
 
-    const mockQueryResult = { Items: [] }; // No correspondence found
+    const mockQueryResult = { Items: [] };
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce(mockQueryResult);
 
-    const mockDeleteResult = {}; // Successful delete
+    const mockDeleteResult = {};
 
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce(mockDeleteResult);
 
@@ -108,7 +108,7 @@ describe('deleteRecipient', () => {
       pathParameters: { id: '123' },
     } as unknown as APIGatewayProxyEvent;
 
-    const mockQueryResult = { Items: [] }; // No correspondence found
+    const mockQueryResult = { Items: [] };
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce(mockQueryResult);
 
     (dynamoClient.send as jest.Mock).mockRejectedValueOnce(

@@ -71,7 +71,7 @@ describe('createRecipient', () => {
   });
 
   it('should return 400 error if required fields are missing', async () => {
-    const body = { firstName: 'John', lastName: 'Doe' }; // Missing address
+    const body = { firstName: 'John', lastName: 'Doe' };
     const context: Context = {} as Context;
     const event: APIGatewayProxyEvent = {
       body: JSON.stringify(body),

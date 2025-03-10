@@ -3,7 +3,7 @@ Resources:
     Type: AWS::IAM::Role
     Properties:
       RoleName: GitHubActionsRole
-      MaxSessionDuration: 14400  # 4 hours
+      MaxSessionDuration: 14400 # 4 hours
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
