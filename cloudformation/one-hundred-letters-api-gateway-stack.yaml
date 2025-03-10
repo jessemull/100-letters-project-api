@@ -394,6 +394,8 @@ Resources:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
         properties:
+          correspondenceId:
+            type: "string"
           date:
             type: "string"
           description:
@@ -410,7 +412,7 @@ Resources:
             type: "string"
           type:
             type: "string"
-        required: ["date", "imageURL", "method", "status", "text", "title", "type"]
+        required: ["correspondenceId", "date", "imageURL", "method", "status", "text", "title", "type"]
 
   ApiGatewayLetterUpdateInputModel:
     Type: AWS::ApiGateway::Model
@@ -422,6 +424,8 @@ Resources:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
         properties:
+          correspondenceId:
+            type: "string"
           date:
             type: "string"
           description:
@@ -440,7 +444,7 @@ Resources:
             type: "string"
           type:
             type: "string"
-        required: ["date", "imageURL", "letterId", "method", "status", "text", "title", "type"]
+        required: ["correspondenceId", "date", "imageURL", "letterId", "method", "status", "text", "title", "type"]
 
   ApiGatewayGetLetters:
     Type: AWS::ApiGateway::Resource
