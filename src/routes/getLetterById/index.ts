@@ -4,7 +4,7 @@ import {
   DatabaseError,
   NotFoundError,
 } from '../../common/errors';
-import { GetCommand } from '@aws-sdk/lib-dynamodb';
+import { QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { dynamoClient, logger } from '../../common/util';
 
 export const handler: APIGatewayProxyHandler = async (event) => {
@@ -17,22 +17,24 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     const params = {
       TableName: 'OneHundredLettersLetterTable',
-      Key: {
-        letterId: letterId,
+      IndexName: 'LetterIndex',
+      KeyConditionExpression: 'letterId = :letterId',
+      ExpressionAttributeValues: {
+        ':letterId': letterId,
       },
     };
 
-    const command = new GetCommand(params);
-    const result = await dynamoClient.send(command);
+    const command = new QueryCommand(params);
+    const response = await dynamoClient.send(command);
 
-    if (!result.Item) {
+    if (!response.Items || response.Items.length === 0) {
       return new NotFoundError(`Letter with ID ${letterId} not found!`).build();
     }
 
     return {
       statusCode: 200,
       body: JSON.stringify({
-        data: result.Item,
+        data: response.Items[0],
       }),
     };
   } catch (error) {

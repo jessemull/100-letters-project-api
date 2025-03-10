@@ -22,9 +22,9 @@ describe('getLetterById', () => {
   });
 
   it('should return the letter when found', async () => {
-    const mockLetter = { id: '1', lastName: 'Xavier' };
+    const mockLetter = { letterId: '1', lastName: 'Xavier' };
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Item: mockLetter,
+      Items: [mockLetter], // Corrected response structure
     });
     const context: Context = {} as Context;
     const event: APIGatewayProxyEvent = {
@@ -78,7 +78,9 @@ describe('getLetterById', () => {
   it('should return a 404 error if the letter is not found', async () => {
     const letterId = '1';
 
-    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({});
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Items: [],
+    });
 
     const context: Context = {} as Context;
     const event: APIGatewayProxyEvent = {
@@ -140,5 +142,38 @@ describe('getLetterById', () => {
       'Error fetching letter from DynamoDB: ',
       expect.any(Error),
     );
+  });
+
+  it('should return a 404 error if result.Items is undefined', async () => {
+    const letterId = '1';
+
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Items: undefined,
+    });
+
+    const context: Context = {} as Context;
+    const event: APIGatewayProxyEvent = {
+      body: null,
+      headers: {},
+      httpMethod: 'GET',
+      isBase64Encoded: false,
+      path: `/letter/${letterId}`,
+      pathParameters: { id: letterId },
+      queryStringParameters: null,
+      stageVariables: null,
+      requestContext: {} as APIGatewayProxyEvent['requestContext'],
+      resource: '',
+    } as unknown as APIGatewayProxyEvent;
+
+    const result = (await handler(
+      event,
+      context,
+      () => {},
+    )) as APIGatewayProxyResult;
+
+    const responseBody = JSON.parse(result.body || '');
+    expect(result.statusCode).toBe(404);
+    expect(responseBody.error).toBe('NotFoundError');
+    expect(responseBody.message).toBe(`Letter with ID ${letterId} not found!`);
   });
 });

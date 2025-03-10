@@ -66,6 +66,12 @@ Resources:
               KeyType: "HASH"
           Projection:
             ProjectionType: "ALL"
+        - IndexName: "LetterIndex"
+          KeySchema:
+            - AttributeName: "letterId"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: "ALL"
 
 Outputs:
   RecipientTable:
