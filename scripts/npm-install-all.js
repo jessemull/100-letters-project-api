@@ -29,7 +29,6 @@ const installDependencies = async () => {
   try {
     console.log("Starting npm installs in parallel...");
     
-    // Filter routes that contain a package.json
     const installPromises = routes.map((route) => {
       const routePath = path.join(routesDir, route);
       const packageJsonPath = path.join(routePath, "package.json");
@@ -39,11 +38,10 @@ const installDependencies = async () => {
         return runInstall(routePath);
       } else {
         console.warn(`No package.json found in ${routePath}, skipping npm install...`);
-        return Promise.resolve();  // Resolves immediately for routes without package.json
+        return Promise.resolve();
       }
     });
 
-    // Wait for all installations to complete
     await Promise.all(installPromises);
 
     console.log("All packages installed successfully!");
