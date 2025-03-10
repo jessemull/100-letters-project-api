@@ -205,16 +205,18 @@ describe('Handler tests', () => {
     expect(response.statusCode).toBe(200);
     expect(JSON.parse(response.body)).toEqual({
       message: 'Correspondence updated successfully.',
-      correspondence: { correspondenceId: '123', recipientId: '456' },
-      recipient: { recipientId: '456', firstName: 'John', lastName: 'Doe' },
-      letters: [
-        {
-          letterId: 'abc',
-          correspondenceId: '123',
-          text: 'Hello',
-          title: 'Letter 1',
-        },
-      ],
+      data: {
+        correspondence: { correspondenceId: '123', recipientId: '456' },
+        recipient: { recipientId: '456', firstName: 'John', lastName: 'Doe' },
+        letters: [
+          {
+            letterId: 'abc',
+            correspondenceId: '123',
+            text: 'Hello',
+            title: 'Letter 1',
+          },
+        ],
+      },
     });
   });
 
