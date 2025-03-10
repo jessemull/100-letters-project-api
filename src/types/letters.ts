@@ -21,7 +21,6 @@ export enum LetterType {
 }
 
 export interface Letter {
-  createdAt: string;
   correspondenceId: string;
   date: string;
   description?: string;
@@ -32,10 +31,10 @@ export interface Letter {
   text: string;
   title: string;
   type: LetterType;
-  updatedAt: string;
 }
 
 export type LetterCreateInput = {
+  correspondenceId: string;
   date: string;
   description?: string;
   imageURL: string;
