@@ -9,14 +9,19 @@ on:
         type: choice
         options:
           - createCorrespondence
+          - createLetter
           - createRecipient
           - deleteCorrespondence
+          - deleteLetter
           - deleteRecipient
           - getCorrespondences
           - getCorrespondenceById
+          - getLetterById
+          - getLetters
           - getRecipientById
           - getRecipients
           - updateCorrespondence
+          - updateLetter
           - updateRecipient
 
 concurrency:

@@ -10,7 +10,7 @@ Resources:
     Type: AWS::ApiGateway::RestApi
     Properties:
       Name: OneHundredLettersApi
-      Description: API for managing correspondence and recipients
+      Description: API for managing correspondence and letters
 
   ApiGatewayRequestValidator:
     Type: AWS::ApiGateway::RequestValidator
@@ -379,6 +379,155 @@ Resources:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
         Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:deleteRecipient/invocations"
+      RequestParameters:
+        method.request.path.id: true
+
+  # Letter Resources/Methods
+
+  ApiGatewayLetterCreateInputModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ContentType: "application/json"
+      Name: "LetterCreateModel"
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          date:
+            type: "string"
+          description:
+            type: "string"
+          imageURL:
+            type: "string"
+          method:
+            type: "string"
+          status:
+            type: "string"
+          text:
+            type: "string"
+          title:
+            type: "string"
+          type:
+            type: "string"
+        required: ["date", "imageURL", "method", "status", "text", "title", "type"]
+
+  ApiGatewayLetterUpdateInputModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ContentType: "application/json"
+      Name: "LetterUpdateModel"
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          date:
+            type: "string"
+          description:
+            type: "string"
+          imageURL:
+            type: "string"
+          letterId:
+            type: "string"
+          method:
+            type: "string"
+          status:
+            type: "string"
+          text:
+            type: "string"
+          title:
+            type: "string"
+          type:
+            type: "string"
+        required: ["date", "imageURL", "letterId", "method", "status", "text", "title", "type"]
+
+  ApiGatewayGetLetters:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ParentId: !GetAtt OneHundredLettersApi.RootResourceId
+      PathPart: "letter"
+
+  ApiGatewayGetLettersMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ResourceId: !Ref ApiGatewayGetLetters
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getLetters/invocations"
+
+  ApiGatewayLetterById:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ParentId: !Ref ApiGatewayGetLetters
+      PathPart: "{id}"
+
+  ApiGatewayLetterByIdMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ResourceId: !Ref ApiGatewayLetterById
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getLetterById/invocations"
+      RequestParameters:
+        method.request.path.id: true
+
+  ApiGatewayCreateLetterMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ResourceId: !Ref ApiGatewayGetLetters
+      HttpMethod: POST
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !Ref ApiGatewayAuthorizer
+      RequestValidatorId: !Ref ApiGatewayRequestValidator
+      RequestModels:
+        "application/json": !Ref ApiGatewayLetterCreateInputModel
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createLetter/invocations"
+
+  ApiGatewayUpdateLetterMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ResourceId: !Ref ApiGatewayLetterById
+      HttpMethod: PUT
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !Ref ApiGatewayAuthorizer
+      RequestValidatorId: !Ref ApiGatewayRequestValidator
+      RequestModels:
+        "application/json": !Ref ApiGatewayLetterUpdateInputModel
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:updateLetter/invocations"
+      RequestParameters:
+        method.request.path.id: true
+
+  ApiGatewayDeleteLetterMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ResourceId: !Ref ApiGatewayLetterById
+      HttpMethod: DELETE
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !Ref ApiGatewayAuthorizer
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:deleteLetter/invocations"
       RequestParameters:
         method.request.path.id: true
 
