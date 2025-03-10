@@ -1,4 +1,4 @@
-const { execSync } = require("child_process");
+const { exec } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
@@ -13,25 +13,49 @@ if (routes.length === 0) {
   process.exit(1);
 }
 
-routes.forEach((route) => {
-  const routePath = path.join(routesDir, route);
-  const distPath = path.join(routePath, "dist");
-  const nodeModulesPath = path.join(routePath, "node_modules");
+const removeDir = (dirPath) => {
+  return new Promise((resolve, reject) => {
+    exec(`rm -rf ${dirPath}`, (error, stdout, stderr) => {
+      if (error) {
+        reject(`Failed to remove ${dirPath}`);
+        return;
+      }
+      resolve(stdout || stderr);
+    });
+  });
+};
 
+const cleanup = async () => {
   try {
-    if (fs.existsSync(distPath)) {
-      console.log(`Removing dist folder for ${route}...`);
-      execSync(`rm -rf ${distPath}`);
-    }
+    console.log("Starting cleanup in parallel...");
 
-    if (fs.existsSync(nodeModulesPath)) {
-      console.log(`Removing node_modules for ${route}...`);
-      execSync(`rm -rf ${nodeModulesPath}`);
-    }
+    const cleanupPromises = routes.map((route) => {
+      const routePath = path.join(routesDir, route);
+      const distPath = path.join(routePath, "dist");
+      const nodeModulesPath = path.join(routePath, "node_modules");
+
+      const promises = [];
+
+      if (fs.existsSync(distPath)) {
+        console.log(`Removing dist folder for ${route}...`);
+        promises.push(removeDir(distPath));
+      }
+
+      if (fs.existsSync(nodeModulesPath)) {
+        console.log(`Removing node_modules for ${route}...`);
+        promises.push(removeDir(nodeModulesPath));
+      }
+
+      return Promise.all(promises);
+    });
+
+    await Promise.all(cleanupPromises);
+
+    console.log("Cleanup complete for all packages...");
   } catch (error) {
-    console.error(`Failed to clean up ${route}...`, error);
+    console.error(error);
     process.exit(1);
   }
-});
+};
 
-console.log("Cleanup complete for all packages...");
+cleanup();
