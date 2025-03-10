@@ -130,7 +130,7 @@ describe('Handler tests', () => {
             text: 'Hello',
             title: 'Letter 1',
             type: 'formal',
-            description: 'First letter in the series', // <-- New test case
+            description: 'First letter in the series',
           },
         ],
       }),
@@ -238,7 +238,7 @@ describe('Handler tests', () => {
   it('should return 400 if pathParameters is undefined', async () => {
     const eventWithoutPathParams = {
       ...mockEvent,
-      pathParameters: undefined, // Simulating no pathParameters at all
+      pathParameters: undefined,
     } as unknown as APIGatewayProxyEvent;
 
     const response = (await handler(

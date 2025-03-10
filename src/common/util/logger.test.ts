@@ -14,7 +14,7 @@ describe('Logger', () => {
   });
 
   it('should use the correct log level', () => {
-    expect(logger.level()).toBe(bunyan.INFO); // Bunyan's "info" level is 30
+    expect(logger.level()).toBe(bunyan.INFO);
   });
 
   it('should configure a CloudWatch stream with the correct parameters', () => {

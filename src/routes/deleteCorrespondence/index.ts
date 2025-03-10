@@ -72,7 +72,7 @@ export const handler: APIGatewayProxyHandler = async (
       const letters: Letter[] = letterData.Items as Letter[];
 
       letters.forEach((letter) => {
-        letterIds.push(letter.letterId); // Collect letterIds
+        letterIds.push(letter.letterId);
         const deleteLetterParams = {
           TableName: 'OneHundredLettersLetterTable',
           Key: {

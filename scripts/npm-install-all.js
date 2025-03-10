@@ -4,7 +4,6 @@ const path = require("path");
 
 const routesDir = path.join("src", "routes");
 
-// Get all subdirectories inside src/routes
 const routes = fs.readdirSync(routesDir).filter((dir) => {
   return fs.statSync(path.join(routesDir, dir)).isDirectory();
 });

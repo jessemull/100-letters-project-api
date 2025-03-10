@@ -55,7 +55,7 @@ describe('getRecipientById', () => {
       headers: {},
       httpMethod: 'GET',
       isBase64Encoded: false,
-      path: '/recipient', // Path without ID
+      path: '/recipient',
       pathParameters: null,
       queryStringParameters: null,
       stageVariables: null,
