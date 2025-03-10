@@ -1,7 +1,7 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { BadRequestError, DatabaseError } from '../../common/errors';
-import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import { Letter } from '../../types';
+import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import { dynamoClient, logger } from '../../common/util';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -43,10 +43,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const letterId = uuidv4();
 
     const letterData: Letter = {
+      letterId,
       correspondenceId,
       date,
       imageURL,
-      letterId,
       method,
       status,
       text,
@@ -55,7 +55,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     };
 
     if (description) {
-      letterData.description = body.description;
+      letterData.description = description;
     }
 
     const params = {
