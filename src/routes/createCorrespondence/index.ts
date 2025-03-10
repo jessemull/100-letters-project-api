@@ -22,7 +22,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const recipientId = uuidv4();
     const correspondenceId = uuidv4();
 
-    // Construct recipient, correspondence, and letter objects
     const recipientItem = { recipientId, ...recipient };
     const correspondenceItem = {
       correspondenceId,
@@ -36,7 +35,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       ...letter,
     }));
 
-    // Create transactional write items
     const transactItems = [
       {
         Put: {
@@ -64,10 +62,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const command = new TransactWriteCommand({ TransactItems: transactItems });
     await dynamoClient.send(command);
 
-    // Return the fully created object
     return {
       statusCode: 201,
       body: JSON.stringify({
+        message: 'Correspondence created successfully!',
         data: {
           correspondence: correspondenceItem,
           recipient: recipientItem,
