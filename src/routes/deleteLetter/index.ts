@@ -11,9 +11,22 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       return new BadRequestError('Letter ID is required.').build();
     }
 
+    if (!event.body) {
+      return new BadRequestError('Request body is required.').build();
+    }
+
+    const { correspondenceId } = JSON.parse(event.body);
+
+    if (!correspondenceId) {
+      return new BadRequestError(
+        'Correspondence ID is required in request body.',
+      ).build();
+    }
+
     const deleteParams = {
       TableName: 'OneHundredLettersLetterTable',
       Key: {
+        correspondenceId,
         letterId,
       },
     };
