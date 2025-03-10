@@ -1,4 +1,4 @@
-const { execSync } = require("child_process");
+const { exec } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
@@ -13,20 +13,44 @@ if (routes.length === 0) {
   process.exit(1);
 }
 
-routes.forEach((route) => {
-  const routePath = path.join(routesDir, route);
-  const packageJsonPath = path.join(routePath, "package.json");
-  if (fs.existsSync(packageJsonPath)) {
-    try {
-      console.log(`Installing dependencies for ${route}...`);
-      execSync(`npm install`, { cwd: routePath, stdio: "inherit" });
-    } catch (error) {
-      console.error(`Failed to install dependencies for ${route}.`);
-      process.exit(1);
-    }
-  } else {
-    console.warn(`No package.json found in ${routePath}, skipping npm install...`);
-  }
-});
+const runInstall = (routePath) => {
+  return new Promise((resolve, reject) => {
+    exec("npm install", { cwd: routePath, stdio: "inherit" }, (error, stdout, stderr) => {
+      if (error) {
+        reject(`Failed to install dependencies for ${routePath}`);
+        return;
+      }
+      resolve(stdout || stderr);
+    });
+  });
+};
 
-console.log("All packages installed successfully!");
+const installDependencies = async () => {
+  try {
+    console.log("Starting npm installs in parallel...");
+    
+    // Filter routes that contain a package.json
+    const installPromises = routes.map((route) => {
+      const routePath = path.join(routesDir, route);
+      const packageJsonPath = path.join(routePath, "package.json");
+      
+      if (fs.existsSync(packageJsonPath)) {
+        console.log(`Installing dependencies for ${route}...`);
+        return runInstall(routePath);
+      } else {
+        console.warn(`No package.json found in ${routePath}, skipping npm install...`);
+        return Promise.resolve();  // Resolves immediately for routes without package.json
+      }
+    });
+
+    // Wait for all installations to complete
+    await Promise.all(installPromises);
+
+    console.log("All packages installed successfully!");
+  } catch (error) {
+    console.error(error);
+    process.exit(1);
+  }
+};
+
+installDependencies();
