@@ -110,7 +110,7 @@ describe('Handler tests', () => {
       },
       letters: [
         {
-          letterId: 'letter123',
+          letterId: 'mock-uuid',
           correspondenceId: 'mock-uuid',
           content: 'Hello',
         },
