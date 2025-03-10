@@ -2,7 +2,7 @@ import { APIGatewayProxyHandler } from 'aws-lambda';
 import { BadRequestError, DatabaseError } from '../../common/errors';
 import { UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { dynamoClient, logger } from '../../common/util';
-import { UpdateParamsNoNames } from '../../types';
+import { UpdateParams } from '../../types';
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
@@ -45,7 +45,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       ).build();
     }
 
-    const updateParams: UpdateParamsNoNames = {
+    const updateParams: UpdateParams = {
       TableName: 'OneHundredLettersLetterTable',
       Key: {
         correspondenceId,
@@ -53,6 +53,15 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       },
       UpdateExpression:
         'SET #date = :date, #imageURL = :imageURL, #method = :method, #status = :status, #text = :text, #title = :title, #type = :type',
+      ExpressionAttributeNames: {
+        '#date': 'date',
+        '#imageURL': 'imageURL',
+        '#method': 'method',
+        '#status': 'status',
+        '#text': 'text',
+        '#title': 'title',
+        '#type': 'type',
+      },
       ExpressionAttributeValues: {
         ':date': date,
         ':imageURL': imageURL,
@@ -67,6 +76,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     if (description) {
       updateParams.UpdateExpression += ', #description = :description';
+      updateParams.ExpressionAttributeNames!['#description'] = 'description';
       updateParams.ExpressionAttributeValues[':description'] = description;
     }
 

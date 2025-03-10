@@ -29,15 +29,3 @@ export interface UpdateParams {
   };
   ReturnValues: ReturnValue;
 }
-
-export interface UpdateParamsNoNames {
-  TableName: string;
-  Key: {
-    [key: string]: string;
-  };
-  UpdateExpression: string;
-  ExpressionAttributeValues: {
-    [key: string]: string;
-  };
-  ReturnValues: ReturnValue;
-}
