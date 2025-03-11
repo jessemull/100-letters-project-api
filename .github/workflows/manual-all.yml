@@ -24,12 +24,11 @@ jobs:
               fi
             fi
           done
-          echo "Lambdas: ${lambdas[@]}"
-          echo "::set-output name=lambdas::${lambdas[@]}"
+          echo "LAMBDA_NAMES=${lambdas[@]}" >> $GITHUB_ENV
 
       - name: Deploy All Lambdas
         run: |
-          lambdas=(${{ steps.list_lambdas.outputs.lambdas }})
+          IFS=' ' read -r -a lambdas <<< "$LAMBDA_NAMES"
           for lambda in "${lambdas[@]}"; do
             echo "Deploying $lambda..."
             curl -X POST https://api.github.com/repos/${{ github.repository }}/actions/workflows/manual.yml/dispatches \

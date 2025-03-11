@@ -21,7 +21,7 @@ jest.mock('uuid', () => ({
   v4: jest.fn(),
 }));
 
-describe('createRecipient', () => {
+describe('Create Recipient Handler', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
