@@ -19,7 +19,7 @@ jest.mock('../../common/util', () => ({
   },
 }));
 
-describe('Handler tests', () => {
+describe('Delete Correspondence Handler', () => {
   const mockEvent = {
     pathParameters: {
       id: '123',

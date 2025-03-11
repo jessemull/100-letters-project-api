@@ -21,7 +21,7 @@ jest.mock('uuid', () => ({
   v4: jest.fn(),
 }));
 
-describe('createLetter', () => {
+describe('Create Letter Handler', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });

@@ -1,9 +1,13 @@
-class NotFoundError extends Error {
+import { CustomError } from './custom-error';
+
+class NotFoundError extends Error implements CustomError {
   statusCode: number;
+
   constructor(message: string) {
     super(message);
     this.name = 'NotFoundError';
     this.statusCode = 404;
+    Object.setPrototypeOf(this, NotFoundError.prototype);
   }
 
   build() {

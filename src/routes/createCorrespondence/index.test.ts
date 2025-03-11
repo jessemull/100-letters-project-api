@@ -21,7 +21,7 @@ jest.mock('uuid', () => ({
   v4: jest.fn(),
 }));
 
-describe('Handler tests', () => {
+describe('Create Correspondence Handler', () => {
   const mockContext: Context = {} as Context;
   const mockCallback: Callback = jest.fn();
 

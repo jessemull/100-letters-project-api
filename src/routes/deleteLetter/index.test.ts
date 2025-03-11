@@ -16,7 +16,7 @@ jest.mock('../../common/util', () => ({
   },
 }));
 
-describe('deleteLetter', () => {
+describe('Delete Letter Handler', () => {
   const mockContext: Context = {} as Context;
   const mockCallback: Callback = jest.fn();
 

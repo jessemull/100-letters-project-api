@@ -16,7 +16,7 @@ jest.mock('../../common/util', () => ({
   },
 }));
 
-describe('getCorrespondences', () => {
+describe('Get Correspondences Handler', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });

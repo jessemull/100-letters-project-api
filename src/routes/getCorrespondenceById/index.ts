@@ -35,6 +35,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     // Step 2: Get associated recipient details.
 
     let recipient = null;
+
     if (correspondence.recipientId) {
       const recipientParams = {
         TableName: 'OneHundredLettersRecipientTable',

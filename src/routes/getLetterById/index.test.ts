@@ -16,7 +16,7 @@ jest.mock('../../common/util', () => ({
   },
 }));
 
-describe('getLetterById', () => {
+describe('Get Letter By ID Handler', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });

@@ -16,7 +16,7 @@ jest.mock('../../common/util', () => ({
   },
 }));
 
-describe('deleteRecipient', () => {
+describe('Delete Recipient Handler', () => {
   const mockContext: Context = {} as Context;
   const mockCallback: Callback = jest.fn();
 
