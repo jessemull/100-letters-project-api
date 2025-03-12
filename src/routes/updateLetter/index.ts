@@ -4,7 +4,7 @@ import {
   DatabaseError,
   NotFoundError,
 } from '../../common/errors';
-import { UpdateCommand } from '@aws-sdk/lib-dynamodb';
+import { UpdateCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { dynamoClient, logger } from '../../common/util';
 import { UpdateParams } from '../../types';
 
@@ -47,6 +47,25 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       return new BadRequestError(
         'Correspondence ID, date, imageURL, method, status, text, title, and type are required.',
       ).build();
+    }
+
+    const checkCorrespondenceParams = {
+      TableName: 'OneHundredLettersCorrespondenceTable',
+      KeyConditionExpression: 'correspondenceId = :correspondenceId',
+      ExpressionAttributeValues: {
+        ':correspondenceId': correspondenceId,
+      },
+    };
+
+    const correspondenceResult = await dynamoClient.send(
+      new QueryCommand(checkCorrespondenceParams),
+    );
+
+    if (
+      !correspondenceResult.Items ||
+      correspondenceResult.Items.length === 0
+    ) {
+      return new NotFoundError('Correspondence ID not found.').build();
     }
 
     const updateParams: UpdateParams = {

@@ -46,6 +46,12 @@ paths:
                     example: "Letter created successfully!"
                   data:
                     $ref: "#/components/schemas/LetterResponse"
+        404:
+          description: "Not Found Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundError"
         400:
           description: "Bad Request Error"
           content:
