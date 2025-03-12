@@ -1,5 +1,9 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { BadRequestError, DatabaseError } from '../../common/errors';
+import {
+  BadRequestError,
+  DatabaseError,
+  NotFoundError,
+} from '../../common/errors';
 import { UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { dynamoClient, logger } from '../../common/util';
 import { UpdateParams } from '../../types';
@@ -84,7 +88,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const result = await dynamoClient.send(command);
 
     if (!result.Attributes) {
-      return new BadRequestError('Letter not found.').build();
+      return new NotFoundError('Letter not found.').build();
     }
 
     return {

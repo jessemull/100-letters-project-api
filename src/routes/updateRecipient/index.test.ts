@@ -157,7 +157,7 @@ describe('Update Recipient Handler', () => {
     );
   });
 
-  it('should return 400 if the recipient is not found in DynamoDB', async () => {
+  it('should return 404 if the recipient is not found in DynamoDB', async () => {
     const event = {
       pathParameters: { id: '123' },
       body: JSON.stringify({
@@ -175,7 +175,7 @@ describe('Update Recipient Handler', () => {
       mockCallback,
     )) as APIGatewayProxyResult;
 
-    expect(response.statusCode).toBe(400);
+    expect(response.statusCode).toBe(404);
     expect(JSON.parse(response.body).message).toBe('Recipient not found.');
   });
 
