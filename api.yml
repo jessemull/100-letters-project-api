@@ -3,11 +3,6 @@ info:
   title: "OneHundredLettersApi"
   description: "API for managing correspondence, recipients and letters."
   version: "2025-03-11T16:08:24Z"
-servers:
-  - url: "https://08ik48kqug.execute-api.us-west-2.amazonaws.com/{basePath}"
-    variables:
-      basePath:
-        default: "prod"
 paths:
   /letter:
     get:
@@ -176,9 +171,7 @@ paths:
                     type: "object"
                     properties:
                       letterId:
-                        type: "string"
-                        format: "uuid"
-                        example: "53728a48-c780-480f-993f-5d8608b23caf"
+                        $ref: "#/components/schemas/UUID"
         400:
           description: "Bad Request Error"
           content:
@@ -364,9 +357,199 @@ paths:
                     type: "object"
                     properties:
                       recipientId:
-                        type: "string"
-                        format: "uuid"
-                        example: "53728a48-c780-480f-993f-5d8608b23caf"
+                        $ref: "#/components/schemas/UUID"
+        400:
+          description: "Bad Request Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+        404:
+          description: "Not Found Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundError"
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+  /correspondence:
+    get:
+      summary: "Get All Correspondences"
+      responses:
+        200:
+          description: "Get All Correspondences Success"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  data:
+                    type: "array"
+                    items:
+                      $ref: "#/components/schemas/CorrespondenceResponse"
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"             
+    post:
+      summary: "Create A Correspondence"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CorrespondenceCreateRequest"
+        required: true
+      responses:
+        201:
+          description: "Create A Correspondence Success"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  message:
+                    type: "string"
+                    example: "Correspondence created successfully!"
+                  data:
+                    $ref: "#/components/schemas/CorrespondenceResponse"
+        400:
+          description: "Bad Request Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+      security:
+        - CognitoAuthorizer: []
+  /correspondence/{id}:
+    get:
+      summary: "Get Correspondence By ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          description: "The ID of the correspondence to fetch."
+          schema:
+            type: "string"
+            format: "uuid"
+      responses:
+        200:
+          description: "Get Correspondence By ID Success"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  data:
+                    $ref: "#/components/schemas/CorrespondenceResponse"
+        400:
+          description: "Bad Request Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+        404:
+          description: "Not Found Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundError"
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+    put:
+      summary: "Update Correspondence By ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          description: "The ID of the correspondence to update."
+          schema:
+            type: "string"
+            format: "uuid"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CorrespondenceUpdateRequest"
+        required: true
+      responses:
+        200:
+          description: "Update Correspondence By ID Success"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  message:
+                    type: "string"
+                    example: "Correspondence updated successfully!"
+                  data:
+                    $ref: "#/components/schemas/CorrespondenceResponse"
+        400:
+          description: "Bad Request Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+        404:
+          description: "Correspondence Not Found Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundError"
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+    delete:
+      summary: "Delete Correspondence By ID"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          description: "The ID of the correspondence to delete."
+          schema:
+            type: "string"
+            format: "uuid"
+      responses:
+        200:
+          description: "Delete Correspondence By ID Success"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  message:
+                    type: "string"
+                    example: "Correspondence deleted successfully!"
+                  data:
+                    type: "object"
+                    properties:
+                      correspondenceId:
+                        $ref: '#/components/schemas/UUID'
+                      recipientId:
+                        $ref: '#/components/schemas/UUID'
+                      letterIds:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/UUID'
         400:
           description: "Bad Request Error"
           content:
@@ -419,6 +602,9 @@ components:
     Occupation:
       type: "string"
       example: "Architect"
+    Reason:
+      type: "string"
+      example: "George Church's contributions to DNA sequencing."
     RecipientDescription:
       type: "string"
       example: "George Church's contribution to the research community is invaluable."
@@ -594,6 +780,133 @@ components:
           $ref: "#/components/schemas/Occupation"
         recipientId:
           $ref: "#/components/schemas/UUID"
+    Correspondence:
+      type: object
+      properties:
+        createdAt:
+          $ref: "#/components/schemas/DateTime"
+        correspondenceId:
+          $ref: "#/components/schemas/UUID"
+        recipientId:
+          $ref: "#/components/schemas/UUID"
+        reason:
+          $ref: "#/components/schemas/Reason"
+        updatedAt:
+          $ref: "#/components/schemas/DateTime"
+    CorrespondenceCreateInput:
+      required:
+        - "reason"
+      type: object
+      properties:
+        reason:
+          $ref: "#/components/schemas/Reason"
+    CorrespondenceUpdateInput:
+      required:
+        - "correspondenceId"
+        - "reason"
+      type: object
+      properties:
+        correspondenceId:
+          $ref: "#/components/schemas/UUID"
+        reason:
+          $ref: "#/components/schemas/Reason"
+    CorrespondenceLetterCreateRequest:
+      required:
+        - "date"
+        - "imageURL"
+        - "method"
+        - "status"
+        - "text"
+        - "title"
+        - "type"
+      type: "object"
+      properties:
+        date:
+          $ref: "#/components/schemas/DateTime"
+        description:
+          $ref: "#/components/schemas/LetterDescription"
+        imageURL:
+          $ref: "#/components/schemas/ImageURL"
+        method:
+          $ref: "#/components/schemas/Method"
+        status:
+          $ref: "#/components/schemas/Status"
+        text:
+          $ref: "#/components/schemas/Text"
+        title:
+          $ref: "#/components/schemas/Title"
+        type:
+          $ref: "#/components/schemas/Type"
+    CorrespondenceLetterUpdateRequest:
+      required:
+        - "date"
+        - "imageURL"
+        - "method"
+        - "status"
+        - "text"
+        - "title"
+        - "type"
+      type: "object"
+      properties:
+        date:
+          $ref: "#/components/schemas/DateTime"
+        description:
+          $ref: "#/components/schemas/LetterDescription"
+        imageURL:
+          $ref: "#/components/schemas/ImageURL"
+        letterId:
+          $ref: "#/components/schemas/UUID"
+        method:
+          $ref: "#/components/schemas/Method"
+        status:
+          $ref: "#/components/schemas/Status"
+        text:
+          $ref: "#/components/schemas/Text"
+        title:
+          $ref: "#/components/schemas/Title"
+        type:
+          $ref: "#/components/schemas/Type"
+    CorrespondenceResponse:
+      type: "object"
+      properties:
+        correspondence:
+          $ref: "#/components/schemas/Correspondence"
+        recipient:
+          $ref: "#/components/schemas/RecipientResponse"
+        letters:
+          type: array
+          items:
+            $ref: "#/components/schemas/LetterResponse"
+    CorrespondenceCreateRequest:
+      required:
+        - "correspondence"
+        - "recipient"
+        - "letters"
+      type: "object"
+      properties:
+        correspondence:
+          $ref: "#/components/schemas/CorrespondenceCreateInput"
+        recipient:
+          $ref: "#/components/schemas/RecipientCreateRequest"
+        letters:
+          type: array
+          items:
+            $ref: "#/components/schemas/CorrespondenceLetterCreateRequest"
+    CorrespondenceUpdateRequest:
+      required:
+        - "correspondence"
+        - "recipient"
+        - "letters"
+      type: "object"
+      properties:
+        correspondence:
+          $ref: "#/components/schemas/CorrespondenceUpdateInput"
+        recipient:
+          $ref: "#/components/schemas/RecipientUpdateRequest"
+        letters:
+          type: array
+          items:
+            $ref: "#/components/schemas/CorrespondenceLetterUpdateRequest"
     BadRequestError:
       type: "object"
       properties:
