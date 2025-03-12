@@ -1,6 +1,6 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { BadRequestError, DatabaseError } from '../../common/errors';
-import { DeleteCommand } from '@aws-sdk/lib-dynamodb';
+import { DeleteCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { dynamoClient, logger } from '../../common/util';
 
 export const handler: APIGatewayProxyHandler = async (event) => {
@@ -11,15 +11,26 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       return new BadRequestError('Letter ID is required.').build();
     }
 
-    if (!event.body) {
-      return new BadRequestError('Request body is required.').build();
+    const queryParams = {
+      TableName: 'OneHundredLettersLetterTable',
+      IndexName: 'LetterIdIndex',
+      KeyConditionExpression: 'letterId = :letterId',
+      ExpressionAttributeValues: {
+        ':letterId': letterId,
+      },
+    };
+
+    const { Items } = await dynamoClient.send(new QueryCommand(queryParams));
+
+    if (!Items || Items.length === 0) {
+      return new BadRequestError('Letter not found.').build();
     }
 
-    const { correspondenceId } = JSON.parse(event.body);
+    const correspondenceId = Items[0].correspondenceId;
 
     if (!correspondenceId) {
       return new BadRequestError(
-        'Correspondence ID is required in request body.',
+        'Correspondence ID not found for the given letter.',
       ).build();
     }
 
