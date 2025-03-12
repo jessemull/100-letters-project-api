@@ -13,7 +13,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     const queryParams = {
       TableName: 'OneHundredLettersLetterTable',
-      IndexName: 'LetterIdIndex',
+      IndexName: 'LetterIndex',
       KeyConditionExpression: 'letterId = :letterId',
       ExpressionAttributeValues: {
         ':letterId': letterId,
