@@ -40,11 +40,12 @@ describe('Delete Letter Handler', () => {
     expect(JSON.parse(response.body).message).toBe('Letter ID is required.');
   });
 
-  it('should return 400 if request body is missing', async () => {
+  it('should return 400 if letterId is not found in the database', async () => {
     const event = {
       pathParameters: { id: '123' },
-      body: null,
     } as unknown as APIGatewayProxyEvent;
+
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({ Items: [] });
 
     const response = (await handler(
       event,
@@ -53,14 +54,15 @@ describe('Delete Letter Handler', () => {
     )) as APIGatewayProxyResult;
 
     expect(response.statusCode).toBe(400);
-    expect(JSON.parse(response.body).message).toBe('Request body is required.');
+    expect(JSON.parse(response.body).message).toBe('Letter not found.');
   });
 
-  it('should return 400 if correspondenceId is missing from request body', async () => {
+  it('should return 400 if correspondenceId is missing after query', async () => {
     const event = {
       pathParameters: { id: '123' },
-      body: '{}',
     } as unknown as APIGatewayProxyEvent;
+
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({ Items: [{}] });
 
     const response = (await handler(
       event,
@@ -70,16 +72,18 @@ describe('Delete Letter Handler', () => {
 
     expect(response.statusCode).toBe(400);
     expect(JSON.parse(response.body).message).toBe(
-      'Correspondence ID is required in request body.',
+      'Correspondence ID not found for the given letter.',
     );
   });
 
   it('should return 500 if there is an error deleting the letter', async () => {
     const event = {
       pathParameters: { id: '123' },
-      body: JSON.stringify({ correspondenceId: '456' }),
     } as unknown as APIGatewayProxyEvent;
 
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Items: [{ correspondenceId: '456' }],
+    });
     (dynamoClient.send as jest.Mock).mockRejectedValueOnce(
       new Error('DynamoDB error'),
     );
@@ -97,9 +101,11 @@ describe('Delete Letter Handler', () => {
   it('should return 200 when the letter is deleted successfully', async () => {
     const event = {
       pathParameters: { id: '123' },
-      body: JSON.stringify({ correspondenceId: '456' }),
     } as unknown as APIGatewayProxyEvent;
 
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Items: [{ correspondenceId: '456' }],
+    });
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({});
 
     const response = (await handler(

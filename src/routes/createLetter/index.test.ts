@@ -28,6 +28,9 @@ describe('Create Letter Handler', () => {
 
   it('should successfully create a letter when required fields are provided', async () => {
     (uuidv4 as jest.Mock).mockReturnValueOnce('mock-letter-uuid');
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Items: [{ correspondenceId: 'mock-correspondence-id' }],
+    });
 
     const body = {
       correspondenceId: 'mock-correspondence-id',
@@ -179,6 +182,9 @@ describe('Create Letter Handler', () => {
 
   it('should successfully create a letter with description if provided', async () => {
     (uuidv4 as jest.Mock).mockReturnValueOnce('mock-letter-uuid');
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Items: [{ correspondenceId: 'mock-correspondence-id' }],
+    });
 
     const body = {
       correspondenceId: 'mock-correspondence-id',
@@ -227,5 +233,47 @@ describe('Create Letter Handler', () => {
       type: 'sent',
       description: 'This is a description of the letter.',
     });
+  });
+
+  it('should return 404 error if correspondence is not found', async () => {
+    const body = {
+      correspondenceId: 'mock-correspondence-id',
+      date: '2025-03-10',
+      imageURL: 'http://image.url',
+      method: 'email',
+      status: 'sent',
+      text: 'Hello, this is a letter.',
+      title: 'Letter to John',
+      type: 'sent',
+    };
+
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Items: [],
+    });
+
+    const context: Context = {} as Context;
+    const event: APIGatewayProxyEvent = {
+      body: JSON.stringify(body),
+      headers: {},
+      httpMethod: 'POST',
+      isBase64Encoded: false,
+      path: '/letter',
+      pathParameters: null,
+      queryStringParameters: null,
+      stageVariables: null,
+      requestContext: {} as APIGatewayProxyEvent['requestContext'],
+      resource: '',
+    } as unknown as APIGatewayProxyEvent;
+
+    const result = (await handler(
+      event,
+      context,
+      () => {},
+    )) as APIGatewayProxyResult;
+
+    expect(result.statusCode).toBe(404);
+    const responseBody = JSON.parse(result.body || '');
+    expect(responseBody.error).toBe('NotFoundError');
+    expect(responseBody.message).toBe('Correspondence ID not found.');
   });
 });

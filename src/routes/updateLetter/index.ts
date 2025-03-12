@@ -1,6 +1,10 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { BadRequestError, DatabaseError } from '../../common/errors';
-import { UpdateCommand } from '@aws-sdk/lib-dynamodb';
+import {
+  BadRequestError,
+  DatabaseError,
+  NotFoundError,
+} from '../../common/errors';
+import { UpdateCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { dynamoClient, logger } from '../../common/util';
 import { UpdateParams } from '../../types';
 
@@ -45,6 +49,25 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       ).build();
     }
 
+    const checkCorrespondenceParams = {
+      TableName: 'OneHundredLettersCorrespondenceTable',
+      KeyConditionExpression: 'correspondenceId = :correspondenceId',
+      ExpressionAttributeValues: {
+        ':correspondenceId': correspondenceId,
+      },
+    };
+
+    const correspondenceResult = await dynamoClient.send(
+      new QueryCommand(checkCorrespondenceParams),
+    );
+
+    if (
+      !correspondenceResult.Items ||
+      correspondenceResult.Items.length === 0
+    ) {
+      return new NotFoundError('Correspondence ID not found.').build();
+    }
+
     const updateParams: UpdateParams = {
       TableName: 'OneHundredLettersLetterTable',
       Key: {
@@ -84,7 +107,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const result = await dynamoClient.send(command);
 
     if (!result.Attributes) {
-      return new BadRequestError('Letter not found.').build();
+      return new NotFoundError('Letter not found.').build();
     }
 
     return {
