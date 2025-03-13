@@ -3,7 +3,7 @@ import { BadRequestError, DatabaseError } from '../../common/errors';
 import { LetterUpdateInput, UpdateParams, TransactionItem } from '../../types';
 import { TransactWriteCommand, GetCommand } from '@aws-sdk/lib-dynamodb';
 import { dynamoClient, logger } from '../../common/util';
-import { QueryCommand } from '@aws-sdk/client-dynamodb';
+// import { QueryCommand } from '@aws-sdk/client-dynamodb';
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
@@ -189,7 +189,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     );
 
     logger.error(correspondenceData?.Item?.correspondenceId);
-    logger.error(correspondenceData);
 
     const lettersParams = {
       TableName: 'OneHundredLettersLetterTable',
@@ -200,8 +199,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       },
     };
 
-    const lettersCommand = new QueryCommand(lettersParams);
-    const lettersResult = await dynamoClient.send(lettersCommand);
+    logger.error(lettersParams);
+
+    // const lettersCommand = new QueryCommand(lettersParams);
+    // const lettersResult = await dynamoClient.send(lettersCommand);
 
     return {
       statusCode: 200,
@@ -210,7 +211,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         data: {
           correspondence: correspondenceData.Item,
           recipient: recipientData.Item,
-          letters: lettersResult.Items,
+          letters: [],
+          // letters: lettersResult.Items,
         },
       }),
     };
