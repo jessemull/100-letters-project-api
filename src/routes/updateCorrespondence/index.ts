@@ -56,17 +56,21 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       '#address': 'address',
     };
 
-    if (recipient.description) {
+    if (recipient.description !== undefined) {
       recipientUpdateExpressionParts.push('#description = :description');
       recipientExpressionAttributeValues[':description'] =
         recipient.description;
       recipientExpressionAttributeNames['#description'] = 'description';
+    } else {
+      recipientUpdateExpressionParts.push('REMOVE #description');
     }
 
-    if (recipient.occupation) {
+    if (recipient.occupation !== undefined) {
       recipientUpdateExpressionParts.push('#occupation = :occupation');
       recipientExpressionAttributeValues[':occupation'] = recipient.occupation;
       recipientExpressionAttributeNames['#occupation'] = 'occupation';
+    } else {
+      recipientUpdateExpressionParts.push('REMOVE #occupation');
     }
 
     transactItems.push({
@@ -126,11 +130,13 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         '#type': 'type',
       };
 
-      if (letterData.description) {
+      if (letterData.description !== undefined) {
         letterUpdateExpressionParts.push('#description = :description');
         letterExpressionAttributeValues[':description'] =
           letterData.description;
         letterExpressionAttributeNames['#description'] = 'description';
+      } else {
+        letterUpdateExpressionParts.push('REMOVE #description');
       }
 
       if (letterId) {
@@ -154,12 +160,14 @@ export const handler: APIGatewayProxyHandler = async (event) => {
               letterId: newLetterId,
               ...letterData,
             },
-            ConditionExpression: 'attribute_not_exists(letterId)', // Ensure idempotency
+            ConditionExpression: 'attribute_not_exists(letterId)',
           },
         });
         letterIds.push(newLetterId);
       }
     });
+
+    logger.info(transactItems);
 
     const command = new TransactWriteCommand({ TransactItems: transactItems });
     await dynamoClient.send(command);

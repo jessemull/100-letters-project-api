@@ -55,8 +55,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       updateParams.ExpressionAttributeNames!['#description'] = 'description';
       updateParams.ExpressionAttributeValues[':description'] = description;
     } else {
-      updateParams.UpdateExpression += ', REMOVE #description';
-      updateParams.ExpressionAttributeNames!['#description'] = 'description';
+      updateParams.UpdateExpression += ' REMOVE #description';
     }
 
     if (occupation !== undefined) {
@@ -64,8 +63,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       updateParams.ExpressionAttributeNames!['#occupation'] = 'occupation';
       updateParams.ExpressionAttributeValues[':occupation'] = occupation;
     } else {
-      updateParams.UpdateExpression += ', REMOVE #occupation';
-      updateParams.ExpressionAttributeNames!['#occupation'] = 'occupation';
+      updateParams.UpdateExpression += ' REMOVE #occupation';
     }
 
     const command = new UpdateCommand(updateParams);
