@@ -1,9 +1,12 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { BadRequestError, DatabaseError } from '../../common/errors';
 import { LetterUpdateInput, UpdateParams, TransactionItem } from '../../types';
-import { TransactWriteCommand, GetCommand } from '@aws-sdk/lib-dynamodb';
+import {
+  TransactWriteCommand,
+  GetCommand,
+  QueryCommand,
+} from '@aws-sdk/lib-dynamodb';
 import { dynamoClient, logger } from '../../common/util';
-// import { QueryCommand } from '@aws-sdk/client-dynamodb';
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
@@ -188,8 +191,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       }),
     );
 
-    logger.error(correspondenceData?.Item?.correspondenceId);
-
     const lettersParams = {
       TableName: 'OneHundredLettersLetterTable',
       IndexName: 'CorrespondenceIndex',
@@ -199,10 +200,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       },
     };
 
-    logger.error(lettersParams);
-
-    // const lettersCommand = new QueryCommand(lettersParams);
-    // const lettersResult = await dynamoClient.send(lettersCommand);
+    const lettersCommand = new QueryCommand(lettersParams);
+    const lettersResult = await dynamoClient.send(lettersCommand);
 
     return {
       statusCode: 200,
@@ -211,8 +210,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         data: {
           correspondence: correspondenceData.Item,
           recipient: recipientData.Item,
-          letters: [],
-          // letters: lettersResult.Items,
+          letters: lettersResult.Items,
         },
       }),
     };
