@@ -84,6 +84,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         '#text': 'text',
         '#title': 'title',
         '#type': 'type',
+        '#description': 'description',
       },
       ExpressionAttributeValues: {
         ':date': date,
@@ -99,11 +100,9 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     if (description !== undefined) {
       updateParams.UpdateExpression += ', #description = :description';
-      updateParams.ExpressionAttributeNames!['#description'] = 'description';
       updateParams.ExpressionAttributeValues[':description'] = description;
     } else {
       updateParams.UpdateExpression += ', REMOVE #description';
-      updateParams.ExpressionAttributeNames!['#description'] = 'description';
     }
 
     const command = new UpdateCommand(updateParams);
