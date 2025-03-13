@@ -186,7 +186,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       }),
     );
 
-    const letterIds: string[] = correspondenceData.Item?.letters || [];
+    const letterIds: string[] =
+      correspondenceData.Item?.letters.map(
+        ({ letterId }: { letterId: string }) => letterId,
+      ) || [];
 
     const letterDataPromises = letterIds.map((letterId) =>
       dynamoClient.send(
