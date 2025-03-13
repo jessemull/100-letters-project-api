@@ -179,4 +179,21 @@ jobs:
             echo "Checking status..."
             sleep 10
           done
+      
+      - name: Prune Backups
+        run: |
+          FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
+          S3_BUCKET="100-letters-project-api"
+          OBJECTS=$(aws s3 ls s3://${S3_BUCKET}/${FUNCTION_NAME}/ | sort | awk '{print $4}')
+          TOTAL_OBJECTS=$(echo "$OBJECTS" | wc -l)
+          
+          if [ "$TOTAL_OBJECTS" -gt 5 ]; then
+            OBJECTS_TO_DELETE=$(echo "$OBJECTS" | head -n $(($TOTAL_OBJECTS - 5)))
+            for OBJ in $OBJECTS_TO_DELETE; do
+              aws s3 rm s3://${S3_BUCKET}/${FUNCTION_NAME}/$OBJ
+              echo "Deleted: $OBJ"
+            done
+          else
+            echo "Less than 5 objects found, no pruning needed..."
+          fi
 
