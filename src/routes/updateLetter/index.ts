@@ -68,6 +68,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       return new NotFoundError('Correspondence ID not found.').build();
     }
 
+    // Define the basic update parameters with SET for required fields
     const updateParams: UpdateParams = {
       TableName: 'OneHundredLettersLetterTable',
       Key: {
@@ -84,7 +85,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         '#text': 'text',
         '#title': 'title',
         '#type': 'type',
-        '#description': 'description',
+        '#description': 'description', // Add this for both SET and REMOVE
       },
       ExpressionAttributeValues: {
         ':date': date,
@@ -102,8 +103,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       updateParams.UpdateExpression += ', #description = :description';
       updateParams.ExpressionAttributeValues[':description'] = description;
     } else {
-      updateParams.UpdateExpression += ', REMOVE #description';
+      updateParams.UpdateExpression += ' REMOVE #description';
     }
+
+    logger.info(updateParams);
 
     const command = new UpdateCommand(updateParams);
     const result = await dynamoClient.send(command);
