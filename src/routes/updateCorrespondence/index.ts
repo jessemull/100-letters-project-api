@@ -36,7 +36,26 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     const transactItems: TransactionItem[] = [];
 
-    // Step 1: Construct recipient update params.
+    // Step 1: Construct correspondence update params.
+
+    const correspondenceUpdateParams: UpdateParams = {
+      TableName: 'OneHundredLettersCorrespondenceTable',
+      Key: { correspondenceId },
+      UpdateExpression: 'SET #reason = :reason',
+      ExpressionAttributeNames: {
+        '#reason': 'reason',
+      },
+      ExpressionAttributeValues: {
+        ':reason': reason,
+      },
+      ReturnValues: 'ALL_NEW',
+    };
+
+    transactItems.push({
+      Update: correspondenceUpdateParams,
+    });
+
+    // Step 2: Construct recipient update params.
 
     const recipientUpdateParams: UpdateParams = {
       TableName: 'OneHundredLettersRecipientTable',
@@ -89,25 +108,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     transactItems.push({
       Update: recipientUpdateParams,
-    });
-
-    // Step 2: Construct correspondence update params.
-
-    const correspondenceUpdateParams: UpdateParams = {
-      TableName: 'OneHundredLettersCorrespondenceTable',
-      Key: { correspondenceId },
-      UpdateExpression: 'SET #reason = :reason',
-      ExpressionAttributeNames: {
-        '#reason': 'reason',
-      },
-      ExpressionAttributeValues: {
-        ':reason': reason,
-      },
-      ReturnValues: 'ALL_NEW',
-    };
-
-    transactItems.push({
-      Update: correspondenceUpdateParams,
     });
 
     // Step 3: Construct all letter update params.
@@ -188,12 +188,15 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       }),
     );
 
+    logger.error(correspondenceData?.Item?.correspondenceId);
+    logger.error(correspondenceData);
+
     const lettersParams = {
       TableName: 'OneHundredLettersLetterTable',
       IndexName: 'CorrespondenceIndex',
       KeyConditionExpression: 'correspondenceId = :correspondenceId',
       ExpressionAttributeValues: {
-        ':correspondenceId': correspondence.correspondenceId,
+        ':correspondenceId': correspondenceData?.Item?.correspondenceId,
       },
     };
 
