@@ -75,8 +75,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         ' REMOVE ' + removeExpressions.join(', ');
     }
 
-    logger.info('UpdateParams:', JSON.stringify(updateParams, null, 2));
-
     const command = new UpdateCommand(updateParams);
     const result = await dynamoClient.send(command);
 

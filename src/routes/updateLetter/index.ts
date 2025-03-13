@@ -85,7 +85,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         '#text': 'text',
         '#title': 'title',
         '#type': 'type',
-        '#description': 'description', // Add this for both SET and REMOVE
       },
       ExpressionAttributeValues: {
         ':date': date,
@@ -99,11 +98,20 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       ReturnValues: 'ALL_NEW',
     };
 
-    if (description !== undefined) {
+    let removeExpressions: string[] = [];
+
+    if (description === undefined) {
+      removeExpressions.push('#description');
+      updateParams.ExpressionAttributeNames['#description'] = 'description';
+    } else {
       updateParams.UpdateExpression += ', #description = :description';
       updateParams.ExpressionAttributeValues[':description'] = description;
-    } else {
-      updateParams.UpdateExpression += ' REMOVE #description';
+      updateParams.ExpressionAttributeNames['#description'] = 'description';
+    }
+
+    if (removeExpressions.length > 0) {
+      updateParams.UpdateExpression +=
+        ' REMOVE ' + removeExpressions.join(', ');
     }
 
     logger.info(updateParams);
