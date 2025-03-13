@@ -68,7 +68,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       return new NotFoundError('Correspondence ID not found.').build();
     }
 
-    // Define the basic update parameters with SET for required fields
     const updateParams: UpdateParams = {
       TableName: 'OneHundredLettersLetterTable',
       Key: {
