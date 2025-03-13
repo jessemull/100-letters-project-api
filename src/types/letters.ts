@@ -49,7 +49,7 @@ export type LetterUpdateInput = {
   date: string;
   description?: string;
   imageURL: string;
-  letterId?: string;
+  letterId: string;
   method: LetterMethod;
   status: LetterStatus;
   text: string;

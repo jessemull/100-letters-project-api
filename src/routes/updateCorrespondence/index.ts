@@ -3,7 +3,6 @@ import { BadRequestError, DatabaseError } from '../../common/errors';
 import { LetterUpdateInput, UpdateParams, TransactionItem } from '../../types';
 import { TransactWriteCommand, GetCommand } from '@aws-sdk/lib-dynamodb';
 import { dynamoClient, logger } from '../../common/util';
-import { v4 as uuidv4 } from 'uuid';
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
@@ -36,6 +35,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     const transactItems: TransactionItem[] = [];
 
+    // Recipient update parameters
     const recipientUpdateParams: UpdateParams = {
       TableName: 'OneHundredLettersRecipientTable',
       Key: { recipientId: recipient.recipientId },
@@ -56,6 +56,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     let recipientRemoveExpressions: string[] = [];
 
+    // Check for optional fields
     if (recipient.description === undefined) {
       recipientRemoveExpressions.push('#description');
       recipientUpdateParams.ExpressionAttributeNames['#description'] =
@@ -89,6 +90,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       Update: recipientUpdateParams,
     });
 
+    // Correspondence update parameters
     const correspondenceUpdateParams: UpdateParams = {
       TableName: 'OneHundredLettersCorrespondenceTable',
       Key: { correspondenceId },
@@ -106,67 +108,61 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       Update: correspondenceUpdateParams,
     });
 
+    // Letters update parameters
     letters.forEach((letter: LetterUpdateInput) => {
       const { letterId, ...letterData } = letter;
-      let letterUpdateParams: TransactionItem | UpdateParams;
-      if (letterId) {
-        letterUpdateParams = {
-          TableName: 'OneHundredLettersLetterTable',
-          Key: { correspondenceId, letterId },
-          UpdateExpression:
-            'SET #date = :date, #imageURL = :imageURL, #method = :method, #status = :status, #text = :text, #title = :title, #type = :type',
-          ExpressionAttributeNames: {
-            '#date': 'date',
-            '#imageURL': 'imageURL',
-            '#method': 'method',
-            '#status': 'status',
-            '#text': 'text',
-            '#title': 'title',
-            '#type': 'type',
-          },
-          ExpressionAttributeValues: {
-            ':date': letterData.date,
-            ':imageURL': letterData.imageURL,
-            ':method': letterData.method,
-            ':status': letterData.status,
-            ':text': letterData.text,
-            ':title': letterData.title,
-            ':type': letterData.type,
-          },
-          ReturnValues: 'ALL_NEW',
-        };
 
-        if (letterData.description !== undefined) {
-          letterUpdateParams.UpdateExpression +=
-            ', #description = :description';
-          letterUpdateParams.ExpressionAttributeValues[':description'] =
-            letterData.description;
-          letterUpdateParams.ExpressionAttributeNames['#description'] =
-            'description';
-        } else {
-          letterUpdateParams.UpdateExpression += ' REMOVE #description';
-        }
-      } else {
-        letterUpdateParams = {
-          Put: {
-            TableName: 'OneHundredLettersLetterTable',
-            Item: {
-              correspondenceId,
-              letterId: uuidv4(),
-              ...letterData,
-            },
-            ConditionExpression: 'attribute_not_exists(letterId)',
-          },
-        };
-        transactItems.push(letterUpdateParams);
+      // Ensure letterId is always provided and perform an update
+      if (!letterId) {
+        return new BadRequestError('Letter ID is required for update.').build();
       }
+
+      const letterUpdateParams: UpdateParams = {
+        TableName: 'OneHundredLettersLetterTable',
+        Key: { correspondenceId, letterId },
+        UpdateExpression:
+          'SET #date = :date, #imageURL = :imageURL, #method = :method, #status = :status, #text = :text, #title = :title, #type = :type',
+        ExpressionAttributeNames: {
+          '#date': 'date',
+          '#imageURL': 'imageURL',
+          '#method': 'method',
+          '#status': 'status',
+          '#text': 'text',
+          '#title': 'title',
+          '#type': 'type',
+        },
+        ExpressionAttributeValues: {
+          ':date': letterData.date,
+          ':imageURL': letterData.imageURL,
+          ':method': letterData.method,
+          ':status': letterData.status,
+          ':text': letterData.text,
+          ':title': letterData.title,
+          ':type': letterData.type,
+        },
+        ReturnValues: 'ALL_NEW',
+      };
+
+      if (letterData.description !== undefined) {
+        letterUpdateParams.UpdateExpression += ', #description = :description';
+        letterUpdateParams.ExpressionAttributeValues[':description'] =
+          letterData.description;
+        letterUpdateParams.ExpressionAttributeNames['#description'] =
+          'description';
+      } else {
+        letterUpdateParams.UpdateExpression += ' REMOVE #description';
+      }
+
+      transactItems.push({ Update: letterUpdateParams });
     });
 
     logger.info('Transaction Items:', transactItems);
 
+    // Execute the transaction
     const command = new TransactWriteCommand({ TransactItems: transactItems });
     await dynamoClient.send(command);
 
+    // Fetch updated data
     const correspondenceData = await dynamoClient.send(
       new GetCommand({
         TableName: 'OneHundredLettersCorrespondenceTable',
@@ -181,11 +177,13 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       }),
     );
 
-    const letterDataPromises = letters.map((letter: LetterUpdateInput) =>
+    const letterIds: string[] = correspondenceData.Item?.letters || [];
+
+    const letterDataPromises = letterIds.map((letterId) =>
       dynamoClient.send(
         new GetCommand({
           TableName: 'OneHundredLettersLetterTable',
-          Key: { correspondenceId, letterId: letter.letterId },
+          Key: { correspondenceId, letterId },
         }),
       ),
     );
