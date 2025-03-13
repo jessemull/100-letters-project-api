@@ -54,7 +54,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     if (description === undefined) {
       removeExpressions.push('#description');
-      updateParams.ExpressionAttributeNames!['#description'] = 'description';
+      updateParams.ExpressionAttributeNames['#description'] = 'description';
     } else {
       updateParams.UpdateExpression += ', #description = :description';
       updateParams.ExpressionAttributeValues[':description'] = description;
@@ -62,7 +62,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     if (occupation === undefined) {
       removeExpressions.push('#occupation');
-      updateParams.ExpressionAttributeNames!['#occupation'] = 'occupation';
+      updateParams.ExpressionAttributeNames['#occupation'] = 'occupation';
     } else {
       updateParams.UpdateExpression += ', #occupation = :occupation';
       updateParams.ExpressionAttributeValues[':occupation'] = occupation;
