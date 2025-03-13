@@ -35,7 +35,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     const transactItems: TransactionItem[] = [];
 
-    // Recipient update parameters
+    // Step 1: Construct recipient update params.
+
     const recipientUpdateParams: UpdateParams = {
       TableName: 'OneHundredLettersRecipientTable',
       Key: { recipientId: recipient.recipientId },
@@ -56,7 +57,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     let recipientRemoveExpressions: string[] = [];
 
-    // Check for optional fields
     if (recipient.description === undefined) {
       recipientRemoveExpressions.push('#description');
       recipientUpdateParams.ExpressionAttributeNames['#description'] =
@@ -90,7 +90,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       Update: recipientUpdateParams,
     });
 
-    // Correspondence update parameters
+    // Step 2: Construct correspondence update params.
+
     const correspondenceUpdateParams: UpdateParams = {
       TableName: 'OneHundredLettersCorrespondenceTable',
       Key: { correspondenceId },
@@ -108,11 +109,11 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       Update: correspondenceUpdateParams,
     });
 
-    // Letters update parameters
+    // Step 3: Construct all letter update params.
+
     letters.forEach((letter: LetterUpdateInput) => {
       const { letterId, ...letterData } = letter;
 
-      // Ensure letterId is always provided and perform an update
       if (!letterId) {
         return new BadRequestError('Letter ID is required for update.').build();
       }
@@ -167,11 +168,13 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     logger.info('Transaction Items:', transactItems);
 
-    // Execute the transaction
+    // Step 4: Execute transaction.
+
     const command = new TransactWriteCommand({ TransactItems: transactItems });
     await dynamoClient.send(command);
 
-    // Fetch updated data
+    // Step 5: Re-fetch and return the updated correspondence data.
+
     const correspondenceData = await dynamoClient.send(
       new GetCommand({
         TableName: 'OneHundredLettersCorrespondenceTable',
