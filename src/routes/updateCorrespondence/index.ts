@@ -3,6 +3,7 @@ import { BadRequestError, DatabaseError } from '../../common/errors';
 import { LetterUpdateInput, UpdateParams, TransactionItem } from '../../types';
 import { TransactWriteCommand, GetCommand } from '@aws-sdk/lib-dynamodb';
 import { dynamoClient, logger } from '../../common/util';
+import { QueryCommand } from '@aws-sdk/client-dynamodb';
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
@@ -166,8 +167,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       transactItems.push({ Update: letterUpdateParams });
     });
 
-    logger.info('Transaction Items:', transactItems);
-
     // Step 4: Execute transaction.
 
     const command = new TransactWriteCommand({ TransactItems: transactItems });
@@ -182,8 +181,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       }),
     );
 
-    logger.info(correspondenceData);
-
     const recipientData = await dynamoClient.send(
       new GetCommand({
         TableName: 'OneHundredLettersRecipientTable',
@@ -191,24 +188,17 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       }),
     );
 
-    const letterIds: string[] =
-      correspondenceData?.Item?.letters.map(
-        ({ letterId }: { letterId: string }) => letterId,
-      ) || [];
+    const lettersParams = {
+      TableName: 'OneHundredLettersLetterTable',
+      IndexName: 'CorrespondenceIndex',
+      KeyConditionExpression: 'correspondenceId = :correspondenceId',
+      ExpressionAttributeValues: {
+        ':correspondenceId': correspondence.correspondenceId,
+      },
+    };
 
-    const letterDataPromises = letterIds.map((letterId) =>
-      dynamoClient.send(
-        new GetCommand({
-          TableName: 'OneHundredLettersLetterTable',
-          Key: { correspondenceId, letterId },
-        }),
-      ),
-    );
-
-    const lettersData = await Promise.all(letterDataPromises);
-    const lettersList = lettersData
-      .map((response) => response.Item)
-      .filter(Boolean);
+    const lettersCommand = new QueryCommand(lettersParams);
+    const lettersResult = await dynamoClient.send(lettersCommand);
 
     return {
       statusCode: 200,
@@ -217,7 +207,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         data: {
           correspondence: correspondenceData.Item,
           recipient: recipientData.Item,
-          letters: lettersList,
+          letters: lettersResult.Items,
         },
       }),
     };
