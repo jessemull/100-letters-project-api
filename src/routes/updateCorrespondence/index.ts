@@ -1,6 +1,6 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { BadRequestError, DatabaseError } from '../../common/errors';
-import { LetterUpdateInput, TransactionItem } from '../../types';
+import { LetterUpdateInput, UpdateParams, TransactionItem } from '../../types';
 import { TransactWriteCommand, GetCommand } from '@aws-sdk/lib-dynamodb';
 import { dynamoClient, logger } from '../../common/util';
 import { v4 as uuidv4 } from 'uuid';
@@ -28,7 +28,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     }
 
     const { reason } = correspondence;
-
     if (!reason || !reason.description || !reason.domain || !reason.impact) {
       return new BadRequestError(
         'Reason must include description, domain, and valid impact.',
@@ -36,138 +35,134 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     }
 
     const transactItems: TransactionItem[] = [];
-    const letterIds: string[] = [];
 
-    const recipientUpdateExpressionParts: string[] = [
-      '#firstName = :firstName',
-      '#lastName = :lastName',
-      '#address = :address',
-    ];
-
-    const recipientExpressionAttributeValues: { [key: string]: unknown } = {
-      ':firstName': recipient.firstName,
-      ':lastName': recipient.lastName,
-      ':address': recipient.address,
+    const recipientUpdateParams: UpdateParams = {
+      TableName: 'OneHundredLettersRecipientTable',
+      Key: { recipientId: recipient.recipientId },
+      UpdateExpression:
+        'SET #firstName = :firstName, #lastName = :lastName, #address = :address',
+      ExpressionAttributeNames: {
+        '#firstName': 'firstName',
+        '#lastName': 'lastName',
+        '#address': 'address',
+      },
+      ExpressionAttributeValues: {
+        ':firstName': recipient.firstName,
+        ':lastName': recipient.lastName,
+        ':address': recipient.address,
+      },
+      ReturnValues: 'ALL_NEW',
     };
 
-    const recipientExpressionAttributeNames: { [key: string]: string } = {
-      '#firstName': 'firstName',
-      '#lastName': 'lastName',
-      '#address': 'address',
-    };
+    let recipientRemoveExpressions: string[] = [];
 
-    if (recipient.description !== undefined) {
-      recipientUpdateExpressionParts.push('#description = :description');
-      recipientExpressionAttributeValues[':description'] =
-        recipient.description;
-      recipientExpressionAttributeNames['#description'] = 'description';
+    if (recipient.description === undefined) {
+      recipientRemoveExpressions.push('#description');
+      recipientUpdateParams.ExpressionAttributeNames['#description'] =
+        'description';
     } else {
-      recipientUpdateExpressionParts.push('REMOVE #description');
+      recipientUpdateParams.UpdateExpression += ', #description = :description';
+      recipientUpdateParams.ExpressionAttributeValues[':description'] =
+        recipient.description;
+      recipientUpdateParams.ExpressionAttributeNames['#description'] =
+        'description';
     }
 
-    if (recipient.occupation !== undefined) {
-      recipientUpdateExpressionParts.push('#occupation = :occupation');
-      recipientExpressionAttributeValues[':occupation'] = recipient.occupation;
-      recipientExpressionAttributeNames['#occupation'] = 'occupation';
+    if (recipient.occupation === undefined) {
+      recipientRemoveExpressions.push('#occupation');
+      recipientUpdateParams.ExpressionAttributeNames['#occupation'] =
+        'occupation';
     } else {
-      recipientUpdateExpressionParts.push('REMOVE #occupation');
+      recipientUpdateParams.UpdateExpression += ', #occupation = :occupation';
+      recipientUpdateParams.ExpressionAttributeValues[':occupation'] =
+        recipient.occupation;
+      recipientUpdateParams.ExpressionAttributeNames['#occupation'] =
+        'occupation';
+    }
+
+    if (recipientRemoveExpressions.length > 0) {
+      recipientUpdateParams.UpdateExpression +=
+        ' REMOVE ' + recipientRemoveExpressions.join(', ');
     }
 
     transactItems.push({
-      Update: {
-        TableName: 'OneHundredLettersRecipientTable',
-        Key: { recipientId: recipient.recipientId },
-        UpdateExpression: `SET ${recipientUpdateExpressionParts.join(', ')}`,
-        ExpressionAttributeNames: recipientExpressionAttributeNames,
-        ExpressionAttributeValues: recipientExpressionAttributeValues,
-      },
+      Update: recipientUpdateParams,
     });
 
-    transactItems.push({
-      Update: {
-        TableName: 'OneHundredLettersCorrespondenceTable',
-        Key: { correspondenceId },
-        UpdateExpression: 'SET #reason = :reason',
-        ExpressionAttributeNames: {
-          '#reason': 'reason',
-        },
-        ExpressionAttributeValues: {
-          ':reason': reason,
-        },
+    const correspondenceUpdateParams: UpdateParams = {
+      TableName: 'OneHundredLettersCorrespondenceTable',
+      Key: { correspondenceId },
+      UpdateExpression: 'SET #reason = :reason',
+      ExpressionAttributeNames: {
+        '#reason': 'reason',
       },
+      ExpressionAttributeValues: {
+        ':reason': reason,
+      },
+      ReturnValues: 'ALL_NEW',
+    };
+
+    transactItems.push({
+      Update: correspondenceUpdateParams,
     });
 
     letters.forEach((letter: LetterUpdateInput) => {
       const { letterId, ...letterData } = letter;
-
-      const letterUpdateExpressionParts: string[] = [
-        '#date = :date',
-        '#imageURL = :imageURL',
-        '#method = :method',
-        '#status = :status',
-        '#text = :text',
-        '#title = :title',
-        '#type = :type',
-      ];
-
-      const letterExpressionAttributeValues: { [key: string]: unknown } = {
-        ':date': letterData.date,
-        ':imageURL': letterData.imageURL,
-        ':method': letterData.method,
-        ':status': letterData.status,
-        ':text': letterData.text,
-        ':title': letterData.title,
-        ':type': letterData.type,
-      };
-
-      const letterExpressionAttributeNames: { [key: string]: string } = {
-        '#date': 'date',
-        '#imageURL': 'imageURL',
-        '#method': 'method',
-        '#status': 'status',
-        '#text': 'text',
-        '#title': 'title',
-        '#type': 'type',
-      };
-
-      if (letterData.description !== undefined) {
-        letterUpdateExpressionParts.push('#description = :description');
-        letterExpressionAttributeValues[':description'] =
-          letterData.description;
-        letterExpressionAttributeNames['#description'] = 'description';
-      } else {
-        letterUpdateExpressionParts.push('REMOVE #description');
-      }
-
+      let letterUpdateParams: TransactionItem | UpdateParams;
       if (letterId) {
-        transactItems.push({
-          Update: {
-            TableName: 'OneHundredLettersLetterTable',
-            Key: { correspondenceId, letterId },
-            UpdateExpression: `SET ${letterUpdateExpressionParts.join(', ')}`,
-            ExpressionAttributeNames: letterExpressionAttributeNames,
-            ExpressionAttributeValues: letterExpressionAttributeValues,
+        letterUpdateParams = {
+          TableName: 'OneHundredLettersLetterTable',
+          Key: { correspondenceId, letterId },
+          UpdateExpression:
+            'SET #date = :date, #imageURL = :imageURL, #method = :method, #status = :status, #text = :text, #title = :title, #type = :type',
+          ExpressionAttributeNames: {
+            '#date': 'date',
+            '#imageURL': 'imageURL',
+            '#method': 'method',
+            '#status': 'status',
+            '#text': 'text',
+            '#title': 'title',
+            '#type': 'type',
           },
-        });
-        letterIds.push(letterId);
+          ExpressionAttributeValues: {
+            ':date': letterData.date,
+            ':imageURL': letterData.imageURL,
+            ':method': letterData.method,
+            ':status': letterData.status,
+            ':text': letterData.text,
+            ':title': letterData.title,
+            ':type': letterData.type,
+          },
+          ReturnValues: 'ALL_NEW',
+        };
+
+        if (letterData.description !== undefined) {
+          letterUpdateParams.UpdateExpression +=
+            ', #description = :description';
+          letterUpdateParams.ExpressionAttributeValues[':description'] =
+            letterData.description;
+          letterUpdateParams.ExpressionAttributeNames['#description'] =
+            'description';
+        } else {
+          letterUpdateParams.UpdateExpression += ' REMOVE #description';
+        }
       } else {
-        const newLetterId = uuidv4();
-        transactItems.push({
+        letterUpdateParams = {
           Put: {
             TableName: 'OneHundredLettersLetterTable',
             Item: {
               correspondenceId,
-              letterId: newLetterId,
+              letterId: uuidv4(),
               ...letterData,
             },
             ConditionExpression: 'attribute_not_exists(letterId)',
           },
-        });
-        letterIds.push(newLetterId);
+        };
+        transactItems.push(letterUpdateParams);
       }
     });
 
-    logger.info(transactItems);
+    logger.info('Transaction Items:', transactItems);
 
     const command = new TransactWriteCommand({ TransactItems: transactItems });
     await dynamoClient.send(command);
@@ -186,11 +181,11 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       }),
     );
 
-    const letterDataPromises = letterIds.map((letterId) =>
+    const letterDataPromises = letters.map((letter: LetterUpdateInput) =>
       dynamoClient.send(
         new GetCommand({
           TableName: 'OneHundredLettersLetterTable',
-          Key: { correspondenceId, letterId },
+          Key: { correspondenceId, letterId: letter.letterId },
         }),
       ),
     );
