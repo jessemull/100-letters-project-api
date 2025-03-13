@@ -97,10 +97,13 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       ReturnValues: 'ALL_NEW',
     };
 
-    if (description) {
+    if (description !== undefined) {
       updateParams.UpdateExpression += ', #description = :description';
       updateParams.ExpressionAttributeNames!['#description'] = 'description';
       updateParams.ExpressionAttributeValues[':description'] = description;
+    } else {
+      updateParams.UpdateExpression += ', REMOVE #description';
+      updateParams.ExpressionAttributeNames!['#description'] = 'description';
     }
 
     const command = new UpdateCommand(updateParams);
