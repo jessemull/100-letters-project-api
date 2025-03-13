@@ -46,7 +46,16 @@ Resources:
             type: "object"
             properties:
               reason:
-                type: "string"
+                type: "object"
+                properties:
+                  description:
+                    type: "string"
+                  domain:
+                    type: "string"
+                  impact:
+                    type: "string"
+                    enum: ["HIGH", "MEDIUM", "LOW"]
+                required: ["description", "domain", "impact"]
             required: ["reason"]
           recipient:
             type: "object"
@@ -107,7 +116,16 @@ Resources:
               correspondenceId:
                 type: "string"
               reason:
-                type: "string"
+                type: "object"
+                properties:
+                  description:
+                    type: "string"
+                  domain:
+                    type: "string"
+                  impact:
+                    type: "string"
+                    enum: ["HIGH", "MEDIUM", "LOW"]
+                required: ["description", "domain", "impact"]
             required: ["correspondenceId", "reason"]
           recipient:
             type: "object"

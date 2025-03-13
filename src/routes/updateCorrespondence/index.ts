@@ -27,6 +27,14 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       ).build();
     }
 
+    const { reason } = correspondence;
+
+    if (!reason || !reason.description || !reason.domain || !reason.impact) {
+      return new BadRequestError(
+        'Reason must include description, domain, and valid impact.',
+      ).build();
+    }
+
     const transactItems: TransactionItem[] = [];
     const letterIds: string[] = [];
 
@@ -80,7 +88,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           '#reason': 'reason',
         },
         ExpressionAttributeValues: {
-          ':reason': correspondence.reason,
+          ':reason': reason,
         },
       },
     });

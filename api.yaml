@@ -583,6 +583,9 @@ components:
       type: "string"
       format: "date-time"
       example: "2025-03-07T14:30:00Z"
+    Domain:
+      type: "string"
+      example: "Biology"
     FirstName:
       type: "string"
       example: "Alan"
@@ -590,6 +593,12 @@ components:
       type: "string"
       format: "uri"
       example: "https://example.com/letter-image.png"
+    Impact:
+      type: "string"
+      enum:
+        - "LOW"
+        - "MEDIUM"
+        - "HIGH"
     LastName:
       type: "string"
       example: "Aldrich"
@@ -609,8 +618,21 @@ components:
       type: "string"
       example: "Architect"
     Reason:
+      required:
+        - 'description'
+        - 'domain'
+        - 'impact'
+      type: "object"
+      properties:
+        description:
+          $ref: "#/components/schemas/ReasonDescription"
+        domain:
+          $ref: "#/components/schemas/Domain"
+        impact:
+          $ref: "#/components/schemas/Impact"
+    ReasonDescription:
       type: "string"
-      example: "George Church's contributions to DNA sequencing."
+      example: "Contributions to high throughput sequencing and resurrecting wooly mammoths."
     RecipientDescription:
       type: "string"
       example: "George Church's contribution to the research community is invaluable."
