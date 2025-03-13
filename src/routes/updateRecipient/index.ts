@@ -56,6 +56,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       updateParams.ExpressionAttributeValues[':description'] = description;
     } else {
       updateParams.UpdateExpression += ' REMOVE #description';
+      updateParams.ExpressionAttributeNames!['#description'] = 'description';
     }
 
     if (occupation !== undefined) {
@@ -64,7 +65,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       updateParams.ExpressionAttributeValues[':occupation'] = occupation;
     } else {
       updateParams.UpdateExpression += ' REMOVE #occupation';
+      updateParams.ExpressionAttributeNames!['#occupation'] = 'occupation';
     }
+
+    logger.info(updateParams);
 
     const command = new UpdateCommand(updateParams);
     const result = await dynamoClient.send(command);
