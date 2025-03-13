@@ -13,6 +13,10 @@ export type TransactionItem = {
     Item: Record<string, unknown>;
     ConditionExpression?: string;
   };
+  Delete?: {
+    TableName: string;
+    Key: Record<string, unknown>;
+  };
 };
 
 export interface UpdateParams {

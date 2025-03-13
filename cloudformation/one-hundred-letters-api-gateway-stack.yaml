@@ -171,7 +171,7 @@ Resources:
                 type:
                   type: "string"
                   enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
-              required: ["date", "imageURL", "method", "status", "text", "title", "type"]
+              required: ["date", "imageURL", "letterId", "method", "status", "text", "title", "type"]
         required: ["correspondence", "recipient", "letters"]
 
   ApiGatewayCorrespondence:

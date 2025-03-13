@@ -143,6 +143,7 @@ describe('Update Correspondence Handler', () => {
     const event = {
       body: JSON.stringify({
         recipient: {
+          address: '123 Fake Street',
           recipientId: 'mock-recipient-id',
           firstName: 'John',
           lastName: 'Doe',
@@ -161,6 +162,12 @@ describe('Update Correspondence Handler', () => {
       pathParameters: { id: 'mock-id' },
     } as unknown as APIGatewayProxyEvent;
 
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Items: [
+        { letterId: 'mock-letter-id' },
+        { letterId: 'mock-letter-id-missing' },
+      ],
+    });
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({});
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
       Item: { correspondenceId: 'mock-id' },
@@ -169,7 +176,7 @@ describe('Update Correspondence Handler', () => {
       Item: { recipientId: 'mock-recipient-id' },
     });
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Item: { letterId: 'mock-letter-id' },
+      Items: [{ letterId: 'mock-letter-id' }],
     });
 
     const expectedResponse = {
@@ -222,7 +229,7 @@ describe('Update Correspondence Handler', () => {
     expect(JSON.parse(response.body).message).toBe('Internal Server Error');
   });
 
-  it('should include description in recipient update if provided', async () => {
+  it('should include description and occupation in recipient update if provided', async () => {
     const event = {
       body: JSON.stringify({
         recipient: {
@@ -246,6 +253,9 @@ describe('Update Correspondence Handler', () => {
       pathParameters: { id: 'mock-id' },
     } as unknown as APIGatewayProxyEvent;
 
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Item: { letterId: 'mock-letter-id' },
+    });
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({});
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
       Item: { correspondenceId: 'mock-id' },
@@ -254,7 +264,7 @@ describe('Update Correspondence Handler', () => {
       Item: { recipientId: 'mock-recipient-id' },
     });
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Item: { letterId: 'mock-letter-id' },
+      Items: [{ letterId: 'mock-letter-id' }],
     });
 
     const response = (await handler(
@@ -298,13 +308,16 @@ describe('Update Correspondence Handler', () => {
           {
             letterId: 'mock-letter-id',
             text: 'Updated letter content',
-            description: 'Sample description for letter',
+            description: 'Updated letter description',
           },
         ],
       }),
       pathParameters: { id: 'mock-id' },
     } as unknown as APIGatewayProxyEvent;
 
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Item: { letterId: 'mock-letter-id' },
+    });
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({});
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
       Item: { correspondenceId: 'mock-id' },
@@ -313,7 +326,7 @@ describe('Update Correspondence Handler', () => {
       Item: { recipientId: 'mock-recipient-id' },
     });
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Item: { letterId: 'mock-letter-id' },
+      Items: [{ letterId: 'mock-letter-id' }],
     });
 
     const response = (await handler(
@@ -321,6 +334,7 @@ describe('Update Correspondence Handler', () => {
       mockContext,
       mockCallback,
     )) as APIGatewayProxyResult;
+
     expect(
       JSON.stringify((dynamoClient.send as jest.Mock).mock.calls).includes(
         '#description = :description',
@@ -332,34 +346,11 @@ describe('Update Correspondence Handler', () => {
     );
   });
 
-  it('should return 400 if pathParameters is missing the id', async () => {
-    const event = {
-      body: JSON.stringify({
-        recipient: { name: 'John Doe' },
-        correspondence: {
-          reason: { description: 'Test', domain: 'Test', impact: 'HIGH' },
-        },
-        letters: [{ letterId: 'letter123', content: 'Hello' }],
-      }),
-      pathParameters: undefined, // pathParameters is undefined
-    } as unknown as APIGatewayProxyEvent;
-
-    const response = (await handler(
-      event,
-      mockContext,
-      mockCallback,
-    )) as APIGatewayProxyResult;
-
-    expect(response.statusCode).toBe(400);
-    expect(JSON.parse(response.body).message).toBe(
-      'Correspondence ID is required in the path parameters.',
-    );
-  });
-
-  it('should create a new letter if letter ID is not included', async () => {
+  it('should return 400 when letter ID is missing', async () => {
     const event = {
       body: JSON.stringify({
         recipient: {
+          address: '123 Fake Street',
           recipientId: 'mock-recipient-id',
           firstName: 'John',
           lastName: 'Doe',
@@ -376,22 +367,37 @@ describe('Update Correspondence Handler', () => {
       pathParameters: { id: 'mock-id' },
     } as unknown as APIGatewayProxyEvent;
 
-    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({});
-    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Item: { correspondenceId: 'mock-id' },
-    });
-    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Item: { recipientId: 'mock-recipient-id' },
-    });
-    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Item: { letterId: 'mock-letter-id' },
-    });
+    const response = (await handler(
+      event,
+      mockContext,
+      mockCallback,
+    )) as APIGatewayProxyResult;
 
-    const expectedResponse = {
-      correspondence: { correspondenceId: 'mock-id' },
-      recipient: { recipientId: 'mock-recipient-id' },
-      letters: [{ letterId: 'mock-letter-id' }],
-    };
+    expect(response.statusCode).toBe(400);
+    expect(JSON.parse(response.body).message).toBe(
+      'Letter ID is required for update.',
+    );
+  });
+
+  it('should return 400 when correspondence ID is missing from path parameters', async () => {
+    const event = {
+      body: JSON.stringify({
+        recipient: {
+          address: '123 Fake Street',
+          recipientId: 'mock-recipient-id',
+          firstName: 'John',
+          lastName: 'Doe',
+        },
+        correspondence: {
+          reason: {
+            description: 'Test',
+            domain: 'Test Domain',
+            impact: 'HIGH',
+          },
+        },
+        letters: [{ id: 'mock-letter-id', text: 'Updated letter content' }],
+      }),
+    } as unknown as APIGatewayProxyEvent;
 
     const response = (await handler(
       event,
@@ -399,10 +405,9 @@ describe('Update Correspondence Handler', () => {
       mockCallback,
     )) as APIGatewayProxyResult;
 
-    expect(response.statusCode).toBe(200);
+    expect(response.statusCode).toBe(400);
     expect(JSON.parse(response.body).message).toBe(
-      'Correspondence updated successfully.',
+      'Correspondence ID is required in the path parameters.',
     );
-    expect(JSON.parse(response.body).data).toEqual(expectedResponse);
   });
 });

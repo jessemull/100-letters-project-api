@@ -869,6 +869,7 @@ components:
       required:
         - "date"
         - "imageURL"
+        - "letterId"
         - "method"
         - "status"
         - "text"
