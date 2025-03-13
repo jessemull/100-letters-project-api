@@ -62,11 +62,39 @@ describe('Create Correspondence Handler', () => {
     );
   });
 
-  it('should return 500 if there is an error during the transaction', async () => {
+  it('should return 400 if reason is missing or invalid', async () => {
     const event = {
       body: JSON.stringify({
         recipient: { name: 'John Doe' },
         correspondence: { title: 'Test Correspondence' },
+        letters: [{ letterId: 'letter123', content: 'Hello' }],
+      }),
+    } as unknown as APIGatewayProxyEvent;
+
+    const response = (await handler(
+      event,
+      mockContext,
+      mockCallback,
+    )) as APIGatewayProxyResult;
+
+    expect(response.statusCode).toBe(400);
+    expect(JSON.parse(response.body).message).toBe(
+      'Reason must include description, domain, and valid impact.',
+    );
+  });
+
+  it('should return 500 if there is an error during the transaction', async () => {
+    const event = {
+      body: JSON.stringify({
+        recipient: { name: 'John Doe' },
+        correspondence: {
+          title: 'Test Correspondence',
+          reason: {
+            description: 'Test',
+            domain: 'Test Domain',
+            impact: 'HIGH',
+          },
+        },
         letters: [{ letterId: 'letter123', content: 'Hello' }],
       }),
     } as unknown as APIGatewayProxyEvent;
@@ -88,9 +116,16 @@ describe('Create Correspondence Handler', () => {
   it('should return 201 when correspondence, recipient, and letters are successfully created', async () => {
     const event = {
       body: JSON.stringify({
-        recipient: { name: 'John Doe' },
-        correspondence: { title: 'Test Correspondence' },
-        letters: [{ letterId: 'letter123', content: 'Hello' }],
+        recipient: { recipientId: 'mock-uuid' },
+        correspondence: {
+          title: 'Test Correspondence',
+          reason: {
+            description: 'Test',
+            domain: 'Test Domain',
+            impact: 'HIGH',
+          },
+        },
+        letters: [{ letterId: 'mock-uuid' }],
       }),
     } as unknown as APIGatewayProxyEvent;
 
@@ -102,17 +137,15 @@ describe('Create Correspondence Handler', () => {
       correspondence: {
         correspondenceId: 'mock-uuid',
         recipientId: 'mock-uuid',
-        title: 'Test Correspondence',
+        reason: { description: 'Test', domain: 'Test Domain', impact: 'HIGH' },
       },
       recipient: {
         recipientId: 'mock-uuid',
-        name: 'John Doe',
       },
       letters: [
         {
           letterId: 'mock-uuid',
           correspondenceId: 'mock-uuid',
-          content: 'Hello',
         },
       ],
     };
@@ -134,7 +167,14 @@ describe('Create Correspondence Handler', () => {
     const event = {
       body: JSON.stringify({
         recipient: { name: 'John Doe' },
-        correspondence: { title: 'Test Correspondence' },
+        correspondence: {
+          title: 'Test Correspondence',
+          reason: {
+            description: 'Test',
+            domain: 'Test Domain',
+            impact: 'HIGH',
+          },
+        },
       }),
     } as unknown as APIGatewayProxyEvent;
 
@@ -154,7 +194,14 @@ describe('Create Correspondence Handler', () => {
     const event = {
       body: JSON.stringify({
         recipient: { name: 'John Doe' },
-        correspondence: { title: 'Test Correspondence' },
+        correspondence: {
+          title: 'Test Correspondence',
+          reason: {
+            description: 'Test',
+            domain: 'Test Domain',
+            impact: 'HIGH',
+          },
+        },
         letters: [{ letterId: 'letter123', content: 'Hello' }],
       }),
     } as unknown as APIGatewayProxyEvent;
