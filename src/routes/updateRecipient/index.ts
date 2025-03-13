@@ -58,6 +58,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     } else {
       updateParams.UpdateExpression += ', #description = :description';
       updateParams.ExpressionAttributeValues[':description'] = description;
+      updateParams.ExpressionAttributeNames['#description'] = 'description';
     }
 
     if (occupation === undefined) {
@@ -66,6 +67,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     } else {
       updateParams.UpdateExpression += ', #occupation = :occupation';
       updateParams.ExpressionAttributeValues[':occupation'] = occupation;
+      updateParams.ExpressionAttributeNames['#occupation'] = 'occupation';
     }
 
     if (removeExpressions.length > 0) {
