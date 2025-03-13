@@ -1,11 +1,7 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { BadRequestError, DatabaseError } from '../../common/errors';
 import { LetterUpdateInput, UpdateParams, TransactionItem } from '../../types';
-import {
-  TransactWriteCommand,
-  GetCommand,
-  QueryCommand,
-} from '@aws-sdk/lib-dynamodb';
+import { TransactWriteCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { dynamoClient, logger } from '../../common/util';
 
 export const handler: APIGatewayProxyHandler = async (event) => {
@@ -39,8 +35,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     const transactItems: TransactionItem[] = [];
 
-    // Step 1: Construct correspondence update params.
-
     const correspondenceUpdateParams: UpdateParams = {
       TableName: 'OneHundredLettersCorrespondenceTable',
       Key: { correspondenceId },
@@ -54,11 +48,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       ReturnValues: 'ALL_NEW',
     };
 
-    transactItems.push({
-      Update: correspondenceUpdateParams,
-    });
-
-    // Step 2: Construct recipient update params.
+    transactItems.push({ Update: correspondenceUpdateParams });
 
     const recipientUpdateParams: UpdateParams = {
       TableName: 'OneHundredLettersRecipientTable',
@@ -78,49 +68,27 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       ReturnValues: 'ALL_NEW',
     };
 
-    let recipientRemoveExpressions: string[] = [];
+    transactItems.push({ Update: recipientUpdateParams });
 
-    if (recipient.description === undefined) {
-      recipientRemoveExpressions.push('#description');
-      recipientUpdateParams.ExpressionAttributeNames['#description'] =
-        'description';
-    } else {
-      recipientUpdateParams.UpdateExpression += ', #description = :description';
-      recipientUpdateParams.ExpressionAttributeValues[':description'] =
-        recipient.description;
-      recipientUpdateParams.ExpressionAttributeNames['#description'] =
-        'description';
-    }
-
-    if (recipient.occupation === undefined) {
-      recipientRemoveExpressions.push('#occupation');
-      recipientUpdateParams.ExpressionAttributeNames['#occupation'] =
-        'occupation';
-    } else {
-      recipientUpdateParams.UpdateExpression += ', #occupation = :occupation';
-      recipientUpdateParams.ExpressionAttributeValues[':occupation'] =
-        recipient.occupation;
-      recipientUpdateParams.ExpressionAttributeNames['#occupation'] =
-        'occupation';
-    }
-
-    if (recipientRemoveExpressions.length > 0) {
-      recipientUpdateParams.UpdateExpression +=
-        ' REMOVE ' + recipientRemoveExpressions.join(', ');
-    }
-
-    transactItems.push({
-      Update: recipientUpdateParams,
+    const existingLettersCommand = new QueryCommand({
+      TableName: 'OneHundredLettersLetterTable',
+      IndexName: 'CorrespondenceIndex',
+      KeyConditionExpression: 'correspondenceId = :correspondenceId',
+      ExpressionAttributeValues: { ':correspondenceId': correspondenceId },
     });
 
-    // Step 3: Construct all letter update params.
+    const existingLettersResult = await dynamoClient.send(
+      existingLettersCommand,
+    );
+    const existingLetterIds = new Set(
+      existingLettersResult.Items?.map((l) => l.letterId),
+    );
+    const incomingLetterIds = new Set(
+      letters.map((letter: LetterUpdateInput) => letter.letterId),
+    );
 
     letters.forEach((letter: LetterUpdateInput) => {
       const { letterId, ...letterData } = letter;
-
-      if (!letterId) {
-        return new BadRequestError('Letter ID is required for update.').build();
-      }
 
       const letterUpdateParams: UpdateParams = {
         TableName: 'OneHundredLettersLetterTable',
@@ -148,71 +116,26 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         ReturnValues: 'ALL_NEW',
       };
 
-      let removeExpressions: string[] = [];
-
-      if (letterData.description === undefined) {
-        removeExpressions.push('#description');
-        letterUpdateParams.ExpressionAttributeNames['#description'] =
-          'description';
-      } else {
-        letterUpdateParams.UpdateExpression += ', #description = :description';
-        letterUpdateParams.ExpressionAttributeValues[':description'] =
-          letterData.description;
-        letterUpdateParams.ExpressionAttributeNames['#description'] =
-          'description';
-      }
-
-      if (removeExpressions.length > 0) {
-        letterUpdateParams.UpdateExpression +=
-          ' REMOVE ' + removeExpressions.join(', ');
-      }
-
       transactItems.push({ Update: letterUpdateParams });
     });
 
-    // Step 4: Execute transaction.
+    existingLetterIds.forEach((letterId) => {
+      if (!incomingLetterIds.has(letterId)) {
+        transactItems.push({
+          Delete: {
+            TableName: 'OneHundredLettersLetterTable',
+            Key: { correspondenceId, letterId },
+          },
+        });
+      }
+    });
 
     const command = new TransactWriteCommand({ TransactItems: transactItems });
     await dynamoClient.send(command);
 
-    // Step 5: Re-fetch and return the updated correspondence data.
-
-    const correspondenceData = await dynamoClient.send(
-      new GetCommand({
-        TableName: 'OneHundredLettersCorrespondenceTable',
-        Key: { correspondenceId },
-      }),
-    );
-
-    const recipientData = await dynamoClient.send(
-      new GetCommand({
-        TableName: 'OneHundredLettersRecipientTable',
-        Key: { recipientId: recipient.recipientId },
-      }),
-    );
-
-    const lettersParams = {
-      TableName: 'OneHundredLettersLetterTable',
-      IndexName: 'CorrespondenceIndex',
-      KeyConditionExpression: 'correspondenceId = :correspondenceId',
-      ExpressionAttributeValues: {
-        ':correspondenceId': correspondenceData?.Item?.correspondenceId,
-      },
-    };
-
-    const lettersCommand = new QueryCommand(lettersParams);
-    const lettersResult = await dynamoClient.send(lettersCommand);
-
     return {
       statusCode: 200,
-      body: JSON.stringify({
-        message: 'Correspondence updated successfully.',
-        data: {
-          correspondence: correspondenceData.Item,
-          recipient: recipientData.Item,
-          letters: lettersResult.Items,
-        },
-      }),
+      body: JSON.stringify({ message: 'Correspondence updated successfully.' }),
     };
   } catch (error) {
     logger.error('Error updating correspondence: ', error);
