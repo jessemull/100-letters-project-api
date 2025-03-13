@@ -1,6 +1,5 @@
-import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
-import { faker } from '@faker-js/faker';
-import { LetterMethod, LetterStatus, LetterType, Impact } from '../src/types';
+const { DynamoDBClient, PutItemCommand } = require('@aws-sdk/client-dynamodb');
+const { faker } = require('@faker-js/faker');
 
 const dynamoDBClient = new DynamoDBClient({ region: 'us-west-2' });
 
@@ -33,7 +32,7 @@ function generateCorrespondenceData(recipientId, correspondenceId) {
     reason: { M: {
       description: { S: faker.lorem.sentence() },
       domain: { S: faker.person.jobArea() },
-      impact: { S: faker.helpers.arrayElement(Object.values(Impact)) }
+      impact: { S: faker.helpers.arrayElement(['LOW', 'MEDIUM', 'HIGH']) }
     }},
     updatedAt: { S: faker.date.recent().toISOString() }
   };
@@ -47,11 +46,11 @@ function generateLetterData(correspondenceId, letterId) {
     description: { S: faker.lorem.sentence() },
     imageURL: { S: faker.image.url() },
     letterId: { S: `LETTER#${letterId}` },
-    method: { S: faker.helpers.arrayElement(Object.values(LetterMethod)) },
-    status: { S: faker.helpers.arrayElement(Object.values(LetterStatus)) },
+    method: { S: faker.helpers.arrayElement(['TYPED', 'HANDWRITTEN', 'PRINTED', 'DIGITAL', 'OTHER']) },
+    status: { S: faker.helpers.arrayElement(['PENDING', 'SENT', 'RECEIVED', 'RESPONDED']) },
     text: { S: faker.lorem.paragraph() },
     title: { S: faker.lorem.words() },
-    type: { S: faker.helpers.arrayElement(Object.values(LetterType)) },
+    type: { S: faker.helpers.arrayElement(['MAIL', 'EMAIL', 'SMS', 'OTHER']) },
     updatedAt: { S: faker.date.recent().toISOString() },
   };
 }
