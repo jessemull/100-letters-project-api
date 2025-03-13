@@ -154,7 +154,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
               letterId: newLetterId,
               ...letterData,
             },
-            ConditionExpression: 'attribute_not_exists(letterId)',
+            ConditionExpression: 'attribute_not_exists(letterId)', // Ensure idempotency
           },
         });
         letterIds.push(newLetterId);

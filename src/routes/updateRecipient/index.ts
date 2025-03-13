@@ -36,7 +36,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         recipientId,
       },
       UpdateExpression:
-        'set #address = :address, #firstName = :firstName, #lastName = :lastName',
+        'SET #address = :address, #firstName = :firstName, #lastName = :lastName',
       ExpressionAttributeNames: {
         '#address': 'address',
         '#firstName': 'firstName',
@@ -50,16 +50,22 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       ReturnValues: 'ALL_NEW',
     };
 
-    if (description) {
+    if (description !== undefined) {
       updateParams.UpdateExpression += ', #description = :description';
-      updateParams.ExpressionAttributeNames['#description'] = 'description';
+      updateParams.ExpressionAttributeNames!['#description'] = 'description';
       updateParams.ExpressionAttributeValues[':description'] = description;
+    } else {
+      updateParams.UpdateExpression += ', REMOVE #description';
+      updateParams.ExpressionAttributeNames!['#description'] = 'description';
     }
 
-    if (occupation) {
+    if (occupation !== undefined) {
       updateParams.UpdateExpression += ', #occupation = :occupation';
-      updateParams.ExpressionAttributeNames['#occupation'] = 'occupation';
+      updateParams.ExpressionAttributeNames!['#occupation'] = 'occupation';
       updateParams.ExpressionAttributeValues[':occupation'] = occupation;
+    } else {
+      updateParams.UpdateExpression += ', REMOVE #occupation';
+      updateParams.ExpressionAttributeNames!['#occupation'] = 'occupation';
     }
 
     const command = new UpdateCommand(updateParams);
