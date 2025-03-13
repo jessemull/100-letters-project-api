@@ -114,8 +114,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     });
 
     // Step 3: Construct all letter update params.
-
-    letters.forEach((letter: LetterUpdateInput) => {
+    for (const letter of letters) {
       const { letterId, ...letterData } = letter;
 
       if (!letterId) {
@@ -168,7 +167,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       }
 
       transactItems.push({ Update: letterUpdateParams });
-    });
+    }
 
     // Set 4: Delete missing letters.
 
@@ -227,7 +226,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       IndexName: 'CorrespondenceIndex',
       KeyConditionExpression: 'correspondenceId = :correspondenceId',
       ExpressionAttributeValues: {
-        ':correspondenceId': correspondenceData?.Item?.correspondenceId,
+        ':correspondenceId': correspondenceId,
       },
     };
 

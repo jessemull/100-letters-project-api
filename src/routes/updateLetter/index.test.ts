@@ -16,7 +16,7 @@ jest.mock('../../common/util', () => ({
   },
 }));
 
-describe.skip('Update Letter Handler', () => {
+describe('Update Letter Handler', () => {
   const mockContext: Context = {} as Context;
   const mockCallback: Callback = jest.fn();
 
