@@ -143,14 +143,23 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         ReturnValues: 'ALL_NEW',
       };
 
-      if (letterData.description !== undefined) {
+      let removeExpressions: string[] = [];
+
+      if (letterData.description === undefined) {
+        removeExpressions.push('#description');
+        letterUpdateParams.ExpressionAttributeNames['#description'] =
+          'description';
+      } else {
         letterUpdateParams.UpdateExpression += ', #description = :description';
         letterUpdateParams.ExpressionAttributeValues[':description'] =
           letterData.description;
         letterUpdateParams.ExpressionAttributeNames['#description'] =
           'description';
-      } else {
-        letterUpdateParams.UpdateExpression += ' REMOVE #description';
+      }
+
+      if (removeExpressions.length > 0) {
+        letterUpdateParams.UpdateExpression +=
+          ' REMOVE ' + removeExpressions.join(', ');
       }
 
       transactItems.push({ Update: letterUpdateParams });
