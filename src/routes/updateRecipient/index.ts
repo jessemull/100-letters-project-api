@@ -50,25 +50,30 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       ReturnValues: 'ALL_NEW',
     };
 
-    if (description !== undefined) {
+    let removeExpressions: string[] = [];
+
+    if (description === undefined) {
+      removeExpressions.push('#description');
+      updateParams.ExpressionAttributeNames!['#description'] = 'description';
+    } else {
       updateParams.UpdateExpression += ', #description = :description';
-      updateParams.ExpressionAttributeNames!['#description'] = 'description';
       updateParams.ExpressionAttributeValues[':description'] = description;
-    } else {
-      updateParams.UpdateExpression += ' REMOVE #description';
-      updateParams.ExpressionAttributeNames!['#description'] = 'description';
     }
 
-    if (occupation !== undefined) {
+    if (occupation === undefined) {
+      removeExpressions.push('#occupation');
+      updateParams.ExpressionAttributeNames!['#occupation'] = 'occupation';
+    } else {
       updateParams.UpdateExpression += ', #occupation = :occupation';
-      updateParams.ExpressionAttributeNames!['#occupation'] = 'occupation';
       updateParams.ExpressionAttributeValues[':occupation'] = occupation;
-    } else {
-      updateParams.UpdateExpression += ' REMOVE #occupation';
-      updateParams.ExpressionAttributeNames!['#occupation'] = 'occupation';
     }
 
-    logger.info(updateParams);
+    if (removeExpressions.length > 0) {
+      updateParams.UpdateExpression +=
+        ' REMOVE ' + removeExpressions.join(', ');
+    }
+
+    logger.info('UpdateParams:', JSON.stringify(updateParams, null, 2));
 
     const command = new UpdateCommand(updateParams);
     const result = await dynamoClient.send(command);
