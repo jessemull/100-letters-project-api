@@ -182,6 +182,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       }),
     );
 
+    logger.info(correspondenceData);
+
     const recipientData = await dynamoClient.send(
       new GetCommand({
         TableName: 'OneHundredLettersRecipientTable',
@@ -190,7 +192,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     );
 
     const letterIds: string[] =
-      correspondenceData.Item?.letters.map(
+      correspondenceData?.Item?.letters.map(
         ({ letterId }: { letterId: string }) => letterId,
       ) || [];
 
