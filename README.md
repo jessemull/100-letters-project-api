@@ -56,9 +56,9 @@ The API is designed for secure internal use with write operations available only
 The **100 Letters Project** data is relational and the project used AWS RDS services initially. DynamoDB reduces costs significantly.
 
 ### Data Models:
-- **Correspondences**: A correspondence is a set of letters and a recipient with meta-data attached including the reason for the correspondence.
-- **Recipients**: Information about a letter-worthy individual including name, address, occupation and other information.
-- **Letters**: The letter information including image URLs, dates and other information.
+- **Correspondences**: A set of letters and a recipient with meta-data attached including the reason for the correspondence.
+- **Recipients**: A letter-worthy individual including name, address, occupation and other information.
+- **Letters**: Letter information including image URL, sent/received dates and other information.
 
 The API supports the following primary endpoints:
 - **/letter**: Manage individual letters (Create, Update, Delete, Get by ID).
@@ -75,7 +75,7 @@ The **100 Letters Project API** is built using the following technologies:
   
 - **AWS API Gateway**: Exposes RESTful API endpoints to interact with functions, routing requests and responses for each operation related to the project’s data.
 
-- **AWS DynamoDB**: A fully managed NoSQL database service for storing and managing data for letters, recipients, and correspondences. The choice of DynamoDB provides scalability and cost-effectiveness for the project's needs.
+- **AWS DynamoDB**: A fully managed NoSQL database service for storing and managing data for letters, recipients, and correspondences. Scalable and cost effective.
   
 - **AWS Cognito**: Used for user authentication, ensuring that only admin users can perform write operations (create, update, delete) on the letters, recipients, and correspondence data.
 
@@ -123,11 +123,11 @@ To clone the repository, install dependencies, and run the project locally follo
 
 ## Commits and Commitizen
 
-This project uses **Commitizen** to ensure commit messages follow a structured format and versioning is consisten. Commit linting is enforced via a pre-commit husky hook.
+This project uses **Commitizen** to ensure commit messages follow a structured format and versioning is consistent. Commit linting is enforced via a pre-commit husky hook.
 
 ### Making a Commit
 
-To make a commit in the correct format, run the following command. Commitzen will walk the user through the creation of a structured commit message and versioning. :
+To make a commit in the correct format, run the following command. Commitzen will walk the user through the creation of a structured commit message and versioning:
 
 ```bash
 npm run commit
@@ -275,7 +275,7 @@ npm run package:all
 
 ## Deployment Pipelines
 
-This project uses automated deployment pipelines to ensure a smooth and reliable deployment process utilizing AWS CloudFormation, GitHub Actions, and S3.
+This project uses automated deployment pipelines to ensure a smooth and reliable deployment process utilizing AWS CloudFormation, GitHub Actions and S3.
 
 ### Deployment Strategy
 
