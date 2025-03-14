@@ -1,35 +1,43 @@
 # 100 Letters Project API
 
-The **100 Letters Project** is driven by the desire to promote real human interaction in an increasingly digital world and create meaningful connections through handwritten communication. Over the course of a year I will write 100 letters to 100 individuals. The **100 Letters Project** website showcases these correspondences, offering a digital display of the letters and providing details about the recipients and the reasons behind their selection.
+The **100 Letters Project** is driven by the desire to promote real human interaction in an increasingly digital world and create meaningful connections through handwritten communication. Over the course of a year I will write 100 letters to 100 individuals. 
 
-The **100 Letters Project API** provides the backend services for the **100 Letters Project** website.
+The **100 Letters Project** website showcases these exchanges, offering a digital display of the letters with details about the recipients and the reasons behind their selection. 
 
-This API facilitates the management of the data required for the website to function correctly, allowing for the creation, retrieval, update, and deletion of letters, recipients, and correspondences.
+The **100 Letters Project API** provides the backend services for the **100 Letters Project** website, managing the data required for the website including the creation, retrieval, update, and deletion of letters, recipients, and correspondences.
 
 ## Table of Contents
-1. [Project Overview](#project-overview)
+1. [API Documentation](#api-documentation)
 2. [Tech Stack](#tech-stack)
 3. [Setup Instructions](#setup-instructions)
-4. [Building & Packaging Bundle](#building-packaging-bundle)
+4. [Commits and Commitizen](#commits-and-commitizen)
+5. [Linting & Formatting](#linting--formatting)
+    - [Linting Commands](#linting-commands)
+    - [Formatting Commands](#formatting-commands)
+    - [Pre-Commit Hook](#pre-commit-hook)
+6. [Testing & Code Coverage](#testing--code-coverage)
+    - [Testing Commands](#testing-commands)
+    - [Code Coverage](#code-coverage)
+7. [Building & Packaging Bundle](#building--packaging-bundle)
     - [Install](#install)
     - [Build](#build)
     - [Package](#package)
-5. [Deployment Pipelines](#deployment-pipelines)
+8. [Deployment Pipelines](#deployment-pipelines)
     - [Deployment Strategy](#deployment-strategy)
     - [Tools Used](#tools-used)
-    - [Pull Request Pipeline](#pull-request-pipeline)
+    - [Pull Request](#pull-request)
     - [Deploy Lambda](#deploy-lambda)
     - [Deploy All Lambdas](#deploy-all-lambdas)
     - [Deploy On Merge](#deploy-on-merge)
     - [Rollback Lambda](#rollback-lambda)
-6. [Commits and Commitizen](#commits-and-commitizen)
-7. [Testing & Code Coverage](#testing--code-coverage)
-    - [Testing Commands](#testing-commands)
-    - [Code Coverage](#code-coverage)
-8. [Linting & Formatting](#linting--formatting)
-    - [Linting Commands](#linting-commands)
-    - [Formatting Commands](#formatting-commands)
-    - [Pre-Commit Hook](#pre-commit-hook)
+9. [Seeding & Reseting DynamoDB Tables](#seeding--reseting-dynamodb-tables)
+    - [Seeding DynamoDB Tables](#seeding-dynamodb-tables)
+    - [Reseting DynamoDB Tables](#reseting-dyanmodb-tables)
+10. [Templating Engine](#templating-engine)
+    - [Creating A New Route](#creating-a-new-route)
+10. [Connecting to the Bastion Host](#connecting-to-the-bastion-host)
+    - [Environment Variables](#environment-variables)
+11. [License](#license)
 
 ## API Documentation
 
@@ -48,9 +56,9 @@ The API is designed for secure internal use with write operations available only
 The **100 Letters Project** data is relational and the project used AWS RDS services initially. DynamoDB reduces costs significantly.
 
 ### Data Models:
-- **Correspondences**: A correspondence is a set of letters and a recipient with meta-data attached including the reason for the correspondence.
-- **Recipients**: Information about a letter-worthy individual including name, address, occupation and other information.
-- **Letters**: The letter information including image URLs, dates and other information.
+- **Correspondences**: A set of letters and a recipient with meta-data attached including the reason for the correspondence.
+- **Recipients**: A letter-worthy individual including name, address, occupation and other information.
+- **Letters**: Letter information including image URL, sent/received dates and other information.
 
 The API supports the following primary endpoints:
 - **/letter**: Manage individual letters (Create, Update, Delete, Get by ID).
@@ -67,7 +75,7 @@ The **100 Letters Project API** is built using the following technologies:
   
 - **AWS API Gateway**: Exposes RESTful API endpoints to interact with functions, routing requests and responses for each operation related to the project’s data.
 
-- **AWS DynamoDB**: A fully managed NoSQL database service for storing and managing data for letters, recipients, and correspondences. The choice of DynamoDB provides scalability and cost-effectiveness for the project's needs.
+- **AWS DynamoDB**: A fully managed NoSQL database service for storing and managing data for letters, recipients, and correspondences. Scalable and cost effective.
   
 - **AWS Cognito**: Used for user authentication, ensuring that only admin users can perform write operations (create, update, delete) on the letters, recipients, and correspondence data.
 
@@ -113,164 +121,13 @@ To clone the repository, install dependencies, and run the project locally follo
     npm run install:all
     ```
 
-## Building & Packaging Bundle
-
-### Summary
-
-The build command runs `tsc` using a local `tsconfig.json` inside each route directory and outputs the build artifacts into a `dist/` folder. 
-
-Pre-build, a clean command removes the `dist` directory. Post-build, a script copies `package.json` and `package-lock.json` into the `dist/` folder and runs `npm install` within the `dist/` directory.
-
-The package command zips the contents of the `dist/` folder for the lambda deployment. Before running a build, ensure you have installed the root dependencies used by the common packages.
-
-### Install
-
-To install the root dependencies:
-
-```bash
-npm install
-```
-
-To install the dependencies for all routes:
-
-```bash
-npm run install:all
-```
-
-To install the dependencies for a single route:
-
-```bash
-npm run install:pkg <routeName>
-```
-
-### Build
-
-To build a single package:
-
-```bash
-npm run build-pkg <routeName>
-```
-
-To build all packages:
-
-```bash
-npm run build-all
-```
-
-### Package
-
-To package a single package after building:
-
-```bash
-npm run package:pkg <routeName>
-```
-
-To package all packages after building:
-
-```bash
-npm run package:all
-```
-
-## Deployment Pipelines
-
-This project uses automated deployment pipelines to ensure a smooth and reliable deployment process utilizing AWS CloudFormation, GitHub Actions, and S3.
-
-### Deployment Strategy
-
-Each deployment process involves:
-
-- **Versioned Artifacts:** Functions are bundled and uploaded as zipped packages to Amazon S3. These packages are versioned using a unique artifact name, ensuring that each deployment has a distinct, traceable version.
-- **CloudFormation:** AWS CloudFormation change sets are used to manage and deploy functions. This tool allows us to define, update, and roll back the infrastructure in a repeatable and consistent way.
-- **Parallel/Conditional Deployment:** Deployments are either executed for a single function or triggered in parallel for all functions. On merge, only functions with source file changes are deployed.
-- **Rollback:** Deployments can be rolled back to a prior version using previously stored S3 bundles.
-  
-### Tools Used
-
-- **AWS CLI**: Configures the AWS environment for deployments.
-- **GitHub Actions**: Automates and schedules the deployment and rollback pipelines.
-- **CloudFormation**: Orchestrates infrastructure changes, including deployments and rollbacks.
-- **S3**: Stores function packages for deployment and rollback.
-
-### Pull Request Pipeline
-
-The Pull Request Pipeline is triggered when a pull request is opened against the `main` branch. This pipeline performs the following steps:
-
-1. **Linting:** Runs linting checks.
-2. **Testing:** Runs unit tests.
-3. **Code Coverage:** Checks code coverage remains above 80%.
-
-This pipeline is defined in the `.github/workflows/lint-and-test.yml` file.
-
-### Deploy Lambda
-
-This pipeline handles the heavy lifting for deploying a single lambda. The pipelines below will dispatch this GitHub action to deploy multiple lambdas in parallel at one time. The pipeline can be triggered manually from the GitHub Actions interface after selecting the appropriate function to deploy.
-
-The pipeline performs the following steps:
-
-1. **Checkout Code:** Checks out code.
-2. **Set Up AWS CLI:** Configures AWS credentials.
-3. **Build Lambda Package:** Installs dependencies. Builds and packages files into a zip bundle for S3.
-4. **Generate Artifact Name:** Generates a unique artifact name using the timestamp and hash commit.
-5. **Upload Lambda to S3:** Uploads the zipped function to an S3 bucket for storage.
-6. **Check Change Set Type:** Checks change set create vs update.
-7. **Check Stack Status:** Checks the status of the existing stack. Deletes stack to recover.
-8. **Create CloudFormation Change Set:** Creates a CloudFormation change set for deploying the function.
-9. **Check for Applied Changes:** Verifies there are changes to apply in the change set.
-10. **Execute CloudFormation Change Set:** Executes the change set and deploys the function to AWS.
-11. **Monitor CloudFormation Stack Status:** Monitors the status of the CloudFormation stack during the deployment process.
-12. **Prune Backups:** Prunes older bundle versions.
-
-This pipeline is defined in the `.github/workflows/deploy-lambda.yml` file.
-
-### Deploy All Lambdas
-
-This pipeline triggers the deployment of all functions in the mono-repo simultaneously. This pipeline dispatches the **Deploy Lambda** pipeline for each individual function, allowing for parallel deployment of multiple functions. The pipeline can be triggered manually from the GitHub Actions interface.
-
-The pipeline performs the following steps:
-
-1. **Checkout Code:** Checks out code.
-2. **Get Lambda Names:** Scans the `src/routes/` for function discovery.
-3. **Deploy All Lambdas:** Dispatches the **Deploy Lambda** pipeline for each function.
-
-This pipeline is defined in the `.github/workflows/deploy-all-lambdas.yml` file.
-
-### Deploy On Merge
-
-This pipeline is triggered when code is merged into `main`. It identifies which functions have been modified and deploys any modified functions by dispatching the **Deploy Lambda** pipeline for each function.
-
-The pipeline performs the following steps:
-
-1. **Checkout Code:** Checks out code.
-2. **Get Changed Files:** Uses `git rev-parse` to detect file changes.
-3. **List Changed Files:** Outputs the list of changed files.
-4. **Check Modified Files:** Identifies modified functions.
-5. **Deploy Lambdas:** Dispatches the **Deploy Lambda** pipeline for each modified function.
-
-This pipeline is defined in the `.github/workflows/deploy-lambdas-on-merge.yml` file.
-
-### Rollback Lambda
-
-The Rollback Lambda pipeline allows you to roll back a function to a previous version stored in S3. This pipeline is triggered manually by providing the name of the function and zipped bundle in S3.
-
-The pipeline performs the following steps:
-
-1. **Checkout Code:** Checks out the code.
-2. **Set Up AWS CLI:** Configures AWS credentials for AWS CLI.
-3. **Check Change Set Type:** Checks change set create vs update.
-4. **Check Stack Status:** Checks the status of the existing stack. Deletes stack to recover.
-5. **Create CloudFormation Change Set:** Creates a CloudFormation change set for deploying the function.
-6. **Execute CloudFormation Change Set:** Executes the change set and deploys the function to AWS.
-7. **Monitor CloudFormation Stack Status:** Monitors the status of the CloudFormation stack during the deployment process.
-
-This pipeline is defined in the `.github/workflows/rollback-lambda.yml` file.
-
 ## Commits and Commitizen
 
-This project uses **Commitizen** to ensure commit messages follow a structured format and versioning is consisten. Commit linting is enforced via a pre-commit husky hook.
+This project uses **Commitizen** to ensure commit messages follow a structured format and versioning is consistent. Commit linting is enforced via a pre-commit husky hook.
 
 ### Making a Commit
 
-To make a commit in the correct format, run the following command. Commitzen will walk the user through the creation of a structured commit message and versioning. :
+To make a commit in the correct format, run the following command. Commitzen will walk the user through the creation of a structured commit message and versioning:
 
 ```bash
 npm run commit
@@ -358,7 +215,158 @@ npm run format:check
 
 **Lint-staged** is configured to run linting before each commit. The commit will be blocked if linting fails, ensuring code quality at the commit level.
 
-## Seeding/Reseting DynamoDB Tables
+## Building & Packaging Bundle
+
+### Summary
+
+The build command runs `tsc` using a local `tsconfig.json` inside each route directory and outputs the build artifacts into a `dist/` folder. 
+
+Pre-build, a clean command removes the `dist` directory. Post-build, a script copies `package.json` and `package-lock.json` into the `dist/` folder and runs `npm install` within the `dist/` directory.
+
+The package command zips the contents of the `dist/` folder for the lambda deployment. Before running a build, ensure you have installed the root dependencies used by the common packages.
+
+### Install
+
+To install the root dependencies:
+
+```bash
+npm install
+```
+
+To install the dependencies for all routes:
+
+```bash
+npm run install:all
+```
+
+To install the dependencies for a single route:
+
+```bash
+npm run install:pkg <routeName>
+```
+
+### Build
+
+To build a single package:
+
+```bash
+npm run build-pkg <routeName>
+```
+
+To build all packages:
+
+```bash
+npm run build-all
+```
+
+### Package
+
+To package a single package after building:
+
+```bash
+npm run package:pkg <routeName>
+```
+
+To package all packages after building:
+
+```bash
+npm run package:all
+```
+
+## Deployment Pipelines
+
+This project uses automated deployment pipelines to ensure a smooth and reliable deployment process utilizing AWS CloudFormation, GitHub Actions and S3.
+
+### Deployment Strategy
+
+Each deployment process involves:
+
+- **Versioned Artifacts:** Functions are bundled and uploaded as zipped packages to Amazon S3. These packages are versioned using a unique artifact name, ensuring that each deployment has a distinct, traceable version.
+- **CloudFormation:** AWS CloudFormation change sets are used to manage and deploy functions. This tool allows us to define, update, and roll back the infrastructure in a repeatable and consistent way.
+- **Parallel/Conditional Deployment:** Deployments are either executed for a single function or triggered in parallel for all functions. On merge, only functions with source file changes are deployed.
+- **Rollback:** Deployments can be rolled back to a prior version using previously stored S3 bundles.
+  
+### Tools Used
+
+- **AWS CLI**: Configures the AWS environment for deployments.
+- **GitHub Actions**: Automates and schedules the deployment and rollback pipelines.
+- **CloudFormation**: Orchestrates infrastructure changes, including deployments and rollbacks.
+- **S3**: Stores function packages for deployment and rollback.
+
+### Pull Request
+
+The Pull Request Pipeline is triggered when a pull request is opened against the `main` branch. This pipeline performs the following steps:
+
+1. **Linting:** Runs linting checks.
+2. **Testing:** Runs unit tests.
+3. **Code Coverage:** Checks code coverage remains above 80%.
+
+This pipeline is defined in the `.github/workflows/lint-and-test.yml` file.
+
+### Deploy Lambda
+
+This pipeline handles the heavy lifting for deploying a single lambda. The pipelines below will dispatch this GitHub action to deploy multiple lambdas in parallel at one time. The pipeline can be triggered manually from the GitHub Actions interface after selecting the appropriate function to deploy.
+
+The pipeline performs the following steps:
+
+1. **Checkout Code:** Checks out code.
+2. **Set Up AWS CLI:** Configures AWS credentials.
+3. **Build Lambda Package:** Installs dependencies. Builds and packages files into a zip bundle for S3.
+4. **Generate Artifact Name:** Generates a unique artifact name using the timestamp and hash commit.
+5. **Upload Lambda to S3:** Uploads the zipped function to an S3 bucket for storage.
+6. **Check Change Set Type:** Checks change set create vs update.
+7. **Check Stack Status:** Checks the status of the existing stack. Deletes stack to recover.
+8. **Create CloudFormation Change Set:** Creates a CloudFormation change set for deploying the function.
+9. **Check for Applied Changes:** Verifies there are changes to apply in the change set.
+10. **Execute CloudFormation Change Set:** Executes the change set and deploys the function to AWS.
+11. **Monitor CloudFormation Stack Status:** Monitors the status of the CloudFormation stack during the deployment process.
+12. **Prune Backups:** Prunes older bundle versions.
+
+This pipeline is defined in the `.github/workflows/deploy-lambda.yml` file.
+
+### Deploy All Lambdas
+
+This pipeline triggers the deployment of all functions in the mono-repo simultaneously. This pipeline dispatches the **Deploy Lambda** pipeline for each individual function, allowing for parallel deployment of multiple functions. The pipeline can be triggered manually from the GitHub Actions interface.
+
+The pipeline performs the following steps:
+
+1. **Checkout Code:** Checks out code.
+2. **Get Lambda Names:** Scans the `src/routes/` for function discovery.
+3. **Deploy All Lambdas:** Dispatches the **Deploy Lambda** pipeline for each function.
+
+This pipeline is defined in the `.github/workflows/deploy-all-lambdas.yml` file.
+
+### Deploy On Merge
+
+This pipeline is triggered when code is merged into `main`. It identifies which functions have been modified and deploys any modified functions by dispatching the **Deploy Lambda** pipeline for each function.
+
+The pipeline performs the following steps:
+
+1. **Checkout Code:** Checks out code.
+2. **Get Changed Files:** Uses `git rev-parse` to detect file changes.
+3. **List Changed Files:** Outputs the list of changed files.
+4. **Check Modified Files:** Identifies modified functions.
+5. **Deploy Lambdas:** Dispatches the **Deploy Lambda** pipeline for each modified function.
+
+This pipeline is defined in the `.github/workflows/deploy-lambdas-on-merge.yml` file.
+
+### Rollback Lambda
+
+The Rollback Lambda pipeline allows you to roll back a function to a previous version stored in S3. This pipeline is triggered manually by providing the name of the function and zipped bundle in S3.
+
+The pipeline performs the following steps:
+
+1. **Checkout Code:** Checks out the code.
+2. **Set Up AWS CLI:** Configures AWS credentials for AWS CLI.
+3. **Check Change Set Type:** Checks change set create vs update.
+4. **Check Stack Status:** Checks the status of the existing stack. Deletes stack to recover.
+5. **Create CloudFormation Change Set:** Creates a CloudFormation change set for deploying the function.
+6. **Execute CloudFormation Change Set:** Executes the change set and deploys the function to AWS.
+7. **Monitor CloudFormation Stack Status:** Monitors the status of the CloudFormation stack during the deployment process.
+
+This pipeline is defined in the `.github/workflows/rollback-lambda.yml` file.
+
+## Seeding & Reseting DynamoDB Tables
 
 Use with extreme caution as these scripts will either seed mock data into DynamoDB tables or delete the data out of the tables entirely.
 
@@ -378,7 +386,7 @@ To reset DynamoDB tables:
 npm run db:reset
 ```
 
-## Template Engine
+## Templating Engine
 
 A templating engine exists to scaffold out a new route.
 
@@ -412,9 +420,9 @@ Ensure you have the appropriate permissions set on your SSH key for secure acces
 
 ## License
 
-Apache License
-Version 2.0, January 2004
-http://www.apache.org/licenses/
+    Apache License
+    Version 2.0, January 2004
+    http://www.apache.org/licenses/
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
