@@ -5,6 +5,8 @@ import { Recipient } from '../../types';
 import { dynamoClient, logger } from '../../common/util';
 import { v4 as uuidv4 } from 'uuid';
 
+// Request body validation is handled by the API gateway model.
+
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
     if (!event.body) {
@@ -13,13 +15,14 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     const body = JSON.parse(event.body);
 
-    const { address, description, firstName, lastName, occupation } = body;
-
-    if (!firstName || !lastName || !address) {
-      return new BadRequestError(
-        'First name, last name, and address are required.',
-      ).build();
-    }
+    const {
+      address,
+      description,
+      firstName,
+      lastName,
+      occupation,
+      organization,
+    } = body;
 
     const recipientId = uuidv4();
 
@@ -36,6 +39,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     if (occupation) {
       recipientData.occupation = body.occupation;
+    }
+
+    if (organization) {
+      recipientData.organization = body.organization;
     }
 
     const params = {

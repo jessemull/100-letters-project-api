@@ -1,9 +1,11 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { BadRequestError, DatabaseError } from '../../common/errors';
-import { LetterCreateInput, Letter, Impact } from '../../types';
+import { LetterCreateInput, Letter } from '../../types';
 import { TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
 import { dynamoClient, logger } from '../../common/util';
 import { v4 as uuidv4 } from 'uuid';
+
+// Request body validation is handled by the API gateway model.
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
@@ -13,23 +15,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     const { recipient, correspondence, letters } = JSON.parse(event.body);
 
-    if (!recipient || !correspondence || !letters) {
-      return new BadRequestError(
-        'Recipient, correspondence, and letters are required.',
-      ).build();
-    }
-
-    const { reason } = correspondence;
-    if (
-      !reason ||
-      !reason.description ||
-      !reason.domain ||
-      !Object.values(Impact).includes(reason.impact)
-    ) {
-      return new BadRequestError(
-        'Reason must include description, domain, and valid impact.',
-      ).build();
-    }
+    const { reason, status, title } = correspondence;
 
     const recipientId = uuidv4();
     const correspondenceId = uuidv4();
@@ -40,6 +26,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       correspondenceId,
       recipientId,
       reason,
+      status,
+      title,
     };
 
     const letterItems: Letter[] = letters.map((letter: LetterCreateInput) => ({

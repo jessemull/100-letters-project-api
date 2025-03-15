@@ -7,6 +7,9 @@ paths:
   /letter:
     get:
       summary: "Get All Letters"
+      parameters:
+        - $ref: "#/components/parameters/LimitParameter"
+        - $ref: "#/components/parameters/LastEvaluatedKeyParameter"
       responses:
         200:
           description: "Get All Letters Success"
@@ -19,6 +22,8 @@ paths:
                     type: "array"
                     items:
                       $ref: "#/components/schemas/LetterResponse"
+                  lastEvaluatedKey:
+                    $ref: "#/components/schemas/LastEvaluatedKey"
         500:
           description: "Internal Server Error"
           content:
@@ -199,6 +204,9 @@ paths:
   /recipient:
     get:
       summary: "Get All Recipients"
+      parameters:
+        - $ref: "#/components/parameters/LimitParameter"
+        - $ref: "#/components/parameters/LastEvaluatedKeyParameter"
       responses:
         200:
           description: "Get All Recipients Success"
@@ -211,6 +219,8 @@ paths:
                     type: "array"
                     items:
                       $ref: "#/components/schemas/RecipientResponse"
+                  lastEvaluatedKey:
+                    $ref: "#/components/schemas/LastEvaluatedKey"
         500:
           description: "Internal Server Error"
           content:
@@ -385,6 +395,9 @@ paths:
   /correspondence:
     get:
       summary: "Get All Correspondences"
+      parameters:
+        - $ref: "#/components/parameters/LimitParameter"
+        - $ref: "#/components/parameters/LastEvaluatedKeyParameter"
       responses:
         200:
           description: "Get All Correspondences Success"
@@ -397,6 +410,8 @@ paths:
                     type: "array"
                     items:
                       $ref: "#/components/schemas/CorrespondenceResponse"
+                  lastEvaluatedKey:
+                    $ref: "#/components/schemas/LastEvaluatedKey"
         500:
           description: "Internal Server Error"
           content:
@@ -575,10 +590,66 @@ paths:
               schema:
                 $ref: "#/components/schemas/InternalServerError"
 components:
+  parameters:
+    LimitParameter:
+      name: "limit"
+      in: "query"
+      description: "The maximum number of letters to return"
+      required: false
+      schema:
+        type: "integer"
+        example: 50
+    LastEvaluatedKeyParameter:
+      name: "lastEvaluatedKey"
+      in: "query"
+      description: "The last evaluated key from the previous query for pagination"
+      required: false
+      schema:
+        type: "string"
+        example: "8f5d8f0d-8697-4124-a4c8-7d3af09fc102"
   schemas:
     Address:
+      type: "object"
+      properties:
+        street:
+          $ref: "#/components/schemas/Street"
+        city:
+          $ref: "#/components/schemas/City"
+        state:
+          $ref: "#/components/schemas/State"
+        postalCode:
+          $ref: "#/components/schemas/PostalCode"
+        country:
+          $ref: "#/components/schemas/Country"
+      required:
+        - street
+        - city
+        - state
+        - postalCode
+        - country
+      example:
+        street: "5623 Sunset Blvd"
+        city: "Los Angeles"
+        state: "CA"
+        postalCode: "90047"
+        country: "USA"
+    City:
       type: "string"
-      example: "5623 Sunset Blvd, Los Angeles, CA 90047"
+      example: "Los Angeles"
+    CorrespondenceStatus:
+      type: "string"
+      enum:
+        - "COMPLETED"
+        - "PENDING"
+        - "RESPONDED"
+        - "UNSENT"
+      example: "PENDING"
+    CorrespondenceTitle:
+      type: "string"
+      example: "George Church Letter"
+    Country:
+      type: "string"
+      example: "USA"
     DateTime:
       type: "string"
       format: "date-time"
@@ -589,22 +660,41 @@ components:
     FirstName:
       type: "string"
       example: "Alan"
-    ImageURL:
-      type: "string"
-      format: "uri"
-      example: "https://example.com/letter-image.png"
+    ImageURLs:
+      type: "array"
+      items:
+        type: "string"
+        format: "uri"
+      example:
+        - "https://example.com/letter-image1.png"
+        - "https://example.com/letter-image2.png"
     Impact:
       type: "string"
       enum:
         - "LOW"
         - "MEDIUM"
         - "HIGH"
+    LastEvaluatedKey:
+      type: "string"
+      description: "The last evaluated key to be used for pagination"
+      example: "8f5d8f0d-8697-4124-a4c8-7d3af09fc102"
     LastName:
       type: "string"
       example: "Aldrich"
     LetterDescription:
       type: "string"
       example: "A heartfelt letter appreciating George Church's impact on high throughput DNA sequencing."
+    LetterStatus:
+      type: "string"
+      enum:
+        - "PENDING"
+        - "SENT"
+        - "RECEIVED"
+        - "RESPONDED"
+      example: "SENT"
+    LetterTitle:
+      type: "string"
+      example: "George Church Letter"
     Method:
       type: "string"
       enum:
@@ -617,6 +707,12 @@ components:
     Occupation:
       type: "string"
       example: "Architect"
+    Organization:
+      type: "string"
+      example: "Sera Architects"
+    PostalCode:
+      type: "string"
+      example: "90047"
     Reason:
       required:
         - 'description'
@@ -636,20 +732,15 @@ components:
     RecipientDescription:
       type: "string"
       example: "George Church's contribution to the research community is invaluable."
-    Status:
+    State:
       type: "string"
-      enum:
-        - "PENDING"
-        - "SENT"
-        - "RECEIVED"
-        - "RESPONDED"
-      example: "SENT"
+      example: "CA"
+    Street:
+      type: "string"
+      example: "5623 Sunset Blvd"
     Text:
       type: "string"
       example: "Dear Dr. Church, I wanted to take a moment to express my deep appreciation..."
-    Title:
-      type: "string"
-      example: "George Church Correspondence"
     Type:
       type: "string"
       enum:
@@ -673,18 +764,22 @@ components:
           $ref: "#/components/schemas/DateTime"
         description:
           $ref: "#/components/schemas/LetterDescription"
-        imageURL:
-          $ref: "#/components/schemas/ImageURL"
+        imageURLs:
+          $ref: "#/components/schemas/ImageURLs"
         letterId:
           $ref: "#/components/schemas/UUID"
         method:
           $ref: "#/components/schemas/Method"
+        receivedAt:
+          $ref: "#/components/schemas/DateTime"
+        sentAt:
+          $ref: "#/components/schemas/DateTime"
         status:
-          $ref: "#/components/schemas/Status"
+          $ref: "#/components/schemas/LetterStatus"
         text:
           $ref: "#/components/schemas/Text"
         title:
-          $ref: "#/components/schemas/Title"
+          $ref: "#/components/schemas/LetterTitle"
         type:
           $ref: "#/components/schemas/Type"
         updatedAt:
@@ -693,7 +788,7 @@ components:
       required:
         - "correspondenceId"
         - "date"
-        - "imageURL"
+        - "imageURLs"
         - "method"
         - "status"
         - "text"
@@ -707,23 +802,27 @@ components:
           $ref: "#/components/schemas/DateTime"
         description:
           $ref: "#/components/schemas/LetterDescription"
-        imageURL:
-          $ref: "#/components/schemas/ImageURL"
+        imageURLs:
+          $ref: "#/components/schemas/ImageURLs"
         method:
           $ref: "#/components/schemas/Method"
+        receivedAt:
+          $ref: "#/components/schemas/DateTime"
+        sentAt:
+          $ref: "#/components/schemas/DateTime"
         status:
-          $ref: "#/components/schemas/Status"
+          $ref: "#/components/schemas/LetterStatus"
         text:
           $ref: "#/components/schemas/Text"
         title:
-          $ref: "#/components/schemas/Title"
+          $ref: "#/components/schemas/LetterTitle"
         type:
           $ref: "#/components/schemas/Type"
     LetterUpdateRequest:
       required:
         - "correspondenceId"
         - "date"
-        - "imageURL"
+        - "imageURLs"
         - "letterId"
         - "method"
         - "status"
@@ -738,18 +837,22 @@ components:
           $ref: "#/components/schemas/DateTime"
         description:
           $ref: "#/components/schemas/LetterDescription"
-        imageURL:
-          $ref: "#/components/schemas/ImageURL"
+        imageURLs:
+          $ref: "#/components/schemas/ImageURLs"
         letterId:
           $ref: "#/components/schemas/UUID"
         method:
           $ref: "#/components/schemas/Method"
+        receivedAt:
+          $ref: "#/components/schemas/DateTime"
+        sentAt:
+          $ref: "#/components/schemas/DateTime"
         status:
-          $ref: "#/components/schemas/Status"
+          $ref: "#/components/schemas/LetterStatus"
         text:
           $ref: "#/components/schemas/Text"
         title:
-          $ref: "#/components/schemas/Title"
+          $ref: "#/components/schemas/LetterTitle"
         type:
           $ref: "#/components/schemas/Type"
     RecipientResponse:
@@ -767,6 +870,8 @@ components:
           $ref: "#/components/schemas/LastName"
         occupation:
           $ref: "#/components/schemas/Occupation"
+        organization:
+          $ref: "#/components/schemas/Organization"
         recipientId:
           $ref: "#/components/schemas/UUID"
         updatedAt:
@@ -788,6 +893,8 @@ components:
           $ref: "#/components/schemas/RecipientDescription"
         occupation:
           $ref: "#/components/schemas/Occupation"
+        organization:
+          $ref: "#/components/schemas/Organization"
     RecipientUpdateRequest:
       required:
         - "address"
@@ -806,6 +913,8 @@ components:
           $ref: "#/components/schemas/RecipientDescription"
         occupation:
           $ref: "#/components/schemas/Occupation"
+        organization:
+          $ref: "#/components/schemas/Organization"
         recipientId:
           $ref: "#/components/schemas/UUID"
     Correspondence:
@@ -819,6 +928,10 @@ components:
           $ref: "#/components/schemas/UUID"
         reason:
           $ref: "#/components/schemas/Reason"
+        status: 
+          $ref: "#/components/schemas/CorrespondenceStatus"
+        title: 
+          $ref: "#/components/schemas/CorrespondenceTitle"
         updatedAt:
           $ref: "#/components/schemas/DateTime"
     CorrespondenceCreateInput:
@@ -828,6 +941,10 @@ components:
       properties:
         reason:
           $ref: "#/components/schemas/Reason"
+        status: 
+          $ref: "#/components/schemas/CorrespondenceStatus"
+        title: 
+          $ref: "#/components/schemas/CorrespondenceTitle"
     CorrespondenceUpdateInput:
       required:
         - "correspondenceId"
@@ -838,10 +955,14 @@ components:
           $ref: "#/components/schemas/UUID"
         reason:
           $ref: "#/components/schemas/Reason"
+        status: 
+          $ref: "#/components/schemas/CorrespondenceStatus"
+        title: 
+          $ref: "#/components/schemas/CorrespondenceTitle"
     CorrespondenceLetterCreateRequest:
       required:
         - "date"
-        - "imageURL"
+        - "imageURLs"
         - "method"
         - "status"
         - "text"
@@ -853,22 +974,26 @@ components:
           $ref: "#/components/schemas/DateTime"
         description:
           $ref: "#/components/schemas/LetterDescription"
-        imageURL:
-          $ref: "#/components/schemas/ImageURL"
+        imageURLs:
+          $ref: "#/components/schemas/ImageURLs"
         method:
           $ref: "#/components/schemas/Method"
+        receivedAt:
+          $ref: "#/components/schemas/DateTime"
+        sentAt:
+          $ref: "#/components/schemas/DateTime"
         status:
-          $ref: "#/components/schemas/Status"
+          $ref: "#/components/schemas/LetterStatus"
         text:
           $ref: "#/components/schemas/Text"
         title:
-          $ref: "#/components/schemas/Title"
+          $ref: "#/components/schemas/LetterTitle"
         type:
           $ref: "#/components/schemas/Type"
     CorrespondenceLetterUpdateRequest:
       required:
         - "date"
-        - "imageURL"
+        - "imageURLs"
         - "letterId"
         - "method"
         - "status"
@@ -881,18 +1006,22 @@ components:
           $ref: "#/components/schemas/DateTime"
         description:
           $ref: "#/components/schemas/LetterDescription"
-        imageURL:
-          $ref: "#/components/schemas/ImageURL"
+        imageURLs:
+          $ref: "#/components/schemas/ImageURLs"
         letterId:
           $ref: "#/components/schemas/UUID"
         method:
           $ref: "#/components/schemas/Method"
+        receivedAt:
+          $ref: "#/components/schemas/DateTime"
+        sentAt:
+          $ref: "#/components/schemas/DateTime"
         status:
-          $ref: "#/components/schemas/Status"
+          $ref: "#/components/schemas/LetterStatus"
         text:
           $ref: "#/components/schemas/Text"
         title:
-          $ref: "#/components/schemas/Title"
+          $ref: "#/components/schemas/LetterTitle"
         type:
           $ref: "#/components/schemas/Type"
     CorrespondenceResponse:

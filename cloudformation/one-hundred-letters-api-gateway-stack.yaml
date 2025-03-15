@@ -56,12 +56,28 @@ Resources:
                     type: "string"
                     enum: ["HIGH", "MEDIUM", "LOW"]
                 required: ["description", "domain", "impact"]
-            required: ["reason"]
+              status:
+                type: "string"
+                enum: ["COMPLETED", "PENDING", "RESPONDED", "UNSENT"]
+              title:
+                type: "string"
+            required: ["reason", "status", "title"]
           recipient:
             type: "object"
             properties:
               address:
-                type: "string"
+                type: "object"
+                properties:
+                  city: 
+                    type: "string"
+                  country: 
+                    type: "string"
+                  postalCode:
+                    type: "string"
+                  state:
+                    type: "string"
+                  street:
+                    type: "string"
               firstName:
                 type: "string"
               lastName:
@@ -69,6 +85,8 @@ Resources:
               description:
                 type: "string"
               occupation:
+                type: "string"
+              organization:
                 type: "string"
             required: ["address", "firstName", "lastName"]
           letters:
@@ -81,12 +99,18 @@ Resources:
                   format: "date-time"
                 description:
                   type: "string"
-                imageURL:
-                  type: "string"
-                  format: "uri"
+                imageURLs:
+                  type: "array"
+                  items:
+                    type: "string"
+                    format: "uri"
                 method:
                   type: "string"
                   enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
+                receivedAt:
+                  type: "string"
+                sentAt:
+                  type: "string"
                 status:
                   type: "string"
                   enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
@@ -97,9 +121,9 @@ Resources:
                 type:
                   type: "string"
                   enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
-              required: ["date", "imageURL", "method", "status", "text", "title", "type"]
+              required: ["date", "imageURLs", "method", "status", "text", "title", "type"]
         required: ["correspondence", "recipient", "letters"]
-
+  
   ApiGatewayCorrespondenceUpdateInputModel:
     Type: AWS::ApiGateway::Model
     Properties:
@@ -126,14 +150,30 @@ Resources:
                     type: "string"
                     enum: ["HIGH", "MEDIUM", "LOW"]
                 required: ["description", "domain", "impact"]
-            required: ["correspondenceId", "reason"]
+              status:
+                type: "string"
+                enum: ["COMPLETED", "PENDING", "RESPONDED", "UNSENT"]
+              title:
+                type: "string"
+            required: ["correspondenceId", "reason", "status", "title"]  # Moved here
           recipient:
             type: "object"
             properties:
               recipientId:
                 type: "string"
               address:
-                type: "string"
+                type: "object"
+                properties:
+                  city: 
+                    type: "string"
+                  country: 
+                    type: "string"
+                  postalCode:
+                    type: "string"
+                  state:
+                    type: "string"
+                  street:
+                    type: "string"
               firstName:
                 type: "string"
               lastName:
@@ -141,6 +181,8 @@ Resources:
               description:
                 type: "string"
               occupation:
+                type: "string"
+              organization:
                 type: "string"
             required: ["recipientId", "address", "firstName", "lastName"]
           letters:
@@ -155,12 +197,18 @@ Resources:
                   format: "date-time"
                 description:
                   type: "string"
-                imageURL:
-                  type: "string"
-                  format: "uri"
+                imageURLs:
+                  type: "array"
+                  items:
+                    type: "string"
+                    format: "uri"
                 method:
                   type: "string"
                   enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
+                receivedAt:
+                  type: "string"
+                sentAt:
+                  type: "string"
                 status:
                   type: "string"
                   enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
@@ -171,7 +219,7 @@ Resources:
                 type:
                   type: "string"
                   enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
-              required: ["date", "imageURL", "letterId", "method", "status", "text", "title", "type"]
+              required: ["date", "imageURLs", "letterId", "method", "status", "text", "title", "type"]
         required: ["correspondence", "recipient", "letters"]
 
   ApiGatewayCorrespondence:
@@ -192,6 +240,9 @@ Resources:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
         Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getCorrespondences/invocations"
+      RequestParameters:
+        "method.request.querystring.limit": false
+        "method.request.querystring.lastEvaluatedKey": false
 
   ApiGatewayCorrespondenceCreateMethod:
     Type: AWS::ApiGateway::Method
@@ -276,7 +327,18 @@ Resources:
         type: "object"
         properties:
           address:
-            type: "string"
+            type: "object"
+            properties:
+              city: 
+                type: "string"
+              country: 
+                type: "string"
+              postalCode:
+                type: "string"
+              state:
+                type: "string"
+              street:
+                type: "string"
           firstName:
             type: "string"
           lastName:
@@ -284,6 +346,8 @@ Resources:
           description:
             type: "string"
           occupation:
+            type: "string"
+          organization:
             type: "string"
         required: ["address", "firstName", "lastName"]
 
@@ -300,7 +364,18 @@ Resources:
           recipientId:
             type: "string"
           address:
-            type: "string"
+            type: "object"
+            properties:
+              city: 
+                type: "string"
+              country: 
+                type: "string"
+              postalCode:
+                type: "string"
+              state:
+                type: "string"
+              street:
+                type: "string"
           firstName:
             type: "string"
           lastName:
@@ -308,6 +383,8 @@ Resources:
           description:
             type: "string"
           occupation:
+            type: "string"
+          organization:
             type: "string"
         required: ["recipientId", "address", "firstName", "lastName"]
 
@@ -329,6 +406,9 @@ Resources:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
         Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRecipients/invocations"
+      RequestParameters:
+        "method.request.querystring.limit": false
+        "method.request.querystring.lastEvaluatedKey": false
 
   ApiGatewayRecipientById:
     Type: AWS::ApiGateway::Resource
@@ -418,9 +498,16 @@ Resources:
             type: "string"
           description:
             type: "string"
-          imageURL:
-            type: "string"
+          imageURLs:
+            type: "array"
+            items:
+              type: "string"
+              format: "uri"
           method:
+            type: "string"
+          receivedAt:
+            type: "string"
+          sentAt:
             type: "string"
           status:
             type: "string"
@@ -430,7 +517,7 @@ Resources:
             type: "string"
           type:
             type: "string"
-        required: ["correspondenceId", "date", "imageURL", "method", "status", "text", "title", "type"]
+        required: ["correspondenceId", "date", "imageURLs", "method", "status", "text", "title", "type"]
 
   ApiGatewayLetterUpdateInputModel:
     Type: AWS::ApiGateway::Model
@@ -448,11 +535,18 @@ Resources:
             type: "string"
           description:
             type: "string"
-          imageURL:
-            type: "string"
+          imageURLs:
+            type: "array"
+            items:
+              type: "string"
+              format: "uri"
           letterId:
             type: "string"
           method:
+            type: "string"
+          receivedAt:
+            type: "string"
+          sentAt:
             type: "string"
           status:
             type: "string"
@@ -462,7 +556,7 @@ Resources:
             type: "string"
           type:
             type: "string"
-        required: ["correspondenceId", "date", "imageURL", "letterId", "method", "status", "text", "title", "type"]
+        required: ["correspondenceId", "date", "imageURLs", "letterId", "method", "status", "text", "title", "type"]
 
   ApiGatewayGetLetters:
     Type: AWS::ApiGateway::Resource
@@ -482,6 +576,9 @@ Resources:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
         Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getLetters/invocations"
+      RequestParameters:
+        "method.request.querystring.limit": false
+        "method.request.querystring.lastEvaluatedKey": false
 
   ApiGatewayLetterById:
     Type: AWS::ApiGateway::Resource

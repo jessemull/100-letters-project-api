@@ -45,55 +45,18 @@ describe('Create Correspondence Handler', () => {
     expect(JSON.parse(response.body).message).toBe('Request body is required.');
   });
 
-  it('should return 400 if recipient, correspondence, or letters are missing from body', async () => {
-    const event = {
-      body: JSON.stringify({ recipient: {}, correspondence: {} }),
-    } as unknown as APIGatewayProxyEvent;
-
-    const response = (await handler(
-      event,
-      mockContext,
-      mockCallback,
-    )) as APIGatewayProxyResult;
-
-    expect(response.statusCode).toBe(400);
-    expect(JSON.parse(response.body).message).toBe(
-      'Recipient, correspondence, and letters are required.',
-    );
-  });
-
-  it('should return 400 if reason is missing or invalid', async () => {
-    const event = {
-      body: JSON.stringify({
-        recipient: { name: 'John Doe' },
-        correspondence: { title: 'Test Correspondence' },
-        letters: [{ letterId: 'letter123', content: 'Hello' }],
-      }),
-    } as unknown as APIGatewayProxyEvent;
-
-    const response = (await handler(
-      event,
-      mockContext,
-      mockCallback,
-    )) as APIGatewayProxyResult;
-
-    expect(response.statusCode).toBe(400);
-    expect(JSON.parse(response.body).message).toBe(
-      'Reason must include description, domain, and valid impact.',
-    );
-  });
-
   it('should return 500 if there is an error during the transaction', async () => {
     const event = {
       body: JSON.stringify({
         recipient: { name: 'John Doe' },
         correspondence: {
-          title: 'Test Correspondence',
           reason: {
             description: 'Test',
             domain: 'Test Domain',
             impact: 'HIGH',
           },
+          status: 'COMPLETED',
+          title: 'Test Correspondence',
         },
         letters: [{ letterId: 'letter123', content: 'Hello' }],
       }),
@@ -118,12 +81,13 @@ describe('Create Correspondence Handler', () => {
       body: JSON.stringify({
         recipient: { recipientId: 'mock-uuid' },
         correspondence: {
-          title: 'Test Correspondence',
           reason: {
             description: 'Test',
             domain: 'Test Domain',
             impact: 'HIGH',
           },
+          status: 'COMPLETE',
+          title: 'Test Correspondence',
         },
         letters: [{ letterId: 'mock-uuid' }],
       }),
@@ -138,6 +102,8 @@ describe('Create Correspondence Handler', () => {
         correspondenceId: 'mock-uuid',
         recipientId: 'mock-uuid',
         reason: { description: 'Test', domain: 'Test Domain', impact: 'HIGH' },
+        status: 'COMPLETE',
+        title: 'Test Correspondence',
       },
       recipient: {
         recipientId: 'mock-uuid',
@@ -163,44 +129,18 @@ describe('Create Correspondence Handler', () => {
     expect(JSON.parse(response.body).data).toEqual(expected);
   });
 
-  it('should return 400 if letters array is missing', async () => {
-    const event = {
-      body: JSON.stringify({
-        recipient: { name: 'John Doe' },
-        correspondence: {
-          title: 'Test Correspondence',
-          reason: {
-            description: 'Test',
-            domain: 'Test Domain',
-            impact: 'HIGH',
-          },
-        },
-      }),
-    } as unknown as APIGatewayProxyEvent;
-
-    const response = (await handler(
-      event,
-      mockContext,
-      mockCallback,
-    )) as APIGatewayProxyResult;
-
-    expect(response.statusCode).toBe(400);
-    expect(JSON.parse(response.body).message).toBe(
-      'Recipient, correspondence, and letters are required.',
-    );
-  });
-
   it('should return 500 if there is an error during the put request', async () => {
     const event = {
       body: JSON.stringify({
         recipient: { name: 'John Doe' },
         correspondence: {
-          title: 'Test Correspondence',
           reason: {
             description: 'Test',
             domain: 'Test Domain',
             impact: 'HIGH',
           },
+          status: 'COMPLETED',
+          title: 'Test Correspondence',
         },
         letters: [{ letterId: 'letter123', content: 'Hello' }],
       }),

@@ -8,12 +8,10 @@ import {
 } from '@aws-sdk/lib-dynamodb';
 import { dynamoClient, logger } from '../../common/util';
 
+// Request body validation is handled by the API gateway model.
+
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
-    if (!event.body) {
-      return new BadRequestError('Request body is required.').build();
-    }
-
     const correspondenceId = event.pathParameters?.id;
 
     if (!correspondenceId) {
@@ -22,20 +20,13 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       ).build();
     }
 
+    if (!event.body) {
+      return new BadRequestError('Request body is required.').build();
+    }
+
     const { recipient, correspondence, letters } = JSON.parse(event.body);
 
-    if (!recipient || !correspondence || !letters) {
-      return new BadRequestError(
-        'Recipient, correspondence, and letters are required.',
-      ).build();
-    }
-
-    const { reason } = correspondence;
-    if (!reason || !reason.description || !reason.domain || !reason.impact) {
-      return new BadRequestError(
-        'Reason must include description, domain, and valid impact.',
-      ).build();
-    }
+    const { reason, status, title } = correspondence;
 
     const transactItems: TransactionItem[] = [];
 
@@ -44,12 +35,17 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const correspondenceUpdateParams: UpdateParams = {
       TableName: 'OneHundredLettersCorrespondenceTable',
       Key: { correspondenceId },
-      UpdateExpression: 'SET #reason = :reason',
+      UpdateExpression:
+        'SET #reason = :reason, #status = :status, #title = :title',
       ExpressionAttributeNames: {
         '#reason': 'reason',
+        '#status': 'status',
+        '#title': 'title',
       },
       ExpressionAttributeValues: {
         ':reason': reason,
+        ':status': status,
+        ':title': title,
       },
       ReturnValues: 'ALL_NEW',
     };
@@ -104,6 +100,19 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         'occupation';
     }
 
+    if (recipient.organization === undefined) {
+      recipientRemoveExpressions.push('#organization');
+      recipientUpdateParams.ExpressionAttributeNames['#organization'] =
+        'organization';
+    } else {
+      recipientUpdateParams.UpdateExpression +=
+        ', #organization = :organization';
+      recipientUpdateParams.ExpressionAttributeValues[':organization'] =
+        recipient.organization;
+      recipientUpdateParams.ExpressionAttributeNames['#organization'] =
+        'organization';
+    }
+
     if (recipientRemoveExpressions.length > 0) {
       recipientUpdateParams.UpdateExpression +=
         ' REMOVE ' + recipientRemoveExpressions.join(', ');
@@ -114,21 +123,18 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     });
 
     // Step 3: Construct all letter update params.
+
     for (const letter of letters) {
       const { letterId, ...letterData } = letter;
-
-      if (!letterId) {
-        return new BadRequestError('Letter ID is required for update.').build();
-      }
 
       const letterUpdateParams: UpdateParams = {
         TableName: 'OneHundredLettersLetterTable',
         Key: { correspondenceId, letterId },
         UpdateExpression:
-          'SET #date = :date, #imageURL = :imageURL, #method = :method, #status = :status, #text = :text, #title = :title, #type = :type',
+          'SET #date = :date, #imageURLs = :imageURLs, #method = :method, #status = :status, #text = :text, #title = :title, #type = :type',
         ExpressionAttributeNames: {
           '#date': 'date',
-          '#imageURL': 'imageURL',
+          '#imageURLs': 'imageURLs',
           '#method': 'method',
           '#status': 'status',
           '#text': 'text',
@@ -137,7 +143,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         },
         ExpressionAttributeValues: {
           ':date': letterData.date,
-          ':imageURL': letterData.imageURL,
+          ':imageURLs': letterData.imageURLs,
           ':method': letterData.method,
           ':status': letterData.status,
           ':text': letterData.text,
@@ -159,6 +165,28 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           letterData.description;
         letterUpdateParams.ExpressionAttributeNames['#description'] =
           'description';
+      }
+
+      if (letterData.receivedAt === undefined) {
+        removeExpressions.push('#receivedAt');
+        letterUpdateParams.ExpressionAttributeNames['#receivedAt'] =
+          'receivedAt';
+      } else {
+        letterUpdateParams.UpdateExpression += ', #receivedAt = :receivedAt';
+        letterUpdateParams.ExpressionAttributeValues[':receivedAt'] =
+          letterData.receivedAt;
+        letterUpdateParams.ExpressionAttributeNames['#receivedAt'] =
+          'receivedAt';
+      }
+
+      if (letterData.sentAt === undefined) {
+        removeExpressions.push('#sentAt');
+        letterUpdateParams.ExpressionAttributeNames['#sentAt'] = 'sentAt';
+      } else {
+        letterUpdateParams.UpdateExpression += ', #sentAt = :sentAt';
+        letterUpdateParams.ExpressionAttributeValues[':sentAt'] =
+          letterData.sentAt;
+        letterUpdateParams.ExpressionAttributeNames['#sentAt'] = 'sentAt';
       }
 
       if (removeExpressions.length > 0) {

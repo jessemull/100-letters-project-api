@@ -9,6 +9,8 @@ import { dynamoClient, logger } from '../../common/util';
 import { Letter } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
 
+// Request body validation is handled by the API gateway model.
+
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
     if (!event.body) {
@@ -21,28 +23,15 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       correspondenceId,
       date,
       description,
-      imageURL,
+      imageURLs,
       method,
+      receivedAt,
+      sentAt,
       status,
       text,
       title,
       type,
     } = body;
-
-    if (
-      !correspondenceId ||
-      !date ||
-      !imageURL ||
-      !method ||
-      !status ||
-      !text ||
-      !title ||
-      !type
-    ) {
-      return new BadRequestError(
-        'Correspondence ID, date, imageURL, method, status, text, title, and type are required.',
-      ).build();
-    }
 
     const checkCorrespondenceParams = {
       TableName: 'OneHundredLettersCorrespondenceTable',
@@ -69,7 +58,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       letterId,
       correspondenceId,
       date,
-      imageURL,
+      imageURLs,
       method,
       status,
       text,
@@ -79,6 +68,14 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     if (description) {
       letterData.description = description;
+    }
+
+    if (receivedAt) {
+      letterData.receivedAt = receivedAt;
+    }
+
+    if (sentAt) {
+      letterData.sentAt = sentAt;
     }
 
     const params = {

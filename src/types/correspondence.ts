@@ -13,17 +13,28 @@ export type Reason = {
   impact: Impact;
 };
 
+export enum Status {
+  COMPLETED = 'COMPLETED',
+  PENDING = 'PENDING',
+  RESPONDED = 'RESPONDED',
+  UNSENT = 'UNSENT',
+}
+
 export type Correspondence = {
   correspondenceId: string;
   createdAt: string;
   recipientId: string;
   reason: Reason;
+  status: Status;
+  title: string;
   updatedAt: string;
 };
 
 export type CorrespondenceCreateInput = {
   correspondence: {
     reason: Reason;
+    status: Status;
+    title: string;
   };
   recipient: RecipientCreateInput;
   letters: LetterCreateInput[];
@@ -33,6 +44,8 @@ export type CorrespondenceUpdateInput = {
   correspondence: {
     correspondenceId: string;
     reason: Reason;
+    status: Status;
+    title: string;
   };
   recipient: RecipientUpdateInput;
   letters: LetterUpdateInput[];
