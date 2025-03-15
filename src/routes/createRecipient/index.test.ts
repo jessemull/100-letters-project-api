@@ -26,7 +26,7 @@ describe('Create Recipient Handler', () => {
     jest.clearAllMocks();
   });
 
-  it('should successfully create a recipient when required fields are provided', async () => {
+  it('should successfully create a recipient', async () => {
     (uuidv4 as jest.Mock).mockReturnValueOnce('mock-uuid');
 
     const body = {
@@ -35,6 +35,7 @@ describe('Create Recipient Handler', () => {
       address: '123 Street',
       description: 'A description',
       occupation: 'Engineer',
+      organization: 'Toyota',
     };
 
     const context: Context = {} as Context;
@@ -67,36 +68,8 @@ describe('Create Recipient Handler', () => {
       address: '123 Street',
       description: 'A description',
       occupation: 'Engineer',
+      organization: 'Toyota',
     });
-  });
-
-  it('should return 400 error if required fields are missing', async () => {
-    const body = { firstName: 'John', lastName: 'Doe' };
-    const context: Context = {} as Context;
-    const event: APIGatewayProxyEvent = {
-      body: JSON.stringify(body),
-      headers: {},
-      httpMethod: 'POST',
-      isBase64Encoded: false,
-      path: '/recipient',
-      pathParameters: null,
-      queryStringParameters: null,
-      stageVariables: null,
-      requestContext: {} as APIGatewayProxyEvent['requestContext'],
-      resource: '',
-    } as unknown as APIGatewayProxyEvent;
-
-    const result = (await handler(
-      event,
-      context,
-      () => {},
-    )) as APIGatewayProxyResult;
-
-    expect(result.statusCode).toBe(400);
-    const responseBody = JSON.parse(result.body || '');
-    expect(responseBody.message).toBe(
-      'First name, last name, and address are required.',
-    );
   });
 
   it('should return 400 error if body is missing', async () => {

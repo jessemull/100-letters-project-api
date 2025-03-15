@@ -8,6 +8,8 @@ import { UpdateCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { dynamoClient, logger } from '../../common/util';
 import { UpdateParams } from '../../types';
 
+// Request body validation is handled by the API gateway model.
+
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
     const letterId = event.pathParameters?.id;
@@ -26,28 +28,15 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       correspondenceId,
       date,
       description,
-      imageURL,
+      imageURLs,
       method,
+      receivedAt,
+      sentAt,
       status,
       text,
       title,
       type,
     } = body;
-
-    if (
-      !correspondenceId ||
-      !date ||
-      !imageURL ||
-      !method ||
-      !status ||
-      !text ||
-      !title ||
-      !type
-    ) {
-      return new BadRequestError(
-        'Correspondence ID, date, imageURL, method, status, text, title, and type are required.',
-      ).build();
-    }
 
     const checkCorrespondenceParams = {
       TableName: 'OneHundredLettersCorrespondenceTable',
@@ -75,10 +64,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         letterId,
       },
       UpdateExpression:
-        'SET #date = :date, #imageURL = :imageURL, #method = :method, #status = :status, #text = :text, #title = :title, #type = :type',
+        'SET #date = :date, #imageURLs = :imageURLs, #method = :method, #status = :status, #text = :text, #title = :title, #type = :type',
       ExpressionAttributeNames: {
         '#date': 'date',
-        '#imageURL': 'imageURL',
+        '#imageURLs': 'imageURLs',
         '#method': 'method',
         '#status': 'status',
         '#text': 'text',
@@ -87,7 +76,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       },
       ExpressionAttributeValues: {
         ':date': date,
-        ':imageURL': imageURL,
+        ':imageURLs': imageURLs,
         ':method': method,
         ':status': status,
         ':text': text,
@@ -111,6 +100,18 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     if (removeExpressions.length > 0) {
       updateParams.UpdateExpression +=
         ' REMOVE ' + removeExpressions.join(', ');
+    }
+
+    if (receivedAt) {
+      updateParams.UpdateExpression += ', #receivedAt = :receivedAt';
+      updateParams.ExpressionAttributeNames!['#receivedAt'] = 'receivedAt';
+      updateParams.ExpressionAttributeValues[':receivedAt'] = receivedAt;
+    }
+
+    if (sentAt) {
+      updateParams.UpdateExpression += ', #sentAt = :sentAt';
+      updateParams.ExpressionAttributeNames!['#sentAt'] = 'sentAt';
+      updateParams.ExpressionAttributeValues[':sentAt'] = sentAt;
     }
 
     const command = new UpdateCommand(updateParams);

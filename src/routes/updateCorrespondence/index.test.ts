@@ -69,46 +69,6 @@ describe('Update Correspondence Handler', () => {
     );
   });
 
-  it('should return 400 if recipient, correspondence, or letters are missing', async () => {
-    const event = {
-      body: JSON.stringify({ recipient: {}, correspondence: {} }),
-      pathParameters: { id: 'mock-id' },
-    } as unknown as APIGatewayProxyEvent;
-
-    const response = (await handler(
-      event,
-      mockContext,
-      mockCallback,
-    )) as APIGatewayProxyResult;
-
-    expect(response.statusCode).toBe(400);
-    expect(JSON.parse(response.body).message).toBe(
-      'Recipient, correspondence, and letters are required.',
-    );
-  });
-
-  it('should return 400 if reason is missing or invalid', async () => {
-    const event = {
-      body: JSON.stringify({
-        recipient: { name: 'John Doe' },
-        correspondence: { title: 'Test Correspondence' },
-        letters: [{ letterId: 'letter123', content: 'Hello' }],
-      }),
-      pathParameters: { id: 'mock-id' },
-    } as unknown as APIGatewayProxyEvent;
-
-    const response = (await handler(
-      event,
-      mockContext,
-      mockCallback,
-    )) as APIGatewayProxyResult;
-
-    expect(response.statusCode).toBe(400);
-    expect(JSON.parse(response.body).message).toBe(
-      'Reason must include description, domain, and valid impact.',
-    );
-  });
-
   it('should return 500 if there is an error during DynamoDB transaction', async () => {
     const event = {
       body: JSON.stringify({
@@ -229,7 +189,7 @@ describe('Update Correspondence Handler', () => {
     expect(JSON.parse(response.body).message).toBe('Internal Server Error');
   });
 
-  it('should include description and occupation in recipient update if provided', async () => {
+  it('should include optional properties in recipient update if provided', async () => {
     const event = {
       body: JSON.stringify({
         recipient: {
@@ -238,6 +198,7 @@ describe('Update Correspondence Handler', () => {
           lastName: 'Doe',
           description: 'A passionate developer',
           occupation: 'Software Engineer',
+          organization: 'USDA',
         },
         correspondence: {
           reason: {
@@ -283,13 +244,18 @@ describe('Update Correspondence Handler', () => {
         '#occupation = :occupation',
       ),
     ).toBeTruthy();
+    expect(
+      JSON.stringify((dynamoClient.send as jest.Mock).mock.calls).includes(
+        '#organization = :organization',
+      ),
+    ).toBeTruthy();
     expect(response.statusCode).toBe(200);
     expect(JSON.parse(response.body).message).toBe(
       'Correspondence updated successfully.',
     );
   });
 
-  it('should include description in update expression if description is provided in letter data', async () => {
+  it('should include optional properties in update expression if provided in letter data', async () => {
     const event = {
       body: JSON.stringify({
         recipient: {
@@ -306,9 +272,11 @@ describe('Update Correspondence Handler', () => {
         },
         letters: [
           {
+            description: 'Sample description for letter',
             letterId: 'mock-letter-id',
+            receivedAt: '2015-10-22',
+            sentAt: '2015-10-22',
             text: 'Updated letter content',
-            description: 'Updated letter description',
           },
         ],
       }),
@@ -340,63 +308,32 @@ describe('Update Correspondence Handler', () => {
         '#description = :description',
       ),
     ).toBeTruthy();
+    expect(
+      JSON.stringify((dynamoClient.send as jest.Mock).mock.calls).includes(
+        '#receivedAt = :receivedAt',
+      ),
+    ).toBeTruthy();
+    expect(
+      JSON.stringify((dynamoClient.send as jest.Mock).mock.calls).includes(
+        '#sentAt = :sentAt',
+      ),
+    ).toBeTruthy();
     expect(response.statusCode).toBe(200);
     expect(JSON.parse(response.body).message).toBe(
       'Correspondence updated successfully.',
     );
   });
 
-  it('should return 400 when letter ID is missing', async () => {
+  it('should return 400 if pathParameters is missing the id', async () => {
     const event = {
       body: JSON.stringify({
-        recipient: {
-          address: '123 Fake Street',
-          recipientId: 'mock-recipient-id',
-          firstName: 'John',
-          lastName: 'Doe',
-        },
+        recipient: { name: 'John Doe' },
         correspondence: {
-          reason: {
-            description: 'Test',
-            domain: 'Test Domain',
-            impact: 'HIGH',
-          },
+          reason: { description: 'Test', domain: 'Test', impact: 'HIGH' },
         },
-        letters: [{ text: 'Updated letter content' }],
+        letters: [{ letterId: 'letter123', content: 'Hello' }],
       }),
-      pathParameters: { id: 'mock-id' },
-    } as unknown as APIGatewayProxyEvent;
-
-    const response = (await handler(
-      event,
-      mockContext,
-      mockCallback,
-    )) as APIGatewayProxyResult;
-
-    expect(response.statusCode).toBe(400);
-    expect(JSON.parse(response.body).message).toBe(
-      'Letter ID is required for update.',
-    );
-  });
-
-  it('should return 400 when correspondence ID is missing from path parameters', async () => {
-    const event = {
-      body: JSON.stringify({
-        recipient: {
-          address: '123 Fake Street',
-          recipientId: 'mock-recipient-id',
-          firstName: 'John',
-          lastName: 'Doe',
-        },
-        correspondence: {
-          reason: {
-            description: 'Test',
-            domain: 'Test Domain',
-            impact: 'HIGH',
-          },
-        },
-        letters: [{ id: 'mock-letter-id', text: 'Updated letter content' }],
-      }),
+      pathParameters: undefined, // pathParameters is undefined
     } as unknown as APIGatewayProxyEvent;
 
     const response = (await handler(
