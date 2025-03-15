@@ -24,9 +24,11 @@ export interface Letter {
   correspondenceId: string;
   date: string;
   description?: string;
-  imageURL: string;
+  imageURLs: string[];
   letterId: string;
   method: LetterMethod;
+  receivedAt?: string;
+  sentAt?: string;
   status: LetterStatus;
   text: string;
   title: string;
@@ -37,8 +39,10 @@ export type LetterCreateInput = {
   correspondenceId: string;
   date: string;
   description?: string;
-  imageURL: string;
+  imageURLs: string[];
   method: LetterMethod;
+  receivedAt?: string;
+  sentAt?: string;
   status: LetterStatus;
   text: string;
   title: string;
@@ -48,9 +52,11 @@ export type LetterCreateInput = {
 export type LetterUpdateInput = {
   date: string;
   description?: string;
-  imageURL: string;
+  imageURLs: string[];
   letterId?: string;
   method: LetterMethod;
+  receivedAt?: string;
+  sentAt?: string;
   status: LetterStatus;
   text: string;
   title: string;
