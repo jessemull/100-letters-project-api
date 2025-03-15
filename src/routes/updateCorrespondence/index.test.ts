@@ -333,7 +333,7 @@ describe('Update Correspondence Handler', () => {
         },
         letters: [{ letterId: 'letter123', content: 'Hello' }],
       }),
-      pathParameters: undefined, // pathParameters is undefined
+      pathParameters: undefined,
     } as unknown as APIGatewayProxyEvent;
 
     const response = (await handler(

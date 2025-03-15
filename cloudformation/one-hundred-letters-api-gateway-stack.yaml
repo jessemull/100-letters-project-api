@@ -12,7 +12,7 @@ Resources:
       Name: OneHundredLettersApi
       Description: API for managing correspondence and letters
 
-  ApiGatewayRequestValidator:
+  OneHundredLettersValidator:
     Type: AWS::ApiGateway::RequestValidator
     Properties:
       RestApiId: !Ref OneHundredLettersApi
@@ -20,7 +20,7 @@ Resources:
       ValidateRequestBody: true
       ValidateRequestParameters: false
 
-  ApiGatewayAuthorizer:
+  OneHundredLettersAuthorizer:
     Type: AWS::ApiGateway::Authorizer
     Properties:
       Name: CognitoAuthorizer
@@ -30,627 +30,91 @@ Resources:
       ProviderARNs:
         - !Sub "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}"
 
-  # Correspondence Resources/Methods
+  # Correspondence Resources
 
-  ApiGatewayCorrespondenceCreateInputModel:
-    Type: AWS::ApiGateway::Model
-    Properties:
-      RestApiId: !Ref OneHundredLettersApi
-      ContentType: "application/json"
-      Name: "CorrespondenceCreateModel"
-      Schema:
-        $schema: "http://json-schema.org/draft-04/schema#"
-        type: "object"
-        properties:
-          correspondence:
-            type: "object"
-            properties:
-              reason:
-                type: "object"
-                properties:
-                  description:
-                    type: "string"
-                  domain:
-                    type: "string"
-                  impact:
-                    type: "string"
-                    enum: ["HIGH", "MEDIUM", "LOW"]
-                required: ["description", "domain", "impact"]
-              status:
-                type: "string"
-                enum: ["COMPLETED", "PENDING", "RESPONDED", "UNSENT"]
-              title:
-                type: "string"
-            required: ["reason", "status", "title"]
-          recipient:
-            type: "object"
-            properties:
-              address:
-                type: "object"
-                properties:
-                  city: 
-                    type: "string"
-                  country: 
-                    type: "string"
-                  postalCode:
-                    type: "string"
-                  state:
-                    type: "string"
-                  street:
-                    type: "string"
-              firstName:
-                type: "string"
-              lastName:
-                type: "string"
-              description:
-                type: "string"
-              occupation:
-                type: "string"
-              organization:
-                type: "string"
-            required: ["address", "firstName", "lastName"]
-          letters:
-            type: "array"
-            items:
-              type: "object"
-              properties:
-                date:
-                  type: "string"
-                  format: "date-time"
-                description:
-                  type: "string"
-                imageURLs:
-                  type: "array"
-                  items:
-                    type: "string"
-                    format: "uri"
-                method:
-                  type: "string"
-                  enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
-                receivedAt:
-                  type: "string"
-                sentAt:
-                  type: "string"
-                status:
-                  type: "string"
-                  enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
-                text:
-                  type: "string"
-                title:
-                  type: "string"
-                type:
-                  type: "string"
-                  enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
-              required: ["date", "imageURLs", "method", "status", "text", "title", "type"]
-        required: ["correspondence", "recipient", "letters"]
-  
-  ApiGatewayCorrespondenceUpdateInputModel:
-    Type: AWS::ApiGateway::Model
-    Properties:
-      RestApiId: !Ref OneHundredLettersApi
-      ContentType: "application/json"
-      Name: "CorrespondenceUpdateModel"
-      Schema:
-        $schema: "http://json-schema.org/draft-04/schema#"
-        type: "object"
-        properties:
-          correspondence:
-            type: "object"
-            properties:
-              correspondenceId:
-                type: "string"
-              reason:
-                type: "object"
-                properties:
-                  description:
-                    type: "string"
-                  domain:
-                    type: "string"
-                  impact:
-                    type: "string"
-                    enum: ["HIGH", "MEDIUM", "LOW"]
-                required: ["description", "domain", "impact"]
-              status:
-                type: "string"
-                enum: ["COMPLETED", "PENDING", "RESPONDED", "UNSENT"]
-              title:
-                type: "string"
-            required: ["correspondenceId", "reason", "status", "title"]  # Moved here
-          recipient:
-            type: "object"
-            properties:
-              recipientId:
-                type: "string"
-              address:
-                type: "object"
-                properties:
-                  city: 
-                    type: "string"
-                  country: 
-                    type: "string"
-                  postalCode:
-                    type: "string"
-                  state:
-                    type: "string"
-                  street:
-                    type: "string"
-              firstName:
-                type: "string"
-              lastName:
-                type: "string"
-              description:
-                type: "string"
-              occupation:
-                type: "string"
-              organization:
-                type: "string"
-            required: ["recipientId", "address", "firstName", "lastName"]
-          letters:
-            type: "array"
-            items:
-              type: "object"
-              properties:
-                letterId:
-                  type: "string"
-                date:
-                  type: "string"
-                  format: "date-time"
-                description:
-                  type: "string"
-                imageURLs:
-                  type: "array"
-                  items:
-                    type: "string"
-                    format: "uri"
-                method:
-                  type: "string"
-                  enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
-                receivedAt:
-                  type: "string"
-                sentAt:
-                  type: "string"
-                status:
-                  type: "string"
-                  enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
-                text:
-                  type: "string"
-                title:
-                  type: "string"
-                type:
-                  type: "string"
-                  enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
-              required: ["date", "imageURLs", "letterId", "method", "status", "text", "title", "type"]
-        required: ["correspondence", "recipient", "letters"]
-
-  ApiGatewayCorrespondence:
+  CorrespondenceResource:
     Type: AWS::ApiGateway::Resource
     Properties:
       RestApiId: !Ref OneHundredLettersApi
       ParentId: !GetAtt OneHundredLettersApi.RootResourceId
       PathPart: "correspondence"
       
-  ApiGatewayGetCorrespondencesMethod:
-    Type: AWS::ApiGateway::Method
-    Properties:
-      RestApiId: !Ref OneHundredLettersApi
-      ResourceId: !Ref ApiGatewayCorrespondence
-      HttpMethod: GET
-      AuthorizationType: NONE
-      Integration:
-        IntegrationHttpMethod: POST
-        Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getCorrespondences/invocations"
-      RequestParameters:
-        "method.request.querystring.limit": false
-        "method.request.querystring.lastEvaluatedKey": false
-
-  ApiGatewayCorrespondenceCreateMethod:
-    Type: AWS::ApiGateway::Method
-    Properties:
-      RestApiId: !Ref OneHundredLettersApi
-      ResourceId: !Ref ApiGatewayCorrespondence
-      AuthorizationType: COGNITO_USER_POOLS
-      AuthorizerId: !Ref ApiGatewayAuthorizer
-      HttpMethod: POST
-      RequestValidatorId: !Ref ApiGatewayRequestValidator
-      RequestModels:
-        "application/json": !Ref ApiGatewayCorrespondenceCreateInputModel
-      Integration:
-        IntegrationHttpMethod: POST
-        Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createCorrespondence/invocations"
-
-  ApiGatewayCorrespondencesById:
+  CorrespondenceByIdResource:
     Type: AWS::ApiGateway::Resource
     Properties:
       RestApiId: !Ref OneHundredLettersApi
-      ParentId: !Ref ApiGatewayCorrespondence
+      ParentId: !Ref CorrespondenceResource
       PathPart: "{id}"
       
-  ApiGatewayCorrespondencesByIdMethod:
-    Type: AWS::ApiGateway::Method
-    Properties:
-      RestApiId: !Ref OneHundredLettersApi
-      ResourceId: !Ref ApiGatewayCorrespondencesById
-      HttpMethod: GET
-      AuthorizationType: NONE
-      Integration:
-        IntegrationHttpMethod: POST
-        Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getCorrespondenceById/invocations"
-      RequestParameters:
-        method.request.path.id: true
+  # Recipient Resources
 
-  ApiGatewayCorrespondenceUpdateMethod:
-    Type: AWS::ApiGateway::Method
-    Properties:
-      RestApiId: !Ref OneHundredLettersApi
-      ResourceId: !Ref ApiGatewayCorrespondencesById
-      AuthorizationType: COGNITO_USER_POOLS
-      AuthorizerId: !Ref ApiGatewayAuthorizer
-      HttpMethod: PUT
-      RequestValidatorId: !Ref ApiGatewayRequestValidator
-      RequestModels:
-        "application/json": !Ref ApiGatewayCorrespondenceUpdateInputModel
-      Integration:
-        IntegrationHttpMethod: POST
-        Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:updateCorrespondence/invocations"
-      RequestParameters:
-        method.request.path.id: true
-
-  ApiGatewayCorrespondenceDeleteMethod:
-    Type: AWS::ApiGateway::Method
-    Properties:
-      RestApiId: !Ref OneHundredLettersApi
-      ResourceId: !Ref ApiGatewayCorrespondencesById
-      AuthorizationType: COGNITO_USER_POOLS
-      AuthorizerId: !Ref ApiGatewayAuthorizer
-      HttpMethod: DELETE
-      Integration:
-        IntegrationHttpMethod: POST
-        Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:deleteCorrespondence/invocations"
-      RequestParameters:
-        method.request.path.id: true
-
-  # Recipient Resources/Methods
-
-  ApiGatewayRecipientCreateInputModel:
-    Type: AWS::ApiGateway::Model
-    Properties:
-      RestApiId: !Ref OneHundredLettersApi
-      ContentType: "application/json"
-      Name: "RecipientCreateModel"
-      Schema:
-        $schema: "http://json-schema.org/draft-04/schema#"
-        type: "object"
-        properties:
-          address:
-            type: "object"
-            properties:
-              city: 
-                type: "string"
-              country: 
-                type: "string"
-              postalCode:
-                type: "string"
-              state:
-                type: "string"
-              street:
-                type: "string"
-          firstName:
-            type: "string"
-          lastName:
-            type: "string"
-          description:
-            type: "string"
-          occupation:
-            type: "string"
-          organization:
-            type: "string"
-        required: ["address", "firstName", "lastName"]
-
-  ApiGatewayRecipientUpdateInputModel:
-    Type: AWS::ApiGateway::Model
-    Properties:
-      RestApiId: !Ref OneHundredLettersApi
-      ContentType: "application/json"
-      Name: "RecipientUpdateModel"
-      Schema:
-        $schema: "http://json-schema.org/draft-04/schema#"
-        type: "object"
-        properties:
-          recipientId:
-            type: "string"
-          address:
-            type: "object"
-            properties:
-              city: 
-                type: "string"
-              country: 
-                type: "string"
-              postalCode:
-                type: "string"
-              state:
-                type: "string"
-              street:
-                type: "string"
-          firstName:
-            type: "string"
-          lastName:
-            type: "string"
-          description:
-            type: "string"
-          occupation:
-            type: "string"
-          organization:
-            type: "string"
-        required: ["recipientId", "address", "firstName", "lastName"]
-
-  ApiGatewayGetRecipients:
+  RecipientsResource:
     Type: AWS::ApiGateway::Resource
     Properties:
       RestApiId: !Ref OneHundredLettersApi
       ParentId: !GetAtt OneHundredLettersApi.RootResourceId
       PathPart: "recipient"
 
-  ApiGatewayGetRecipientsMethod:
-    Type: AWS::ApiGateway::Method
-    Properties:
-      RestApiId: !Ref OneHundredLettersApi
-      ResourceId: !Ref ApiGatewayGetRecipients
-      HttpMethod: GET
-      AuthorizationType: NONE
-      Integration:
-        IntegrationHttpMethod: POST
-        Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRecipients/invocations"
-      RequestParameters:
-        "method.request.querystring.limit": false
-        "method.request.querystring.lastEvaluatedKey": false
-
-  ApiGatewayRecipientById:
+  RecipientByIdResource:
     Type: AWS::ApiGateway::Resource
     Properties:
       RestApiId: !Ref OneHundredLettersApi
-      ParentId: !Ref ApiGatewayGetRecipients
+      ParentId: !Ref RecipientsResource
       PathPart: "{id}"
 
-  ApiGatewayRecipientByIdMethod:
-    Type: AWS::ApiGateway::Method
-    Properties:
-      RestApiId: !Ref OneHundredLettersApi
-      ResourceId: !Ref ApiGatewayRecipientById
-      HttpMethod: GET
-      AuthorizationType: NONE
-      Integration:
-        IntegrationHttpMethod: POST
-        Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRecipientById/invocations"
-      RequestParameters:
-        method.request.path.id: true
+  # Letter Resources
 
-  ApiGatewayCreateRecipientMethod:
-    Type: AWS::ApiGateway::Method
-    Properties:
-      RestApiId: !Ref OneHundredLettersApi
-      ResourceId: !Ref ApiGatewayGetRecipients
-      HttpMethod: POST
-      AuthorizationType: COGNITO_USER_POOLS
-      AuthorizerId: !Ref ApiGatewayAuthorizer
-      RequestValidatorId: !Ref ApiGatewayRequestValidator
-      RequestModels:
-        "application/json": !Ref ApiGatewayRecipientCreateInputModel
-      Integration:
-        IntegrationHttpMethod: POST
-        Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createRecipient/invocations"
-
-  ApiGatewayUpdateRecipientMethod:
-    Type: AWS::ApiGateway::Method
-    Properties:
-      RestApiId: !Ref OneHundredLettersApi
-      ResourceId: !Ref ApiGatewayRecipientById
-      HttpMethod: PUT
-      AuthorizationType: COGNITO_USER_POOLS
-      AuthorizerId: !Ref ApiGatewayAuthorizer
-      RequestValidatorId: !Ref ApiGatewayRequestValidator
-      RequestModels:
-        "application/json": !Ref ApiGatewayRecipientUpdateInputModel
-      Integration:
-        IntegrationHttpMethod: POST
-        Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:updateRecipient/invocations"
-      RequestParameters:
-        method.request.path.id: true
-
-  ApiGatewayDeleteRecipientMethod:
-    Type: AWS::ApiGateway::Method
-    Properties:
-      RestApiId: !Ref OneHundredLettersApi
-      ResourceId: !Ref ApiGatewayRecipientById
-      HttpMethod: DELETE
-      AuthorizationType: COGNITO_USER_POOLS
-      AuthorizerId: !Ref ApiGatewayAuthorizer
-      Integration:
-        IntegrationHttpMethod: POST
-        Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:deleteRecipient/invocations"
-      RequestParameters:
-        method.request.path.id: true
-
-  # Letter Resources/Methods
-
-  ApiGatewayLetterCreateInputModel:
-    Type: AWS::ApiGateway::Model
-    Properties:
-      RestApiId: !Ref OneHundredLettersApi
-      ContentType: "application/json"
-      Name: "LetterCreateModel"
-      Schema:
-        $schema: "http://json-schema.org/draft-04/schema#"
-        type: "object"
-        properties:
-          correspondenceId:
-            type: "string"
-          date:
-            type: "string"
-          description:
-            type: "string"
-          imageURLs:
-            type: "array"
-            items:
-              type: "string"
-              format: "uri"
-          method:
-            type: "string"
-          receivedAt:
-            type: "string"
-          sentAt:
-            type: "string"
-          status:
-            type: "string"
-          text:
-            type: "string"
-          title:
-            type: "string"
-          type:
-            type: "string"
-        required: ["correspondenceId", "date", "imageURLs", "method", "status", "text", "title", "type"]
-
-  ApiGatewayLetterUpdateInputModel:
-    Type: AWS::ApiGateway::Model
-    Properties:
-      RestApiId: !Ref OneHundredLettersApi
-      ContentType: "application/json"
-      Name: "LetterUpdateModel"
-      Schema:
-        $schema: "http://json-schema.org/draft-04/schema#"
-        type: "object"
-        properties:
-          correspondenceId:
-            type: "string"
-          date:
-            type: "string"
-          description:
-            type: "string"
-          imageURLs:
-            type: "array"
-            items:
-              type: "string"
-              format: "uri"
-          letterId:
-            type: "string"
-          method:
-            type: "string"
-          receivedAt:
-            type: "string"
-          sentAt:
-            type: "string"
-          status:
-            type: "string"
-          text:
-            type: "string"
-          title:
-            type: "string"
-          type:
-            type: "string"
-        required: ["correspondenceId", "date", "imageURLs", "letterId", "method", "status", "text", "title", "type"]
-
-  ApiGatewayGetLetters:
+  LettersResource:
     Type: AWS::ApiGateway::Resource
     Properties:
       RestApiId: !Ref OneHundredLettersApi
       ParentId: !GetAtt OneHundredLettersApi.RootResourceId
       PathPart: "letter"
 
-  ApiGatewayGetLettersMethod:
-    Type: AWS::ApiGateway::Method
-    Properties:
-      RestApiId: !Ref OneHundredLettersApi
-      ResourceId: !Ref ApiGatewayGetLetters
-      HttpMethod: GET
-      AuthorizationType: NONE
-      Integration:
-        IntegrationHttpMethod: POST
-        Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getLetters/invocations"
-      RequestParameters:
-        "method.request.querystring.limit": false
-        "method.request.querystring.lastEvaluatedKey": false
-
-  ApiGatewayLetterById:
+  LetterByIdResource:
     Type: AWS::ApiGateway::Resource
     Properties:
       RestApiId: !Ref OneHundredLettersApi
-      ParentId: !Ref ApiGatewayGetLetters
+      ParentId: !Ref LettersResource
       PathPart: "{id}"
-
-  ApiGatewayLetterByIdMethod:
-    Type: AWS::ApiGateway::Method
-    Properties:
-      RestApiId: !Ref OneHundredLettersApi
-      ResourceId: !Ref ApiGatewayLetterById
-      HttpMethod: GET
-      AuthorizationType: NONE
-      Integration:
-        IntegrationHttpMethod: POST
-        Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getLetterById/invocations"
-      RequestParameters:
-        method.request.path.id: true
-
-  ApiGatewayCreateLetterMethod:
-    Type: AWS::ApiGateway::Method
-    Properties:
-      RestApiId: !Ref OneHundredLettersApi
-      ResourceId: !Ref ApiGatewayGetLetters
-      HttpMethod: POST
-      AuthorizationType: COGNITO_USER_POOLS
-      AuthorizerId: !Ref ApiGatewayAuthorizer
-      RequestValidatorId: !Ref ApiGatewayRequestValidator
-      RequestModels:
-        "application/json": !Ref ApiGatewayLetterCreateInputModel
-      Integration:
-        IntegrationHttpMethod: POST
-        Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createLetter/invocations"
-
-  ApiGatewayUpdateLetterMethod:
-    Type: AWS::ApiGateway::Method
-    Properties:
-      RestApiId: !Ref OneHundredLettersApi
-      ResourceId: !Ref ApiGatewayLetterById
-      HttpMethod: PUT
-      AuthorizationType: COGNITO_USER_POOLS
-      AuthorizerId: !Ref ApiGatewayAuthorizer
-      RequestValidatorId: !Ref ApiGatewayRequestValidator
-      RequestModels:
-        "application/json": !Ref ApiGatewayLetterUpdateInputModel
-      Integration:
-        IntegrationHttpMethod: POST
-        Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:updateLetter/invocations"
-      RequestParameters:
-        method.request.path.id: true
-
-  ApiGatewayDeleteLetterMethod:
-    Type: AWS::ApiGateway::Method
-    Properties:
-      RestApiId: !Ref OneHundredLettersApi
-      ResourceId: !Ref ApiGatewayLetterById
-      HttpMethod: DELETE
-      AuthorizationType: COGNITO_USER_POOLS
-      AuthorizerId: !Ref ApiGatewayAuthorizer
-      Integration:
-        IntegrationHttpMethod: POST
-        Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:deleteLetter/invocations"
-      RequestParameters:
-        method.request.path.id: true
 
 Outputs:
   ApiGatewayUrl:
     Value: !Sub "https://${OneHundredLettersApi}.execute-api.${AWS::Region}.amazonaws.com/prod"
     Description: "URL of the deployed API Gateway"
+  OneHundredLettersApiOutput:
+    Value: !Ref OneHundredLettersApi
+    Export:
+      Name: OneHundredLettersApi
+  OneHundredLettersValidatorOutput:
+    Value: !Ref OneHundredLettersValidator
+    Export:
+      Name: OneHundredLettersValidator
+  OneHundredLettersAuthorizerOutput:
+    Value: !Ref OneHundredLettersAuthorizer
+    Export:
+      Name: OneHundredLettersAuthorizer
+  CorrespondenceResourceOutput:
+    Value: !Ref CorrespondenceResource
+    Export:
+      Name: CorrespondenceResource
+  CorrespondenceByIdResourceOutput:
+    Value: !Ref CorrespondenceByIdResource
+    Export:
+      Name: CorrespondenceByIdResource
+  RecipientsResourceOutput:
+    Value: !Ref RecipientsResource
+    Export:
+      Name: RecipientsResource
+  RecipientByIdResourceOutput:
+    Value: !Ref RecipientByIdResource
+    Export:
+      Name: RecipientByIdResource
+  LettersResourceOutput:
+    Value: !Ref LettersResource
+    Export:
+      Name: LettersResource
+  LetterByIdResourceOutput:
+    Value: !Ref LetterByIdResource
+    Export:
+      Name: LetterByIdResource

@@ -1,0 +1,88 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+  LetterCreateRequestModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ContentType: "application/json"
+      Name: "LetterCreateModel"
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          correspondenceId:
+            type: "string"
+          date:
+            type: "string"
+          description:
+            type: "string"
+          imageURLs:
+            type: "array"
+            items:
+              type: "string"
+              format: "uri"
+          method:
+            type: "string"
+          receivedAt:
+            type: "string"
+          sentAt:
+            type: "string"
+          status:
+            type: "string"
+          text:
+            type: "string"
+          title:
+            type: "string"
+          type:
+            type: "string"
+        required: ["correspondenceId", "date", "imageURLs", "method", "status", "text", "title", "type"]
+  
+  LetterUpdateRequestModel:
+      Type: AWS::ApiGateway::Model
+      Properties:
+        RestApiId: !ImportValue OneHundredLettersApi
+        ContentType: "application/json"
+        Name: "LetterUpdateModel"
+        Schema:
+          $schema: "http://json-schema.org/draft-04/schema#"
+          type: "object"
+          properties:
+            correspondenceId:
+              type: "string"
+            date:
+              type: "string"
+            description:
+              type: "string"
+            imageURLs:
+              type: "array"
+              items:
+                type: "string"
+                format: "uri"
+            letterId:
+              type: "string"
+            method:
+              type: "string"
+            receivedAt:
+              type: "string"
+            sentAt:
+              type: "string"
+            status:
+              type: "string"
+            text:
+              type: "string"
+            title:
+              type: "string"
+            type:
+              type: "string"
+          required: ["correspondenceId", "date", "imageURLs", "letterId", "method", "status", "text", "title", "type"]
+
+Outputs:
+  LetterCreateRequestModelOutput:
+    Value: !Ref LetterCreateRequestModel
+    Export:
+      Name: LetterCreateRequestModel
+  LetterUpdateRequestModelOutput:
+    Value: !Ref LetterUpdateRequestModel
+    Export:
+      Name: LetterUpdateRequestModel
