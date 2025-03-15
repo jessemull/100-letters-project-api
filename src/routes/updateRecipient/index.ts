@@ -8,6 +8,8 @@ import { UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { UpdateParams } from '../../types';
 import { dynamoClient, logger } from '../../common/util';
 
+// Request body validation is handled by the API gateway model.
+
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
     const recipientId = event.pathParameters?.id;
@@ -22,13 +24,14 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     const body = JSON.parse(event.body);
 
-    const { address, description, firstName, lastName, occupation } = body;
-
-    if (!firstName || !lastName || !address) {
-      return new BadRequestError(
-        'First name, last name, and address are required.',
-      ).build();
-    }
+    const {
+      address,
+      description,
+      firstName,
+      lastName,
+      occupation,
+      organization,
+    } = body;
 
     const updateParams: UpdateParams = {
       TableName: 'OneHundredLettersRecipientTable',
@@ -60,6 +63,12 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       updateParams.UpdateExpression += ', #occupation = :occupation';
       updateParams.ExpressionAttributeNames['#occupation'] = 'occupation';
       updateParams.ExpressionAttributeValues[':occupation'] = occupation;
+    }
+
+    if (organization) {
+      updateParams.UpdateExpression += ', #organization = :organization';
+      updateParams.ExpressionAttributeNames['#organization'] = 'organization';
+      updateParams.ExpressionAttributeValues[':organization'] = occupation;
     }
 
     const command = new UpdateCommand(updateParams);

@@ -53,7 +53,7 @@ export type LetterUpdateInput = {
   date: string;
   description?: string;
   imageURLs: string[];
-  letterId?: string;
+  letterId: string;
   method: LetterMethod;
   receivedAt?: string;
   sentAt?: string;

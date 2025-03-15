@@ -41,24 +41,6 @@ describe('Update Recipient Handler', () => {
     expect(JSON.parse(response.body).message).toBe('Request body is required.');
   });
 
-  it('should return 400 if recipientId, firstName, lastName, or address is missing from body', async () => {
-    const event = {
-      pathParameters: { id: '123' },
-      body: JSON.stringify({}),
-    } as unknown as APIGatewayProxyEvent;
-
-    const response = (await handler(
-      event,
-      mockContext,
-      mockCallback,
-    )) as APIGatewayProxyResult;
-
-    expect(response.statusCode).toBe(400);
-    expect(JSON.parse(response.body).message).toBe(
-      'First name, last name, and address are required.',
-    );
-  });
-
   it('should return 400 if recipientId is missing from the path parameters', async () => {
     const event = {
       pathParameters: {},
@@ -77,27 +59,6 @@ describe('Update Recipient Handler', () => {
 
     expect(response.statusCode).toBe(400);
     expect(JSON.parse(response.body).message).toBe('Recipient ID is required.');
-  });
-
-  it('should return 400 if description or occupation is provided but not addressed', async () => {
-    const event = {
-      pathParameters: { id: '123' },
-      body: JSON.stringify({
-        firstName: 'John',
-        lastName: 'Doe',
-      }),
-    } as unknown as APIGatewayProxyEvent;
-
-    const response = (await handler(
-      event,
-      mockContext,
-      mockCallback,
-    )) as APIGatewayProxyResult;
-
-    expect(response.statusCode).toBe(400);
-    expect(JSON.parse(response.body).message).toBe(
-      'First name, last name, and address are required.',
-    );
   });
 
   it('should return 500 if there is an error during the update operation', async () => {
@@ -179,7 +140,7 @@ describe('Update Recipient Handler', () => {
     expect(JSON.parse(response.body).message).toBe('Recipient not found.');
   });
 
-  it('should correctly handle optional fields (description, occupation)', async () => {
+  it('should correctly handle optional properties', async () => {
     const event = {
       pathParameters: { id: '123' },
       body: JSON.stringify({
@@ -188,6 +149,7 @@ describe('Update Recipient Handler', () => {
         address: '123 Main St',
         description: 'Test description',
         occupation: 'Engineer',
+        organization: 'Toyota',
       }),
     } as unknown as APIGatewayProxyEvent;
 
@@ -199,6 +161,7 @@ describe('Update Recipient Handler', () => {
         address: '123 Main St',
         description: 'Test description',
         occupation: 'Engineer',
+        organization: 'Toyota',
       },
     };
 

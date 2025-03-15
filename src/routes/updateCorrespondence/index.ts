@@ -3,14 +3,11 @@ import { BadRequestError, DatabaseError } from '../../common/errors';
 import { LetterUpdateInput, TransactionItem } from '../../types';
 import { TransactWriteCommand, GetCommand } from '@aws-sdk/lib-dynamodb';
 import { dynamoClient, logger } from '../../common/util';
-import { v4 as uuidv4 } from 'uuid';
+
+// Request body validation is handled by the API gateway model.
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
-    if (!event.body) {
-      return new BadRequestError('Request body is required.').build();
-    }
-
     const correspondenceId = event.pathParameters?.id;
 
     if (!correspondenceId) {
@@ -19,21 +16,13 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       ).build();
     }
 
+    if (!event.body) {
+      return new BadRequestError('Request body is required.').build();
+    }
+
     const { recipient, correspondence, letters } = JSON.parse(event.body);
 
-    if (!recipient || !correspondence || !letters) {
-      return new BadRequestError(
-        'Recipient, correspondence, and letters are required.',
-      ).build();
-    }
-
-    const { reason } = correspondence;
-
-    if (!reason || !reason.description || !reason.domain || !reason.impact) {
-      return new BadRequestError(
-        'Reason must include description, domain, and valid impact.',
-      ).build();
-    }
+    const { reason, status, title } = correspondence;
 
     const transactItems: TransactionItem[] = [];
     const letterIds: string[] = [];
@@ -69,6 +58,13 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       recipientExpressionAttributeNames['#occupation'] = 'occupation';
     }
 
+    if (recipient.organization) {
+      recipientUpdateExpressionParts.push('#organization = :organization');
+      recipientExpressionAttributeValues[':organization'] =
+        recipient.organization;
+      recipientExpressionAttributeNames['#organization'] = 'organization';
+    }
+
     transactItems.push({
       Update: {
         TableName: 'OneHundredLettersRecipientTable',
@@ -83,12 +79,15 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       Update: {
         TableName: 'OneHundredLettersCorrespondenceTable',
         Key: { correspondenceId },
-        UpdateExpression: 'SET #reason = :reason',
+        UpdateExpression:
+          'SET #reason = :reason, #status = :status, #title = :title',
         ExpressionAttributeNames: {
           '#reason': 'reason',
         },
         ExpressionAttributeValues: {
           ':reason': reason,
+          ':status': status,
+          ':title': title,
         },
       },
     });
@@ -98,7 +97,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
       const letterUpdateExpressionParts: string[] = [
         '#date = :date',
-        '#imageURL = :imageURL',
+        '#imageURLs = :imageURLs',
         '#method = :method',
         '#status = :status',
         '#text = :text',
@@ -108,7 +107,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
       const letterExpressionAttributeValues: { [key: string]: unknown } = {
         ':date': letterData.date,
-        ':imageURL': letterData.imageURL,
+        ':imageURLs': letterData.imageURLs,
         ':method': letterData.method,
         ':status': letterData.status,
         ':text': letterData.text,
@@ -118,7 +117,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
       const letterExpressionAttributeNames: { [key: string]: string } = {
         '#date': 'date',
-        '#imageURL': 'imageURL',
+        '#imageURLs': 'imageURLs',
         '#method': 'method',
         '#status': 'status',
         '#text': 'text',
@@ -133,32 +132,17 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         letterExpressionAttributeNames['#description'] = 'description';
       }
 
-      if (letterId) {
-        transactItems.push({
-          Update: {
-            TableName: 'OneHundredLettersLetterTable',
-            Key: { correspondenceId, letterId },
-            UpdateExpression: `SET ${letterUpdateExpressionParts.join(', ')}`,
-            ExpressionAttributeNames: letterExpressionAttributeNames,
-            ExpressionAttributeValues: letterExpressionAttributeValues,
-          },
-        });
-        letterIds.push(letterId);
-      } else {
-        const newLetterId = uuidv4();
-        transactItems.push({
-          Put: {
-            TableName: 'OneHundredLettersLetterTable',
-            Item: {
-              correspondenceId,
-              letterId: newLetterId,
-              ...letterData,
-            },
-            ConditionExpression: 'attribute_not_exists(letterId)',
-          },
-        });
-        letterIds.push(newLetterId);
-      }
+      transactItems.push({
+        Update: {
+          TableName: 'OneHundredLettersLetterTable',
+          Key: { correspondenceId, letterId },
+          UpdateExpression: `SET ${letterUpdateExpressionParts.join(', ')}`,
+          ExpressionAttributeNames: letterExpressionAttributeNames,
+          ExpressionAttributeValues: letterExpressionAttributeValues,
+        },
+      });
+
+      letterIds.push(letterId);
     });
 
     const command = new TransactWriteCommand({ TransactItems: transactItems });

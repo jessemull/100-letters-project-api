@@ -69,46 +69,6 @@ describe('Update Correspondence Handler', () => {
     );
   });
 
-  it('should return 400 if recipient, correspondence, or letters are missing', async () => {
-    const event = {
-      body: JSON.stringify({ recipient: {}, correspondence: {} }),
-      pathParameters: { id: 'mock-id' },
-    } as unknown as APIGatewayProxyEvent;
-
-    const response = (await handler(
-      event,
-      mockContext,
-      mockCallback,
-    )) as APIGatewayProxyResult;
-
-    expect(response.statusCode).toBe(400);
-    expect(JSON.parse(response.body).message).toBe(
-      'Recipient, correspondence, and letters are required.',
-    );
-  });
-
-  it('should return 400 if reason is missing or invalid', async () => {
-    const event = {
-      body: JSON.stringify({
-        recipient: { name: 'John Doe' },
-        correspondence: { title: 'Test Correspondence' },
-        letters: [{ letterId: 'letter123', content: 'Hello' }],
-      }),
-      pathParameters: { id: 'mock-id' },
-    } as unknown as APIGatewayProxyEvent;
-
-    const response = (await handler(
-      event,
-      mockContext,
-      mockCallback,
-    )) as APIGatewayProxyResult;
-
-    expect(response.statusCode).toBe(400);
-    expect(JSON.parse(response.body).message).toBe(
-      'Reason must include description, domain, and valid impact.',
-    );
-  });
-
   it('should return 500 if there is an error during DynamoDB transaction', async () => {
     const event = {
       body: JSON.stringify({
@@ -222,7 +182,7 @@ describe('Update Correspondence Handler', () => {
     expect(JSON.parse(response.body).message).toBe('Internal Server Error');
   });
 
-  it('should include description in recipient update if provided', async () => {
+  it('should include optional properties in recipient update if provided', async () => {
     const event = {
       body: JSON.stringify({
         recipient: {
@@ -231,6 +191,7 @@ describe('Update Correspondence Handler', () => {
           lastName: 'Doe',
           description: 'A passionate developer',
           occupation: 'Software Engineer',
+          organization: 'USDA',
         },
         correspondence: {
           reason: {
@@ -271,6 +232,11 @@ describe('Update Correspondence Handler', () => {
     expect(
       JSON.stringify((dynamoClient.send as jest.Mock).mock.calls).includes(
         '#occupation = :occupation',
+      ),
+    ).toBeTruthy();
+    expect(
+      JSON.stringify((dynamoClient.send as jest.Mock).mock.calls).includes(
+        '#organization = :organization',
       ),
     ).toBeTruthy();
     expect(response.statusCode).toBe(200);
@@ -354,55 +320,5 @@ describe('Update Correspondence Handler', () => {
     expect(JSON.parse(response.body).message).toBe(
       'Correspondence ID is required in the path parameters.',
     );
-  });
-
-  it('should create a new letter if letter ID is not included', async () => {
-    const event = {
-      body: JSON.stringify({
-        recipient: {
-          recipientId: 'mock-recipient-id',
-          firstName: 'John',
-          lastName: 'Doe',
-        },
-        correspondence: {
-          reason: {
-            description: 'Test',
-            domain: 'Test Domain',
-            impact: 'HIGH',
-          },
-        },
-        letters: [{ text: 'Updated letter content' }],
-      }),
-      pathParameters: { id: 'mock-id' },
-    } as unknown as APIGatewayProxyEvent;
-
-    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({});
-    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Item: { correspondenceId: 'mock-id' },
-    });
-    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Item: { recipientId: 'mock-recipient-id' },
-    });
-    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Item: { letterId: 'mock-letter-id' },
-    });
-
-    const expectedResponse = {
-      correspondence: { correspondenceId: 'mock-id' },
-      recipient: { recipientId: 'mock-recipient-id' },
-      letters: [{ letterId: 'mock-letter-id' }],
-    };
-
-    const response = (await handler(
-      event,
-      mockContext,
-      mockCallback,
-    )) as APIGatewayProxyResult;
-
-    expect(response.statusCode).toBe(200);
-    expect(JSON.parse(response.body).message).toBe(
-      'Correspondence updated successfully.',
-    );
-    expect(JSON.parse(response.body).data).toEqual(expectedResponse);
   });
 });
