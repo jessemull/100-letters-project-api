@@ -176,7 +176,7 @@ describe('Update Letter Handler', () => {
       }),
     } as unknown as APIGatewayProxyEvent;
 
-    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({ Items: [] }); // Correspondence not found
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({ Items: [] });
 
     const response = (await handler(
       event,
@@ -280,8 +280,8 @@ describe('Update Letter Handler', () => {
 
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce(
       mockCorrespondenceResult,
-    ); // Correspondence found
-    (dynamoClient.send as jest.Mock).mockResolvedValueOnce(mockLetterResult); // Letter updated
+    );
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce(mockLetterResult);
 
     const response = (await handler(
       event,

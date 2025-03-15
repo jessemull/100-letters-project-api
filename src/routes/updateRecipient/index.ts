@@ -39,7 +39,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         recipientId,
       },
       UpdateExpression:
-        'set #address = :address, #firstName = :firstName, #lastName = :lastName',
+        'SET #address = :address, #firstName = :firstName, #lastName = :lastName',
       ExpressionAttributeNames: {
         '#address': 'address',
         '#firstName': 'firstName',
@@ -53,16 +53,29 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       ReturnValues: 'ALL_NEW',
     };
 
-    if (description) {
-      updateParams.UpdateExpression += ', #description = :description';
+    let removeExpressions: string[] = [];
+
+    if (description === undefined) {
+      removeExpressions.push('#description');
       updateParams.ExpressionAttributeNames['#description'] = 'description';
+    } else {
+      updateParams.UpdateExpression += ', #description = :description';
       updateParams.ExpressionAttributeValues[':description'] = description;
+      updateParams.ExpressionAttributeNames['#description'] = 'description';
     }
 
-    if (occupation) {
-      updateParams.UpdateExpression += ', #occupation = :occupation';
+    if (occupation === undefined) {
+      removeExpressions.push('#occupation');
       updateParams.ExpressionAttributeNames['#occupation'] = 'occupation';
+    } else {
+      updateParams.UpdateExpression += ', #occupation = :occupation';
       updateParams.ExpressionAttributeValues[':occupation'] = occupation;
+      updateParams.ExpressionAttributeNames['#occupation'] = 'occupation';
+    }
+
+    if (removeExpressions.length > 0) {
+      updateParams.UpdateExpression +=
+        ' REMOVE ' + removeExpressions.join(', ');
     }
 
     if (organization) {
