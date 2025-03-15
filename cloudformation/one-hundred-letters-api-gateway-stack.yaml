@@ -240,6 +240,9 @@ Resources:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
         Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getCorrespondences/invocations"
+      RequestParameters:
+        "method.request.querystring.limit": false
+        "method.request.querystring.lastEvaluatedKey": false
 
   ApiGatewayCorrespondenceCreateMethod:
     Type: AWS::ApiGateway::Method
@@ -403,6 +406,9 @@ Resources:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
         Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRecipients/invocations"
+      RequestParameters:
+        "method.request.querystring.limit": false
+        "method.request.querystring.lastEvaluatedKey": false
 
   ApiGatewayRecipientById:
     Type: AWS::ApiGateway::Resource
@@ -570,6 +576,9 @@ Resources:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
         Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getLetters/invocations"
+      RequestParameters:
+        "method.request.querystring.limit": false
+        "method.request.querystring.lastEvaluatedKey": false
 
   ApiGatewayLetterById:
     Type: AWS::ApiGateway::Resource

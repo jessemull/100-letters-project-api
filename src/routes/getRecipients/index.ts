@@ -3,10 +3,19 @@ import { DatabaseError } from '../../common/errors';
 import { ScanCommand } from '@aws-sdk/lib-dynamodb';
 import { dynamoClient, logger } from '../../common/util';
 
-export const handler: APIGatewayProxyHandler = async () => {
+export const handler: APIGatewayProxyHandler = async (event) => {
+  const queryParameters = event.queryStringParameters || {};
+  const limit = parseInt(queryParameters.limit || '50', 10);
+
+  const lastEvaluatedKey = queryParameters.lastEvaluatedKey
+    ? JSON.parse(decodeURIComponent(queryParameters.lastEvaluatedKey))
+    : undefined;
+
   try {
     const params = {
       TableName: 'OneHundredLettersRecipientTable',
+      Limit: limit,
+      ExclusiveStartKey: lastEvaluatedKey,
     };
 
     const command = new ScanCommand(params);
@@ -22,6 +31,9 @@ export const handler: APIGatewayProxyHandler = async () => {
       statusCode: 200,
       body: JSON.stringify({
         data: sortedItems,
+        lastEvaluatedKey: result.LastEvaluatedKey
+          ? encodeURIComponent(JSON.stringify(result.LastEvaluatedKey))
+          : null,
       }),
     };
   } catch (error) {

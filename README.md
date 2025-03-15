@@ -41,7 +41,7 @@ The **100 Letters Project API** provides the backend services for the **100 Lett
 
 ## API Documentation
 
-The API endpoints for this project are documented in the OpenAPI v3 format. For detailed information on all available endpoints, request/response formats, and data structures, please refer to the [OpenAPI YAML file](./api.yaml).
+The API endpoints for this project are documented in the OpenAPI v3 format. For detailed information on all available endpoints, request/response formats, and data structures, please refer to the [OpenAPI YAML file](./API.yaml).
 
 Alternatively, you can view the interactive API documentation using tools like [Swagger UI](https://swagger.io/tools/swagger-ui/) or [ReDoc](https://github.com/Redocly/redoc), by hosting the YAML file locally or on a web server.
 

@@ -4,10 +4,19 @@ import { dynamoClient, logger } from '../../common/util';
 import { DatabaseError } from '../../common/errors';
 import { Letter } from '../../types';
 
-export const handler: APIGatewayProxyHandler = async () => {
+export const handler: APIGatewayProxyHandler = async (event) => {
+  const queryParameters = event.queryStringParameters || {};
+  const limit = parseInt(queryParameters.limit || '50', 10);
+
+  const lastEvaluatedKey = queryParameters.lastEvaluatedKey
+    ? JSON.parse(decodeURIComponent(queryParameters.lastEvaluatedKey))
+    : undefined;
+
   try {
     const correspondenceParams = {
       TableName: 'OneHundredLettersCorrespondenceTable',
+      Limit: limit,
+      ExclusiveStartKey: lastEvaluatedKey,
     };
 
     const correspondenceCommand = new ScanCommand(correspondenceParams);
@@ -53,6 +62,7 @@ export const handler: APIGatewayProxyHandler = async () => {
             error,
           );
         }
+
         return {
           ...correspondence,
           recipient,
@@ -63,7 +73,14 @@ export const handler: APIGatewayProxyHandler = async () => {
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ data: results }),
+      body: JSON.stringify({
+        data: results,
+        lastEvaluatedKey: correspondenceResult.LastEvaluatedKey
+          ? encodeURIComponent(
+              JSON.stringify(correspondenceResult.LastEvaluatedKey),
+            )
+          : null,
+      }),
     };
   } catch (error) {
     logger.error('Error fetching correspondences:', error);
