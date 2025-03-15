@@ -121,6 +121,9 @@ describe('Update Correspondence Handler', () => {
       pathParameters: { id: 'mock-id' },
     } as unknown as APIGatewayProxyEvent;
 
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Items: [{ letterId: 'mock-letter-id' }, { letterId: 'not-found-id' }],
+    });
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({});
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
       Item: { correspondenceId: 'mock-id' },
@@ -129,7 +132,7 @@ describe('Update Correspondence Handler', () => {
       Item: { recipientId: 'mock-recipient-id' },
     });
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Item: { letterId: 'mock-letter-id' },
+      Items: [{ letterId: 'mock-letter-id' }],
     });
 
     const expectedResponse = {
@@ -207,6 +210,9 @@ describe('Update Correspondence Handler', () => {
       pathParameters: { id: 'mock-id' },
     } as unknown as APIGatewayProxyEvent;
 
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Items: [{ letterId: 'mock-letter-id' }],
+    });
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({});
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
       Item: { correspondenceId: 'mock-id' },
@@ -215,7 +221,7 @@ describe('Update Correspondence Handler', () => {
       Item: { recipientId: 'mock-recipient-id' },
     });
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Item: { letterId: 'mock-letter-id' },
+      Items: [{ letterId: 'mock-letter-id' }],
     });
 
     const response = (await handler(
@@ -273,6 +279,9 @@ describe('Update Correspondence Handler', () => {
       pathParameters: { id: 'mock-id' },
     } as unknown as APIGatewayProxyEvent;
 
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Items: [{ letterId: 'mock-letter-id' }],
+    });
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({});
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
       Item: { correspondenceId: 'mock-id' },
@@ -281,7 +290,7 @@ describe('Update Correspondence Handler', () => {
       Item: { recipientId: 'mock-recipient-id' },
     });
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Item: { letterId: 'mock-letter-id' },
+      Items: [{ letterId: 'mock-letter-id' }],
     });
 
     const response = (await handler(
