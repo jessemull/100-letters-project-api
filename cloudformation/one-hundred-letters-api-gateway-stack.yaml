@@ -96,6 +96,10 @@ Resources:
                 method:
                   type: "string"
                   enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
+                receivedAt:
+                  type: "string"
+                sentAt:
+                  type: "string"
                 status:
                   type: "string"
                   enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
@@ -180,6 +184,10 @@ Resources:
                 method:
                   type: "string"
                   enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
+                receivedAt:
+                  type: "string"
+                sentAt:
+                  type: "string"
                 status:
                   type: "string"
                   enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
@@ -448,6 +456,10 @@ Resources:
               format: "uri"
           method:
             type: "string"
+          receivedAt:
+            type: "string"
+          sentAt:
+            type: "string"
           status:
             type: "string"
           text:
@@ -482,6 +494,10 @@ Resources:
           letterId:
             type: "string"
           method:
+            type: "string"
+          receivedAt:
+            type: "string"
+          sentAt:
             type: "string"
           status:
             type: "string"

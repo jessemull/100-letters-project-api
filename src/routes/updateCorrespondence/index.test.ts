@@ -245,7 +245,7 @@ describe('Update Correspondence Handler', () => {
     );
   });
 
-  it('should include description in update expression if description is provided in letter data', async () => {
+  it('should include optional properties in update expression if provided in letter data', async () => {
     const event = {
       body: JSON.stringify({
         recipient: {
@@ -262,9 +262,11 @@ describe('Update Correspondence Handler', () => {
         },
         letters: [
           {
-            letterId: 'mock-letter-id',
-            text: 'Updated letter content',
             description: 'Sample description for letter',
+            letterId: 'mock-letter-id',
+            receivedAt: '2015-10-22',
+            sentAt: '2015-10-22',
+            text: 'Updated letter content',
           },
         ],
       }),
@@ -290,6 +292,16 @@ describe('Update Correspondence Handler', () => {
     expect(
       JSON.stringify((dynamoClient.send as jest.Mock).mock.calls).includes(
         '#description = :description',
+      ),
+    ).toBeTruthy();
+    expect(
+      JSON.stringify((dynamoClient.send as jest.Mock).mock.calls).includes(
+        '#receivedAt = :receivedAt',
+      ),
+    ).toBeTruthy();
+    expect(
+      JSON.stringify((dynamoClient.send as jest.Mock).mock.calls).includes(
+        '#sentAt = :sentAt',
       ),
     ).toBeTruthy();
     expect(response.statusCode).toBe(200);

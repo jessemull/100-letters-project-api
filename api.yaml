@@ -731,6 +731,10 @@ components:
           $ref: "#/components/schemas/UUID"
         method:
           $ref: "#/components/schemas/Method"
+        receivedAt:
+          $ref: "#/components/schemas/DateTime"
+        sentAt:
+          $ref: "#/components/schemas/DateTime"
         status:
           $ref: "#/components/schemas/LetterStatus"
         text:
@@ -763,6 +767,10 @@ components:
           $ref: "#/components/schemas/ImageURLs"
         method:
           $ref: "#/components/schemas/Method"
+        receivedAt:
+          $ref: "#/components/schemas/DateTime"
+        sentAt:
+          $ref: "#/components/schemas/DateTime"
         status:
           $ref: "#/components/schemas/LetterStatus"
         text:
@@ -796,6 +804,10 @@ components:
           $ref: "#/components/schemas/UUID"
         method:
           $ref: "#/components/schemas/Method"
+        receivedAt:
+          $ref: "#/components/schemas/DateTime"
+        sentAt:
+          $ref: "#/components/schemas/DateTime"
         status:
           $ref: "#/components/schemas/LetterStatus"
         text:
@@ -921,6 +933,10 @@ components:
           $ref: "#/components/schemas/ImageURLs"
         method:
           $ref: "#/components/schemas/Method"
+        receivedAt:
+          $ref: "#/components/schemas/DateTime"
+        sentAt:
+          $ref: "#/components/schemas/DateTime"
         status:
           $ref: "#/components/schemas/LetterStatus"
         text:
@@ -950,6 +966,10 @@ components:
           $ref: "#/components/schemas/UUID"
         method:
           $ref: "#/components/schemas/Method"
+        receivedAt:
+          $ref: "#/components/schemas/DateTime"
+        sentAt:
+          $ref: "#/components/schemas/DateTime"
         status:
           $ref: "#/components/schemas/LetterStatus"
         text:

@@ -132,6 +132,18 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         letterExpressionAttributeNames['#description'] = 'description';
       }
 
+      if (letterData.receivedAt) {
+        letterUpdateExpressionParts.push('#receivedAt = :receivedAt');
+        letterExpressionAttributeValues[':receivedAt'] = letterData.receivedAt;
+        letterExpressionAttributeNames['#receivedAt'] = 'receivedAt';
+      }
+
+      if (letterData.sentAt) {
+        letterUpdateExpressionParts.push('#sentAt = :sentAt');
+        letterExpressionAttributeValues[':sentAt'] = letterData.sentAt;
+        letterExpressionAttributeNames['#sentAt'] = 'sentAt';
+      }
+
       transactItems.push({
         Update: {
           TableName: 'OneHundredLettersLetterTable',

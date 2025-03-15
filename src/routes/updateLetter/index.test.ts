@@ -224,8 +224,8 @@ describe('Update Letter Handler', () => {
 
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce(
       mockCorrespondenceResult,
-    ); // Correspondence found
-    (dynamoClient.send as jest.Mock).mockResolvedValueOnce(mockLetterResult); // Letter updated
+    );
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce(mockLetterResult);
 
     const response = (await handler(
       event,
@@ -240,19 +240,21 @@ describe('Update Letter Handler', () => {
     expect(JSON.parse(response.body).data).toEqual(mockLetterResult.Attributes);
   });
 
-  it('should correctly handle optional fields like description', async () => {
+  it('should correctly handle optional properties if provided', async () => {
     const event = {
       pathParameters: { id: '123' },
       body: JSON.stringify({
         correspondenceId: 'abc',
         date: '2025-03-12',
+        description: 'Sample description',
         imageURLs: ['http://example.com/image.jpg'],
         method: 'email',
+        receivedAt: '2025-03-12',
+        sentAt: '2025-03-12',
         status: 'sent',
         text: 'Sample text',
         title: 'Sample title',
         type: 'update',
-        description: 'Sample description',
       }),
     } as unknown as APIGatewayProxyEvent;
 
@@ -261,16 +263,18 @@ describe('Update Letter Handler', () => {
     };
     const mockLetterResult = {
       Attributes: {
-        letterId: '123',
         correspondenceId: 'abc',
         date: '2025-03-12',
+        description: 'Sample description',
         imageURLs: ['http://example.com/image.jpg'],
+        letterId: '123',
         method: 'email',
+        receivedAt: '2025-03-12',
+        sentAt: '2025-03-12',
         status: 'sent',
         text: 'Sample text',
         title: 'Sample title',
         type: 'update',
-        description: 'Sample description',
       },
     };
 

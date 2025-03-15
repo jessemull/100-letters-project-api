@@ -151,7 +151,7 @@ describe('Create Letter Handler', () => {
     );
   });
 
-  it('should successfully create a letter with description if provided', async () => {
+  it('should successfully create a letter with optional properties if provided', async () => {
     (uuidv4 as jest.Mock).mockReturnValueOnce('mock-letter-uuid');
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
       Items: [{ correspondenceId: 'mock-correspondence-id' }],
@@ -160,13 +160,15 @@ describe('Create Letter Handler', () => {
     const body = {
       correspondenceId: 'mock-correspondence-id',
       date: '2025-03-10',
+      description: 'This is a description of the letter.',
       imageURLs: ['http://image.url'],
       method: 'email',
+      receivedAt: '2025-03-10',
+      sentAt: '2025-03-10',
       status: 'sent',
       text: 'Hello, this is a letter.',
       title: 'Letter to John',
       type: 'sent',
-      description: 'This is a description of the letter.',
     };
 
     const context: Context = {} as Context;
@@ -195,14 +197,16 @@ describe('Create Letter Handler', () => {
     expect(responseBody.data).toEqual({
       correspondenceId: 'mock-correspondence-id',
       date: '2025-03-10',
+      description: 'This is a description of the letter.',
       imageURLs: ['http://image.url'],
       letterId: 'mock-letter-uuid',
       method: 'email',
+      receivedAt: '2025-03-10',
+      sentAt: '2025-03-10',
       status: 'sent',
       text: 'Hello, this is a letter.',
       title: 'Letter to John',
       type: 'sent',
-      description: 'This is a description of the letter.',
     });
   });
 

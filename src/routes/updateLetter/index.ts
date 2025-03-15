@@ -30,6 +30,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       description,
       imageURLs,
       method,
+      receivedAt,
+      sentAt,
       status,
       text,
       title,
@@ -88,6 +90,18 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       updateParams.UpdateExpression += ', #description = :description';
       updateParams.ExpressionAttributeNames!['#description'] = 'description';
       updateParams.ExpressionAttributeValues[':description'] = description;
+    }
+
+    if (receivedAt) {
+      updateParams.UpdateExpression += ', #receivedAt = :receivedAt';
+      updateParams.ExpressionAttributeNames!['#receivedAt'] = 'receivedAt';
+      updateParams.ExpressionAttributeValues[':receivedAt'] = receivedAt;
+    }
+
+    if (sentAt) {
+      updateParams.UpdateExpression += ', #sentAt = :sentAt';
+      updateParams.ExpressionAttributeNames!['#sentAt'] = 'sentAt';
+      updateParams.ExpressionAttributeValues[':sentAt'] = sentAt;
     }
 
     const command = new UpdateCommand(updateParams);
