@@ -43,6 +43,7 @@ export type CorrespondenceUpdateInput = {
   correspondence: {
     correspondenceId: string;
     reason: Reason;
+    status: Status;
     title: string;
   };
   recipient: RecipientUpdateInput;

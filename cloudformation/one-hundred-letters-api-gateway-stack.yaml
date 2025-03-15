@@ -56,7 +56,12 @@ Resources:
                     type: "string"
                     enum: ["HIGH", "MEDIUM", "LOW"]
                 required: ["description", "domain", "impact"]
-            required: ["reason"]
+              status:
+                type: "string"
+                enum: ["COMPLETED", "PENDING", "RESPONDED", "UNSENT"]
+              title:
+                type: "string"
+            required: ["reason", "status", "title"]
           recipient:
             type: "object"
             properties:
@@ -70,6 +75,8 @@ Resources:
                 type: "string"
               occupation:
                 type: "string"
+              organization:
+                type: "string"
             required: ["address", "firstName", "lastName"]
           letters:
             type: "array"
@@ -81,9 +88,11 @@ Resources:
                   format: "date-time"
                 description:
                   type: "string"
-                imageURL:
-                  type: "string"
-                  format: "uri"
+                imageURLs:
+                  type: "array"
+                  items:
+                    type: "string"
+                    format: "uri"
                 method:
                   type: "string"
                   enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
@@ -97,7 +106,7 @@ Resources:
                 type:
                   type: "string"
                   enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
-              required: ["date", "imageURL", "method", "status", "text", "title", "type"]
+              required: ["date", "imageURLs", "method", "status", "text", "title", "type"]
         required: ["correspondence", "recipient", "letters"]
 
   ApiGatewayCorrespondenceUpdateInputModel:
@@ -126,6 +135,12 @@ Resources:
                     type: "string"
                     enum: ["HIGH", "MEDIUM", "LOW"]
                 required: ["description", "domain", "impact"]
+              status:
+                type: "string"
+                enum: ["COMPLETED", "PENDING", "RESPONDED", "UNSENT"]
+              title:
+                type: "string"
+              required: ["reason", "status", "title"]
             required: ["correspondenceId", "reason"]
           recipient:
             type: "object"
@@ -142,6 +157,8 @@ Resources:
                 type: "string"
               occupation:
                 type: "string"
+              organization:
+                type: "string"
             required: ["recipientId", "address", "firstName", "lastName"]
           letters:
             type: "array"
@@ -155,9 +172,11 @@ Resources:
                   format: "date-time"
                 description:
                   type: "string"
-                imageURL:
-                  type: "string"
-                  format: "uri"
+                imageURLs:
+                  type: "array"
+                  items:
+                    type: "string"
+                    format: "uri"
                 method:
                   type: "string"
                   enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
@@ -171,7 +190,7 @@ Resources:
                 type:
                   type: "string"
                   enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
-              required: ["date", "imageURL", "method", "status", "text", "title", "type"]
+              required: ["date", "imageURLs", "method", "status", "text", "title", "type"]
         required: ["correspondence", "recipient", "letters"]
 
   ApiGatewayCorrespondence:
@@ -285,6 +304,8 @@ Resources:
             type: "string"
           occupation:
             type: "string"
+          organization:
+            type: "string"
         required: ["address", "firstName", "lastName"]
 
   ApiGatewayRecipientUpdateInputModel:
@@ -308,6 +329,8 @@ Resources:
           description:
             type: "string"
           occupation:
+            type: "string"
+          organization:
             type: "string"
         required: ["recipientId", "address", "firstName", "lastName"]
 
@@ -418,8 +441,11 @@ Resources:
             type: "string"
           description:
             type: "string"
-          imageURL:
-            type: "string"
+          imageURLs:
+            type: "array"
+            items:
+              type: "string"
+              format: "uri"
           method:
             type: "string"
           status:
@@ -430,7 +456,7 @@ Resources:
             type: "string"
           type:
             type: "string"
-        required: ["correspondenceId", "date", "imageURL", "method", "status", "text", "title", "type"]
+        required: ["correspondenceId", "date", "imageURLs", "method", "status", "text", "title", "type"]
 
   ApiGatewayLetterUpdateInputModel:
     Type: AWS::ApiGateway::Model
@@ -448,8 +474,11 @@ Resources:
             type: "string"
           description:
             type: "string"
-          imageURL:
-            type: "string"
+          imageURLs:
+            type: "array"
+            items:
+              type: "string"
+              format: "uri"
           letterId:
             type: "string"
           method:
@@ -462,7 +491,7 @@ Resources:
             type: "string"
           type:
             type: "string"
-        required: ["correspondenceId", "date", "imageURL", "letterId", "method", "status", "text", "title", "type"]
+        required: ["correspondenceId", "date", "imageURLs", "letterId", "method", "status", "text", "title", "type"]
 
   ApiGatewayGetLetters:
     Type: AWS::ApiGateway::Resource
