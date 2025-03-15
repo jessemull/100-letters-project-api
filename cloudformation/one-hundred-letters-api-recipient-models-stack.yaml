@@ -1,0 +1,84 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+  RecipientCreateRequestModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ContentType: "application/json"
+      Name: "RecipientCreateModel"
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          address:
+            type: "object"
+            properties:
+              city: 
+                type: "string"
+              country: 
+                type: "string"
+              postalCode:
+                type: "string"
+              state:
+                type: "string"
+              street:
+                type: "string"
+          firstName:
+            type: "string"
+          lastName:
+            type: "string"
+          description:
+            type: "string"
+          occupation:
+            type: "string"
+          organization:
+            type: "string"
+        required: ["address", "firstName", "lastName"]
+  
+  RecipientUpdateRequestModel:
+      Type: AWS::ApiGateway::Model
+      Properties:
+        RestApiId: !ImportValue OneHundredLettersApi
+        ContentType: "application/json"
+        Name: "RecipientUpdateModel"
+        Schema:
+          $schema: "http://json-schema.org/draft-04/schema#"
+          type: "object"
+          properties:
+            recipientId:
+              type: "string"
+            address:
+              type: "object"
+              properties:
+                city: 
+                  type: "string"
+                country: 
+                  type: "string"
+                postalCode:
+                  type: "string"
+                state:
+                  type: "string"
+                street:
+                  type: "string"
+            firstName:
+              type: "string"
+            lastName:
+              type: "string"
+            description:
+              type: "string"
+            occupation:
+              type: "string"
+            organization:
+              type: "string"
+          required: ["recipientId", "address", "firstName", "lastName"]
+
+Outputs:
+  RecipientCreateRequestModelOutput:
+    Value: !Ref RecipientCreateRequestModel
+    Export:
+      Name: RecipientCreateRequestModel
+  RecipientUpdateRequestModelOutput:
+    Value: !Ref RecipientUpdateRequestModel
+    Export:
+      Name: RecipientUpdateRequestModel

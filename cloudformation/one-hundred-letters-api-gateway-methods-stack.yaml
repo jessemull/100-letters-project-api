@@ -1,0 +1,236 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+  ApiGatewayGetCorrespondencesMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ResourceId: !ImportValue CorrespondenceResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getCorrespondences/invocations"
+      RequestParameters:
+        "method.request.querystring.limit": false
+        "method.request.querystring.lastEvaluatedKey": false
+  
+  ApiGatewayCorrespondenceCreateMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ResourceId: !ImportValue CorrespondenceResource
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !ImportValue OneHundredLettersAuthorizer
+      HttpMethod: POST
+      RequestValidatorId: !ImportValue OneHundredLettersValidator
+      RequestModels:
+        "application/json": !ImportValue CorrespondenceCreateRequestModel
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createCorrespondence/invocations"
+  
+  CorrespondenceByIdResourceMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ResourceId: !ImportValue CorrespondenceByIdResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getCorrespondenceById/invocations"
+      RequestParameters:
+        method.request.path.id: true
+  
+  ApiGatewayCorrespondenceUpdateMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ResourceId: !ImportValue CorrespondenceByIdResource
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !ImportValue OneHundredLettersAuthorizer
+      HttpMethod: PUT
+      RequestValidatorId: !ImportValue OneHundredLettersValidator
+      RequestModels:
+        "application/json": !ImportValue CorrespondenceUpdateRequestModel
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:updateCorrespondence/invocations"
+      RequestParameters:
+        method.request.path.id: true
+  
+  ApiGatewayCorrespondenceDeleteMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ResourceId: !ImportValue CorrespondenceByIdResource
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !ImportValue OneHundredLettersAuthorizer
+      HttpMethod: DELETE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:deleteCorrespondence/invocations"
+      RequestParameters:
+        method.request.path.id: true
+  
+  RecipientsResourceMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ResourceId: !ImportValue RecipientsResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRecipients/invocations"
+      RequestParameters:
+        "method.request.querystring.limit": false
+        "method.request.querystring.lastEvaluatedKey": false
+  
+  RecipientByIdResourceMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ResourceId: !ImportValue RecipientByIdResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRecipientById/invocations"
+      RequestParameters:
+        method.request.path.id: true
+  
+  ApiGatewayCreateRecipientMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ResourceId: !ImportValue RecipientsResource
+      HttpMethod: POST
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !ImportValue OneHundredLettersAuthorizer
+      RequestValidatorId: !ImportValue OneHundredLettersValidator
+      RequestModels:
+        "application/json": !ImportValue RecipientCreateRequestModel
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createRecipient/invocations"
+  
+  ApiGatewayUpdateRecipientMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ResourceId: !ImportValue RecipientByIdResource
+      HttpMethod: PUT
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !ImportValue OneHundredLettersAuthorizer
+      RequestValidatorId: !ImportValue OneHundredLettersValidator
+      RequestModels:
+        "application/json": !ImportValue RecipientUpdateRequestModel
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:updateRecipient/invocations"
+      RequestParameters:
+        method.request.path.id: true
+  
+  ApiGatewayDeleteRecipientMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ResourceId: !ImportValue RecipientByIdResource
+      HttpMethod: DELETE
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !ImportValue OneHundredLettersAuthorizer
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:deleteRecipient/invocations"
+      RequestParameters:
+        method.request.path.id: true
+  
+  LettersResourceMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ResourceId: !ImportValue LettersResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getLetters/invocations"
+      RequestParameters:
+        "method.request.querystring.limit": false
+        "method.request.querystring.lastEvaluatedKey": false
+  
+  LetterByIdResourceMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ResourceId: !ImportValue LetterByIdResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getLetterById/invocations"
+      RequestParameters:
+        method.request.path.id: true
+
+  ApiGatewayCreateLetterMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ResourceId: !ImportValue LettersResource
+      HttpMethod: POST
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !ImportValue OneHundredLettersAuthorizer
+      RequestValidatorId: !ImportValue OneHundredLettersValidator
+      RequestModels:
+        "application/json": !ImportValue LetterCreateRequestModel
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createLetter/invocations"
+
+  ApiGatewayUpdateLetterMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ResourceId: !ImportValue LetterByIdResource
+      HttpMethod: PUT
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !ImportValue OneHundredLettersAuthorizer
+      RequestValidatorId: !ImportValue OneHundredLettersValidator
+      RequestModels:
+        "application/json": !ImportValue LetterUpdateRequestModel
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:updateLetter/invocations"
+      RequestParameters:
+        method.request.path.id: true
+
+  ApiGatewayDeleteLetterMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ResourceId: !ImportValue LetterByIdResource
+      HttpMethod: DELETE
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !ImportValue OneHundredLettersAuthorizer
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:deleteLetter/invocations"
+      RequestParameters:
+        method.request.path.id: true
