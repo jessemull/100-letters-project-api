@@ -671,6 +671,9 @@ components:
     Occupation:
       type: "string"
       example: "Architect"
+    Organization:
+      type: "string"
+      example: "Sera Architects"
     PostalCode:
       type: "string"
       example: "90047"
@@ -831,6 +834,8 @@ components:
           $ref: "#/components/schemas/LastName"
         occupation:
           $ref: "#/components/schemas/Occupation"
+        organization:
+          $ref: "#/components/schemas/Organization"
         recipientId:
           $ref: "#/components/schemas/UUID"
         updatedAt:
@@ -852,6 +857,8 @@ components:
           $ref: "#/components/schemas/RecipientDescription"
         occupation:
           $ref: "#/components/schemas/Occupation"
+        organization:
+          $ref: "#/components/schemas/Organization"
     RecipientUpdateRequest:
       required:
         - "address"
@@ -870,6 +877,8 @@ components:
           $ref: "#/components/schemas/RecipientDescription"
         occupation:
           $ref: "#/components/schemas/Occupation"
+        organization:
+          $ref: "#/components/schemas/Organization"
         recipientId:
           $ref: "#/components/schemas/UUID"
     Correspondence:

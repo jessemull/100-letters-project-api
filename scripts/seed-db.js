@@ -13,12 +13,19 @@ const numLetters = 30;
 
 function generateRecipientData(id) {
   return {
-    address: { S: faker.location.streetAddress() },
+    address: { M: {
+      city: { S: faker.location.city() },
+      country: { S: faker.location.country() },
+      postalCode: { S: faker.location.zipCode() },
+      state: { S: faker.location.state() },
+      street: { S: faker.location.streetAddress() }
+    }},
     createdAt: { S: faker.date.past().toISOString() },
     description: { S: faker.lorem.sentence() },
     firstName: { S: faker.person.firstName() },
     lastName: { S: faker.person.lastName() },
     occupation: { S: faker.person.jobTitle() },
+    organization: { S: faker.company.name() },
     recipientId: { S: `RECIPIENT#${id}` },
     updatedAt: { S: faker.date.recent().toISOString() },
   };
@@ -34,6 +41,8 @@ function generateCorrespondenceData(recipientId, correspondenceId) {
       domain: { S: faker.person.jobArea() },
       impact: { S: faker.helpers.arrayElement(['LOW', 'MEDIUM', 'HIGH']) }
     }},
+    status: { S: faker.helpers.arrayElement(['PENDING', 'RESPONDED', 'UNSENT', 'COMPLETED']) },
+    title: { S: faker.lorem.words() },
     updatedAt: { S: faker.date.recent().toISOString() }
   };
 }
@@ -44,7 +53,7 @@ function generateLetterData(correspondenceId, letterId) {
     createdAt: { S: faker.date.past().toISOString() },
     date: { S: faker.date.past().toISOString() },
     description: { S: faker.lorem.sentence() },
-    imageURL: { S: faker.image.url() },
+    imageURLs: { L: [{ S: faker.image.url() }, { S: faker.image.url() }] },
     letterId: { S: `LETTER#${letterId}` },
     method: { S: faker.helpers.arrayElement(['TYPED', 'HANDWRITTEN', 'PRINTED', 'DIGITAL', 'OTHER']) },
     status: { S: faker.helpers.arrayElement(['PENDING', 'SENT', 'RECEIVED', 'RESPONDED']) },

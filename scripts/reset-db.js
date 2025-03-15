@@ -29,7 +29,7 @@ async function deleteTableItems(tableName) {
     } else if (tableName === 'OneHundredLettersCorrespondenceTable') {
       key = { correspondenceId: data.Items[i].correspondenceId };
     } else if (tableName === 'OneHundredLettersLetterTable') {
-      key = { letterId: data.Items[i].letterId };
+      key = { correspondenceId: data.Items[i].correspondenceId, letterId: data.Items[i].letterId };
     }
 
     const deleteParams = {

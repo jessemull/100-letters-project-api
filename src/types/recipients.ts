@@ -7,7 +7,7 @@ export type Address = {
 };
 
 export type Recipient = {
-  address: string;
+  address: Address;
   description?: string;
   firstName: string;
   lastName: string;
@@ -17,7 +17,7 @@ export type Recipient = {
 };
 
 export type RecipientCreateInput = {
-  address: string;
+  address: Address;
   description?: string;
   firstName: string;
   lastName: string;
