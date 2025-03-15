@@ -185,7 +185,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       } else {
         letterUpdateParams.UpdateExpression += ', #sentAt = :sentAt';
         letterUpdateParams.ExpressionAttributeValues[':sentAt'] =
-          letterData.description;
+          letterData.sentAt;
         letterUpdateParams.ExpressionAttributeNames['#sentAt'] = 'sentAt';
       }
 
