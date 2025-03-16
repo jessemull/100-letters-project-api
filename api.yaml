@@ -753,170 +753,118 @@ components:
       type: "string"
       format: "uuid"
       example: "52b249d0-7b41-4f58-bf49-d72d592f84ff"
+    LetterBase:
+      type: "object"
+      properties:
+        correspondenceId:
+          $ref: "#/components/schemas/UUID"
+        date:
+          $ref: "#/components/schemas/DateTime"
+        description:
+          $ref: "#/components/schemas/LetterDescription"
+        imageURLs:
+          $ref: "#/components/schemas/ImageURLs"
+        method:
+          $ref: "#/components/schemas/Method"
+        receivedAt:
+          $ref: "#/components/schemas/DateTime"
+        sentAt:
+          $ref: "#/components/schemas/DateTime"
+        status:
+          $ref: "#/components/schemas/LetterStatus"
+        text:
+          $ref: "#/components/schemas/Text"
+        title:
+          $ref: "#/components/schemas/LetterTitle"
+        type:
+          $ref: "#/components/schemas/Type"
     LetterResponse:
-      type: "object"
-      properties:
-        correspondenceId:
-          $ref: "#/components/schemas/UUID"
-        createdAt:
-          $ref: "#/components/schemas/DateTime"
-        date:
-          $ref: "#/components/schemas/DateTime"
-        description:
-          $ref: "#/components/schemas/LetterDescription"
-        imageURLs:
-          $ref: "#/components/schemas/ImageURLs"
-        letterId:
-          $ref: "#/components/schemas/UUID"
-        method:
-          $ref: "#/components/schemas/Method"
-        receivedAt:
-          $ref: "#/components/schemas/DateTime"
-        sentAt:
-          $ref: "#/components/schemas/DateTime"
-        status:
-          $ref: "#/components/schemas/LetterStatus"
-        text:
-          $ref: "#/components/schemas/Text"
-        title:
-          $ref: "#/components/schemas/LetterTitle"
-        type:
-          $ref: "#/components/schemas/Type"
-        updatedAt:
-          $ref: "#/components/schemas/DateTime"
+      allOf:
+        - $ref: "#/components/schemas/LetterBase"
+        - type: "object"
+          properties:
+            letterId:
+              $ref: "#/components/schemas/UUID"
+            createdAt:
+              $ref: "#/components/schemas/DateTime"
+            updatedAt:
+              $ref: "#/components/schemas/DateTime"
     LetterCreateRequest:
-      required:
-        - "correspondenceId"
-        - "date"
-        - "imageURLs"
-        - "method"
-        - "status"
-        - "text"
-        - "title"
-        - "type"
-      type: "object"
-      properties:
-        correspondenceId:
-          $ref: "#/components/schemas/UUID"
-        date:
-          $ref: "#/components/schemas/DateTime"
-        description:
-          $ref: "#/components/schemas/LetterDescription"
-        imageURLs:
-          $ref: "#/components/schemas/ImageURLs"
-        method:
-          $ref: "#/components/schemas/Method"
-        receivedAt:
-          $ref: "#/components/schemas/DateTime"
-        sentAt:
-          $ref: "#/components/schemas/DateTime"
-        status:
-          $ref: "#/components/schemas/LetterStatus"
-        text:
-          $ref: "#/components/schemas/Text"
-        title:
-          $ref: "#/components/schemas/LetterTitle"
-        type:
-          $ref: "#/components/schemas/Type"
+      allOf:
+        - $ref: "#/components/schemas/LetterBase"
+        - type: "object"
+          required:
+            - "correspondenceId"
+            - "date"
+            - "imageURLs"
+            - "method"
+            - "status"
+            - "text"
+            - "title"
+            - "type"
     LetterUpdateRequest:
-      required:
-        - "correspondenceId"
-        - "date"
-        - "imageURLs"
-        - "letterId"
-        - "method"
-        - "status"
-        - "text"
-        - "title"
-        - "type"
+      allOf:
+        - $ref: "#/components/schemas/LetterBase"
+        - type: "object"
+          required:
+            - "correspondenceId"
+            - "date"
+            - "imageURLs"
+            - "letterId"
+            - "method"
+            - "status"
+            - "text"
+            - "title"
+            - "type"
+          properties:
+            letterId:
+              $ref: "#/components/schemas/UUID"
+    RecipientBase:
       type: "object"
       properties:
-        correspondenceId:
-          $ref: "#/components/schemas/UUID"
-        date:
-          $ref: "#/components/schemas/DateTime"
+        address:
+          $ref: "#/components/schemas/Address"
+        firstName:
+          $ref: "#/components/schemas/FirstName"
+        lastName:
+          $ref: "#/components/schemas/LastName"
         description:
-          $ref: "#/components/schemas/LetterDescription"
-        imageURLs:
-          $ref: "#/components/schemas/ImageURLs"
-        letterId:
-          $ref: "#/components/schemas/UUID"
-        method:
-          $ref: "#/components/schemas/Method"
-        receivedAt:
-          $ref: "#/components/schemas/DateTime"
-        sentAt:
-          $ref: "#/components/schemas/DateTime"
-        status:
-          $ref: "#/components/schemas/LetterStatus"
-        text:
-          $ref: "#/components/schemas/Text"
-        title:
-          $ref: "#/components/schemas/LetterTitle"
-        type:
-          $ref: "#/components/schemas/Type"
+          $ref: "#/components/schemas/RecipientDescription"
+        occupation:
+          $ref: "#/components/schemas/Occupation"
+        organization:
+          $ref: "#/components/schemas/Organization"
     RecipientResponse:
-      type: "object"
-      properties:
-        address:
-          $ref: "#/components/schemas/Address"
-        createdAt:
-          $ref: "#/components/schemas/DateTime"
-        description:
-          $ref: "#/components/schemas/RecipientDescription"
-        firstName:
-          $ref: "#/components/schemas/FirstName"
-        lastName:
-          $ref: "#/components/schemas/LastName"
-        occupation:
-          $ref: "#/components/schemas/Occupation"
-        organization:
-          $ref: "#/components/schemas/Organization"
-        recipientId:
-          $ref: "#/components/schemas/UUID"
-        updatedAt:
-          $ref: "#/components/schemas/DateTime"
+      allOf:
+        - $ref: "#/components/schemas/RecipientBase"
+        - type: "object"
+          properties:
+            recipientId:
+              $ref: "#/components/schemas/UUID"
+            createdAt:
+              $ref: "#/components/schemas/DateTime"
+            updatedAt:
+              $ref: "#/components/schemas/DateTime"
     RecipientCreateRequest:
-      required:
-        - "address"
-        - "firstName"
-        - "lastName"
-      type: "object"
-      properties:
-        address:
-          $ref: "#/components/schemas/Address"
-        firstName:
-          $ref: "#/components/schemas/FirstName"
-        lastName:
-          $ref: "#/components/schemas/LastName"
-        description:
-          $ref: "#/components/schemas/RecipientDescription"
-        occupation:
-          $ref: "#/components/schemas/Occupation"
-        organization:
-          $ref: "#/components/schemas/Organization"
+      allOf:
+        - $ref: "#/components/schemas/RecipientBase"
+        - type: "object"
+          required:
+            - "address"
+            - "firstName"
+            - "lastName"
     RecipientUpdateRequest:
-      required:
-        - "address"
-        - "firstName"
-        - "lastName"
-        - "recipientId"
-      type: "object"
-      properties:
-        address:
-          $ref: "#/components/schemas/Address"
-        firstName:
-          $ref: "#/components/schemas/FirstName"
-        lastName:
-          $ref: "#/components/schemas/LastName"
-        description:
-          $ref: "#/components/schemas/RecipientDescription"
-        occupation:
-          $ref: "#/components/schemas/Occupation"
-        organization:
-          $ref: "#/components/schemas/Organization"
-        recipientId:
-          $ref: "#/components/schemas/UUID"
+      allOf:
+        - $ref: "#/components/schemas/RecipientBase"
+        - type: "object"
+          required:
+            - "address"
+            - "firstName"
+            - "lastName"
+            - "recipientId"
+          properties:
+            recipientId:
+              $ref: "#/components/schemas/UUID"
     Correspondence:
       type: object
       properties:
@@ -934,7 +882,7 @@ components:
           $ref: "#/components/schemas/CorrespondenceTitle"
         updatedAt:
           $ref: "#/components/schemas/DateTime"
-    CorrespondenceCreateInput:
+    CorrespondenceCreate:
       required:
         - "reason"
       type: object
@@ -945,7 +893,7 @@ components:
           $ref: "#/components/schemas/CorrespondenceStatus"
         title: 
           $ref: "#/components/schemas/CorrespondenceTitle"
-    CorrespondenceUpdateInput:
+    CorrespondenceUpdate:
       required:
         - "correspondenceId"
         - "reason"
@@ -959,71 +907,6 @@ components:
           $ref: "#/components/schemas/CorrespondenceStatus"
         title: 
           $ref: "#/components/schemas/CorrespondenceTitle"
-    CorrespondenceLetterCreateRequest:
-      required:
-        - "date"
-        - "imageURLs"
-        - "method"
-        - "status"
-        - "text"
-        - "title"
-        - "type"
-      type: "object"
-      properties:
-        date:
-          $ref: "#/components/schemas/DateTime"
-        description:
-          $ref: "#/components/schemas/LetterDescription"
-        imageURLs:
-          $ref: "#/components/schemas/ImageURLs"
-        method:
-          $ref: "#/components/schemas/Method"
-        receivedAt:
-          $ref: "#/components/schemas/DateTime"
-        sentAt:
-          $ref: "#/components/schemas/DateTime"
-        status:
-          $ref: "#/components/schemas/LetterStatus"
-        text:
-          $ref: "#/components/schemas/Text"
-        title:
-          $ref: "#/components/schemas/LetterTitle"
-        type:
-          $ref: "#/components/schemas/Type"
-    CorrespondenceLetterUpdateRequest:
-      required:
-        - "date"
-        - "imageURLs"
-        - "letterId"
-        - "method"
-        - "status"
-        - "text"
-        - "title"
-        - "type"
-      type: "object"
-      properties:
-        date:
-          $ref: "#/components/schemas/DateTime"
-        description:
-          $ref: "#/components/schemas/LetterDescription"
-        imageURLs:
-          $ref: "#/components/schemas/ImageURLs"
-        letterId:
-          $ref: "#/components/schemas/UUID"
-        method:
-          $ref: "#/components/schemas/Method"
-        receivedAt:
-          $ref: "#/components/schemas/DateTime"
-        sentAt:
-          $ref: "#/components/schemas/DateTime"
-        status:
-          $ref: "#/components/schemas/LetterStatus"
-        text:
-          $ref: "#/components/schemas/Text"
-        title:
-          $ref: "#/components/schemas/LetterTitle"
-        type:
-          $ref: "#/components/schemas/Type"
     CorrespondenceResponse:
       type: "object"
       properties:
@@ -1043,13 +926,13 @@ components:
       type: "object"
       properties:
         correspondence:
-          $ref: "#/components/schemas/CorrespondenceCreateInput"
+          $ref: "#/components/schemas/CorrespondenceCreate"
         recipient:
           $ref: "#/components/schemas/RecipientCreateRequest"
         letters:
           type: array
           items:
-            $ref: "#/components/schemas/CorrespondenceLetterCreateRequest"
+            $ref: "#/components/schemas/LetterCreateRequest"
     CorrespondenceUpdateRequest:
       required:
         - "correspondence"
@@ -1058,13 +941,13 @@ components:
       type: "object"
       properties:
         correspondence:
-          $ref: "#/components/schemas/CorrespondenceUpdateInput"
+          $ref: "#/components/schemas/CorrespondenceUpdate"
         recipient:
           $ref: "#/components/schemas/RecipientUpdateRequest"
         letters:
           type: array
           items:
-            $ref: "#/components/schemas/CorrespondenceLetterUpdateRequest"
+            $ref: "#/components/schemas/LetterUpdateRequest"
     BadRequestError:
       type: "object"
       properties:
