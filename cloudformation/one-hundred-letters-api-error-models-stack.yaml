@@ -1,0 +1,67 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+  BadRequestError:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ContentType: "application/json"
+      Name: "BadRequestError"
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          statusCode:
+            type: "integer"
+            example: 400
+          message:
+            type: "string"
+            example: "Bad Request"
+
+  InternalServerError:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ContentType: "application/json"
+      Name: "InternalServerError"
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          statusCode:
+            type: "integer"
+            example: 500
+          message:
+            type: "string"
+            example: "Internal Server Error"
+
+  NotFoundError:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ContentType: "application/json"
+      Name: "NotFoundError"
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          statusCode:
+            type: "integer"
+            example: 404
+          message:
+            type: "string"
+            example: "Not Found"
+
+Outputs:
+  BadRequestErrorOutput:
+    Value: !Ref BadRequestError
+    Export:
+      Name: BadRequestError
+  InternalServerErrorOutput:
+    Value: !Ref InternalServerError
+    Export:
+      Name: InternalServerError
+  NotFoundErrorOutput:
+    Value: !Ref NotFoundError
+    Export:
+      Name: NotFoundError
