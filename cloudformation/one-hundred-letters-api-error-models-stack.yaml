@@ -13,10 +13,8 @@ Resources:
         properties:
           statusCode:
             type: "integer"
-            example: 400
           message:
             type: "string"
-            example: "Bad Request"
 
   InternalServerError:
     Type: AWS::ApiGateway::Model
@@ -30,10 +28,8 @@ Resources:
         properties:
           statusCode:
             type: "integer"
-            example: 500
           message:
             type: "string"
-            example: "Internal Server Error"
 
   NotFoundError:
     Type: AWS::ApiGateway::Model
@@ -47,10 +43,8 @@ Resources:
         properties:
           statusCode:
             type: "integer"
-            example: 404
           message:
             type: "string"
-            example: "Not Found"
 
 Outputs:
   BadRequestErrorOutput:

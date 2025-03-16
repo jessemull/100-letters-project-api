@@ -1,53 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
 Resources:
-  # <------------------- Shared Components ------------------->
-
-  AddressSchema:
-    Type: AWS::ApiGateway::Model
-    Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
-      ContentType: "application/json"
-      Name: "AddressSchema"
-      Schema:
-        $schema: "http://json-schema.org/draft-04/schema#"
-        type: "object"
-        properties:
-          city:
-            type: "string"
-          country:
-            type: "string"
-          postalCode:
-            type: "string"
-          state:
-            type: "string"
-          street:
-            type: "string"
-
-  RecipientSchema:
-    Type: AWS::ApiGateway::Model
-    Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
-      ContentType: "application/json"
-      Name: "RecipientSchema"
-      Schema:
-        $schema: "http://json-schema.org/draft-04/schema#"
-        type: "object"
-        properties:
-          address:
-            $ref: !Ref AddressSchema
-          firstName:
-            type: "string"
-          lastName:
-            type: "string"
-          description:
-            type: "string"
-          occupation:
-            type: "string"
-          organization:
-            type: "string"
-        required: ["address", "firstName", "lastName"]
-
   # <------------------- CREATE Recipients ------------------->
 
   RecipientCreateRequestModel:
@@ -59,8 +12,32 @@ Resources:
       Schema:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
-        allOf:
-          - $ref: !Ref RecipientSchema
+        properties:
+          address:
+            type: "object"
+            properties:
+              city:
+                type: "string"
+              country:
+                type: "string"
+              postalCode:
+                type: "string"
+              state:
+                type: "string"
+              street:
+                type: "string"
+            required: ["city", "country", "postalCode", "state", "street"]
+          firstName:
+            type: "string"
+          lastName:
+            type: "string"
+          description:
+            type: "string"
+          occupation:
+            type: "string"
+          organization:
+            type: "string"
+        required: ["address", "firstName", "lastName"]
 
   RecipientCreateResponseModel:
     Type: AWS::ApiGateway::Model
@@ -74,11 +51,33 @@ Resources:
         properties:
           data:
             type: "object"
-            allOf:
-              - $ref: !Ref RecipientSchema
-              - properties:
-                  recipientId:
+            properties:
+              recipientId:
+                type: "string"
+              address:
+                type: "object"
+                properties:
+                  city:
                     type: "string"
+                  country:
+                    type: "string"
+                  postalCode:
+                    type: "string"
+                  state:
+                    type: "string"
+                  street:
+                    type: "string"
+                required: ["city", "country", "postalCode", "state", "street"]
+              firstName:
+                type: "string"
+              lastName:
+                type: "string"
+              description:
+                type: "string"
+              occupation:
+                type: "string"
+              organization:
+                type: "string"
             required: ["recipientId"]
           message:
             type: string
@@ -98,10 +97,32 @@ Resources:
         properties:
           recipientId:
             type: "string"
-          allOf:
-            - $ref: !Ref RecipientSchema
+          address:
+            type: "object"
+            properties:
+              city:
+                type: "string"
+              country:
+                type: "string"
+              postalCode:
+                type: "string"
+              state:
+                type: "string"
+              street:
+                type: "string"
+            required: ["city", "country", "postalCode", "state", "street"]
+          firstName:
+            type: "string"
+          lastName:
+            type: "string"
+          description:
+            type: "string"
+          occupation:
+            type: "string"
+          organization:
+            type: "string"
         required: ["recipientId"]
-  
+
   RecipientUpdateResponseModel:
     Type: AWS::ApiGateway::Model
     Properties:
@@ -114,11 +135,33 @@ Resources:
         properties:
           data:
             type: "object"
-            allOf:
-              - $ref: !Ref RecipientSchema
-              - properties:
-                  recipientId:
+            properties:
+              recipientId:
+                type: "string"
+              address:
+                type: "object"
+                properties:
+                  city:
                     type: "string"
+                  country:
+                    type: "string"
+                  postalCode:
+                    type: "string"
+                  state:
+                    type: "string"
+                  street:
+                    type: "string"
+                required: ["city", "country", "postalCode", "state", "street"]
+              firstName:
+                type: "string"
+              lastName:
+                type: "string"
+              description:
+                type: "string"
+              occupation:
+                type: "string"
+              organization:
+                type: "string"
             required: ["recipientId"]
           message:
             type: string
@@ -139,12 +182,34 @@ Resources:
           data:
             type: "array"
             items:
-              allOf:
-                - type: "object"
+              type: "object"
+              properties:
+                recipientId:
+                  type: "string"
+                address:
+                  type: "object"
                   properties:
-                    recipientId:
+                    city:
                       type: "string"
-                - $ref: !Ref RecipientSchema
+                    country:
+                      type: "string"
+                    postalCode:
+                      type: "string"
+                    state:
+                      type: "string"
+                    street:
+                      type: "string"
+                  required: ["city", "country", "postalCode", "state", "street"]
+                firstName:
+                  type: "string"
+                lastName:
+                  type: "string"
+                description:
+                  type: "string"
+                occupation:
+                  type: "string"
+                organization:
+                  type: "string"
           lastEvaluatedKey:
             type: "string"
         required: ["data", "lastEvaluatedKey"]
@@ -163,11 +228,33 @@ Resources:
         properties:
           data:
             type: "object"
-            allOf:
-              - $ref: !Ref RecipientSchema
-              - properties:
-                  recipientId:
+            properties:
+              recipientId:
+                type: "string"
+              address:
+                type: "object"
+                properties:
+                  city:
                     type: "string"
+                  country:
+                    type: "string"
+                  postalCode:
+                    type: "string"
+                  state:
+                    type: "string"
+                  street:
+                    type: "string"
+                required: ["city", "country", "postalCode", "state", "street"]
+              firstName:
+                type: "string"
+              lastName:
+                type: "string"
+              description:
+                type: "string"
+              occupation:
+                type: "string"
+              organization:
+                type: "string"
             required: ["recipientId"]
         required: ["data"]
 
