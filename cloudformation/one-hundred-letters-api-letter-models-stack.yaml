@@ -317,7 +317,9 @@ Resources:
               letterId:
                 type: "string"
             required: ["letterId"]
-        required: ["data"]
+          message:
+            type: "string"
+        required: ["data", "message"]
 
 Outputs:
   LetterCreateRequestModelOutput:

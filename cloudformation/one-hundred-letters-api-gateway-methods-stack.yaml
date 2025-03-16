@@ -15,6 +15,13 @@ Resources:
       RequestParameters:
         "method.request.querystring.limit": false
         "method.request.querystring.lastEvaluatedKey": false
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            "application/json": !ImportValue CorrespondenceResponseModel
+        - StatusCode: 500
+          ResponseModels:
+            "application/json": !ImportValue InternalServerError
   
   CorrespondenceCreateMethod:
     Type: AWS::ApiGateway::Method
@@ -31,7 +38,17 @@ Resources:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
         Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createCorrespondence/invocations"
-  
+      MethodResponses:
+        - StatusCode: 201
+          ResponseModels:
+            "application/json": !ImportValue CorrespondenceUpdateResponseModel
+        - StatusCode: 400
+          ResponseModels:
+            "application/json": !ImportValue BadRequestError
+        - StatusCode: 500
+          ResponseModels:
+            "application/json": !ImportValue InternalServerError
+
   CorrespondenceByIdMethod:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -45,6 +62,19 @@ Resources:
         Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getCorrespondenceById/invocations"
       RequestParameters:
         method.request.path.id: true
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            "application/json": !ImportValue CorrespondenceByIdResponseModel
+        - StatusCode: 400
+          ResponseModels:
+            "application/json": !ImportValue BadRequestError
+        - StatusCode: 404
+          ResponseModels:
+            "application/json": !ImportValue NotFoundError
+        - StatusCode: 500
+          ResponseModels:
+            "application/json": !ImportValue InternalServerError
   
   CorrespondenceUpdateMethod:
     Type: AWS::ApiGateway::Method
@@ -63,6 +93,19 @@ Resources:
         Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:updateCorrespondence/invocations"
       RequestParameters:
         method.request.path.id: true
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            "application/json": !ImportValue CorrespondenceUpdateResponseModel
+        - StatusCode: 400
+          ResponseModels:
+            "application/json": !ImportValue BadRequestError
+        - StatusCode: 404
+          ResponseModels:
+            "application/json": !ImportValue NotFoundError
+        - StatusCode: 500
+          ResponseModels:
+            "application/json": !ImportValue InternalServerError
   
   CorrespondenceDeleteMethod:
     Type: AWS::ApiGateway::Method
@@ -78,6 +121,19 @@ Resources:
         Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:deleteCorrespondence/invocations"
       RequestParameters:
         method.request.path.id: true
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            "application/json": !ImportValue CorrespondenceDeleteResponseModel
+        - StatusCode: 400
+          ResponseModels:
+            "application/json": !ImportValue BadRequestError
+        - StatusCode: 404
+          ResponseModels:
+            "application/json": !ImportValue NotFoundError
+        - StatusCode: 500
+          ResponseModels:
+            "application/json": !ImportValue InternalServerError
   
   RecipientsGetMethod:
     Type: AWS::ApiGateway::Method
