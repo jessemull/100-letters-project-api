@@ -1,6 +1,8 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
 Resources:
+  # <------------------- CREATE Letter ------------------->
+
   LetterCreateRequestModel:
     Type: AWS::ApiGateway::Model
     Properties:
@@ -24,20 +26,77 @@ Resources:
               format: "uri"
           method:
             type: "string"
+            enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
           receivedAt:
             type: "string"
           sentAt:
             type: "string"
           status:
             type: "string"
+            enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
           text:
             type: "string"
           title:
             type: "string"
           type:
             type: "string"
+            enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
         required: ["correspondenceId", "date", "imageURLs", "method", "status", "text", "title", "type"]
   
+  LetterCreateResponseModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ContentType: "application/json"
+      Name: "LetterCreateResponseModel"
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          data:
+            type: "object"
+            properties:
+              correspondenceId:
+                type: "string"
+              createdAt:
+                type: "string"
+              date:
+                type: "string"
+              description:
+                type: "string"
+              imageURLs:
+                type: "array"
+                items:
+                  type: "string"
+                  format: "uri"
+              letterId:
+                type: "string"
+              method:
+                type: "string"
+                enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
+              receivedAt:
+                type: "string"
+              sentAt:
+                type: "string"
+              status:
+                type: "string"
+                enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
+              text:
+                type: "string"
+              title:
+                type: "string"
+              type:
+                type: "string"
+                enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
+              updatedAt:
+                type: "string"
+            required: ["correspondenceId", "createdAt", "date", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
+          message:
+            type: string
+        required: ["data", "message"]
+
+  # <------------------- UPDATE Letter ------------------->
+
   LetterUpdateRequestModel:
       Type: AWS::ApiGateway::Model
       Properties:
@@ -63,19 +122,202 @@ Resources:
               type: "string"
             method:
               type: "string"
+              enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
             receivedAt:
               type: "string"
             sentAt:
               type: "string"
             status:
               type: "string"
+              enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
             text:
               type: "string"
             title:
               type: "string"
             type:
               type: "string"
+              enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
           required: ["correspondenceId", "date", "imageURLs", "letterId", "method", "status", "text", "title", "type"]
+  
+  LetterUpdateResponseModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ContentType: "application/json"
+      Name: "LetterUpdateResponseModel"
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          data:
+            type: "object"
+            properties:
+              correspondenceId:
+                type: "string"
+              createdAt:
+                type: "string"
+              date:
+                type: "string"
+              description:
+                type: "string"
+              imageURLs:
+                type: "array"
+                items:
+                  type: "string"
+                  format: "uri"
+              letterId:
+                type: "string"
+              method:
+                type: "string"
+                enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
+              receivedAt:
+                type: "string"
+              sentAt:
+                type: "string"
+              status:
+                type: "string"
+                enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
+              text:
+                type: "string"
+              title:
+                type: "string"
+              type:
+                type: "string"
+                enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
+              updatedAt:
+                type: "string"
+            required: ["correspondenceId", "createdAt", "date", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
+          message:
+            type: string
+        required: ["data", "message"]
+
+  # <------------------- GET Letters ------------------->
+
+  LetterResponseModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ContentType: "application/json"
+      Name: "LetterResponseModel"
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          data:
+            type: "array"
+            items:
+              type: "object"
+              properties:
+                correspondenceId:
+                  type: "string"
+                createdAt:
+                  type: "string"
+                date:
+                  type: "string"
+                description:
+                  type: "string"
+                imageURLs:
+                  type: "array"
+                  items:
+                    type: "string"
+                    format: "uri"
+                letterId:
+                  type: "string"
+                method:
+                  type: "string"
+                  enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
+                receivedAt:
+                  type: "string"
+                sentAt:
+                  type: "string"
+                status:
+                  type: "string"
+                  enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
+                text:
+                  type: "string"
+                title:
+                  type: "string"
+                type:
+                  type: "string"
+                  enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
+                updatedAt:
+                  type: "string"
+              required: ["correspondenceId", "createdAt", "date", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
+          lastEvaluatedKey:
+            type: "string"
+        required: ["data", "lastEvaluatedKey"]
+
+  # <------------------- GET Letter By ID ------------------->
+
+  LetterByIdResponseModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ContentType: "application/json"
+      Name: "LetterByIdResponseModel"
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          data:
+            type: "object"
+            properties:
+              correspondenceId:
+                type: "string"
+              createdAt:
+                type: "string"
+              date:
+                type: "string"
+              description:
+                type: "string"
+              imageURLs:
+                type: "array"
+                items:
+                  type: "string"
+                  format: "uri"
+              letterId:
+                type: "string"
+              method:
+                type: "string"
+                enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
+              receivedAt:
+                type: "string"
+              sentAt:
+                type: "string"
+              status:
+                type: "string"
+                enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
+              text:
+                type: "string"
+              title:
+                type: "string"
+              type:
+                type: "string"
+                enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
+              updatedAt:
+                type: "string"
+            required: ["correspondenceId", "createdAt", "date", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
+        required: ["data"]
+
+  # <------------------- DELETE Letters ------------------->
+
+  LetterDeleteResponseModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ContentType: "application/json"
+      Name: "LetterDeleteResponseModel"
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          data:
+            type: "object"
+            properties:
+              letterId:
+                type: "string"
+            required: ["letterId"]
+        required: ["data"]
 
 Outputs:
   LetterCreateRequestModelOutput:
@@ -86,3 +328,23 @@ Outputs:
     Value: !Ref LetterUpdateRequestModel
     Export:
       Name: LetterUpdateRequestModel
+  LetterResponseModelOutput:
+    Value: !Ref LetterResponseModel
+    Export:
+      Name: LetterResponseModel
+  LetterCreateResponseModelOutput:
+    Value: !Ref LetterCreateResponseModel
+    Export:
+      Name: LetterCreateResponseModel
+  LetterUpdateResponseModelOutput:
+    Value: !Ref LetterUpdateResponseModel
+    Export:
+      Name: LetterUpdateResponseModel
+  LetterByIdResponseModelOutput:
+    Value: !Ref LetterByIdResponseModel
+    Export:
+      Name: LetterByIdResponseModel
+  LetterDeleteResponseModelOutput:
+    Value: !Ref LetterDeleteResponseModel
+    Export:
+      Name: LetterDeleteResponseModel
