@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
 Resources:
-  ApiGatewayGetCorrespondencesMethod:
+  CorrespondenceGetMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       RestApiId: !ImportValue OneHundredLettersApi
@@ -16,7 +16,7 @@ Resources:
         "method.request.querystring.limit": false
         "method.request.querystring.lastEvaluatedKey": false
   
-  ApiGatewayCorrespondenceCreateMethod:
+  CorrespondenceCreateMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       RestApiId: !ImportValue OneHundredLettersApi
@@ -32,7 +32,7 @@ Resources:
         Type: AWS_PROXY
         Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createCorrespondence/invocations"
   
-  CorrespondenceByIdResourceMethod:
+  CorrespondenceByIdMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       RestApiId: !ImportValue OneHundredLettersApi
@@ -46,7 +46,7 @@ Resources:
       RequestParameters:
         method.request.path.id: true
   
-  ApiGatewayCorrespondenceUpdateMethod:
+  CorrespondenceUpdateMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       RestApiId: !ImportValue OneHundredLettersApi
@@ -64,7 +64,7 @@ Resources:
       RequestParameters:
         method.request.path.id: true
   
-  ApiGatewayCorrespondenceDeleteMethod:
+  CorrespondenceDeleteMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       RestApiId: !ImportValue OneHundredLettersApi
@@ -79,7 +79,7 @@ Resources:
       RequestParameters:
         method.request.path.id: true
   
-  RecipientsResourceMethod:
+  RecipientsGetMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       RestApiId: !ImportValue OneHundredLettersApi
@@ -93,8 +93,15 @@ Resources:
       RequestParameters:
         "method.request.querystring.limit": false
         "method.request.querystring.lastEvaluatedKey": false
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            "application/json": !ImportValue RecipientResponseModel
+        - StatusCode: 500
+          ResponseModels:
+            "application/json": !ImportValue InternalServerError
   
-  RecipientByIdResourceMethod:
+  RecipientByIdMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       RestApiId: !ImportValue OneHundredLettersApi
@@ -107,8 +114,21 @@ Resources:
         Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRecipientById/invocations"
       RequestParameters:
         method.request.path.id: true
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            "application/json": !ImportValue RecipientByIdResponseModel
+        - StatusCode: 400
+          ResponseModels:
+            "application/json": !ImportValue BadRequestError
+        - StatusCode: 404
+          ResponseModels:
+            "application/json": !ImportValue NotFoundError
+        - StatusCode: 500
+          ResponseModels:
+            "application/json": !ImportValue InternalServerError
   
-  ApiGatewayCreateRecipientMethod:
+  RecipientCreateMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       RestApiId: !ImportValue OneHundredLettersApi
@@ -123,8 +143,18 @@ Resources:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
         Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createRecipient/invocations"
-  
-  ApiGatewayUpdateRecipientMethod:
+      MethodResponses:
+        - StatusCode: 201
+          ResponseModels:
+            "application/json": !ImportValue RecipientUpdateResponseModel
+        - StatusCode: 400
+          ResponseModels:
+            "application/json": !ImportValue BadRequestError
+        - StatusCode: 500
+          ResponseModels:
+            "application/json": !ImportValue InternalServerError
+
+  RecipientUpdateMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       RestApiId: !ImportValue OneHundredLettersApi
@@ -141,8 +171,21 @@ Resources:
         Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:updateRecipient/invocations"
       RequestParameters:
         method.request.path.id: true
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            "application/json": !ImportValue RecipientUpdateResponseModel
+        - StatusCode: 400
+          ResponseModels:
+            "application/json": !ImportValue BadRequestError
+        - StatusCode: 404
+          ResponseModels:
+            "application/json": !ImportValue NotFoundError
+        - StatusCode: 500
+          ResponseModels:
+            "application/json": !ImportValue InternalServerError
   
-  ApiGatewayDeleteRecipientMethod:
+  RecipientDeleteMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       RestApiId: !ImportValue OneHundredLettersApi
@@ -156,8 +199,21 @@ Resources:
         Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:deleteRecipient/invocations"
       RequestParameters:
         method.request.path.id: true
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            "application/json": !ImportValue RecipientDeleteResponseModel
+        - StatusCode: 400
+          ResponseModels:
+            "application/json": !ImportValue BadRequestError
+        - StatusCode: 404
+          ResponseModels:
+            "application/json": !ImportValue NotFoundError
+        - StatusCode: 500
+          ResponseModels:
+            "application/json": !ImportValue InternalServerError
   
-  LettersResourceMethod:
+  LettersGetMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       RestApiId: !ImportValue OneHundredLettersApi
@@ -172,7 +228,7 @@ Resources:
         "method.request.querystring.limit": false
         "method.request.querystring.lastEvaluatedKey": false
   
-  LetterByIdResourceMethod:
+  LetterByIdMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       RestApiId: !ImportValue OneHundredLettersApi
@@ -186,7 +242,7 @@ Resources:
       RequestParameters:
         method.request.path.id: true
 
-  ApiGatewayCreateLetterMethod:
+  LetterCreateMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       RestApiId: !ImportValue OneHundredLettersApi
@@ -202,7 +258,7 @@ Resources:
         Type: AWS_PROXY
         Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createLetter/invocations"
 
-  ApiGatewayUpdateLetterMethod:
+  LetterUpdateMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       RestApiId: !ImportValue OneHundredLettersApi
@@ -220,7 +276,7 @@ Resources:
       RequestParameters:
         method.request.path.id: true
 
-  ApiGatewayDeleteLetterMethod:
+  LetterDeleteMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       RestApiId: !ImportValue OneHundredLettersApi

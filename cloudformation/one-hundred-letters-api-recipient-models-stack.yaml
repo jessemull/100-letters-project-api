@@ -1,6 +1,8 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
 Resources:
+  # <------------------- CREATE Recipients ------------------->
+
   RecipientCreateRequestModel:
     Type: AWS::ApiGateway::Model
     Properties:
@@ -14,9 +16,9 @@ Resources:
           address:
             type: "object"
             properties:
-              city: 
+              city:
                 type: "string"
-              country: 
+              country:
                 type: "string"
               postalCode:
                 type: "string"
@@ -24,6 +26,7 @@ Resources:
                 type: "string"
               street:
                 type: "string"
+            required: ["city", "country", "postalCode", "state", "street"]
           firstName:
             type: "string"
           lastName:
@@ -35,43 +38,245 @@ Resources:
           organization:
             type: "string"
         required: ["address", "firstName", "lastName"]
-  
+
+  RecipientCreateResponseModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ContentType: "application/json"
+      Name: "RecipientCreateResponseModel"
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          data:
+            type: "object"
+            properties:
+              recipientId:
+                type: "string"
+              address:
+                type: "object"
+                properties:
+                  city:
+                    type: "string"
+                  country:
+                    type: "string"
+                  postalCode:
+                    type: "string"
+                  state:
+                    type: "string"
+                  street:
+                    type: "string"
+                required: ["city", "country", "postalCode", "state", "street"]
+              firstName:
+                type: "string"
+              lastName:
+                type: "string"
+              description:
+                type: "string"
+              occupation:
+                type: "string"
+              organization:
+                type: "string"
+            required: ["recipientId"]
+          message:
+            type: string
+        required: ["data", "message"]
+        
+  # <------------------- UPDATE Recipients ------------------->
+
   RecipientUpdateRequestModel:
-      Type: AWS::ApiGateway::Model
-      Properties:
-        RestApiId: !ImportValue OneHundredLettersApi
-        ContentType: "application/json"
-        Name: "RecipientUpdateModel"
-        Schema:
-          $schema: "http://json-schema.org/draft-04/schema#"
-          type: "object"
-          properties:
-            recipientId:
-              type: "string"
-            address:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ContentType: "application/json"
+      Name: "RecipientUpdateRequestModel"
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          recipientId:
+            type: "string"
+          address:
+            type: "object"
+            properties:
+              city:
+                type: "string"
+              country:
+                type: "string"
+              postalCode:
+                type: "string"
+              state:
+                type: "string"
+              street:
+                type: "string"
+            required: ["city", "country", "postalCode", "state", "street"]
+          firstName:
+            type: "string"
+          lastName:
+            type: "string"
+          description:
+            type: "string"
+          occupation:
+            type: "string"
+          organization:
+            type: "string"
+        required: ["recipientId"]
+
+  RecipientUpdateResponseModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ContentType: "application/json"
+      Name: "RecipientUpdateResponseModel"
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          data:
+            type: "object"
+            properties:
+              recipientId:
+                type: "string"
+              address:
+                type: "object"
+                properties:
+                  city:
+                    type: "string"
+                  country:
+                    type: "string"
+                  postalCode:
+                    type: "string"
+                  state:
+                    type: "string"
+                  street:
+                    type: "string"
+                required: ["city", "country", "postalCode", "state", "street"]
+              firstName:
+                type: "string"
+              lastName:
+                type: "string"
+              description:
+                type: "string"
+              occupation:
+                type: "string"
+              organization:
+                type: "string"
+            required: ["recipientId"]
+          message:
+            type: string
+        required: ["data", "message"]
+
+  # <------------------- GET Recipients ------------------->
+
+  RecipientResponseModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ContentType: "application/json"
+      Name: "RecipientResponseModel"
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          data:
+            type: "array"
+            items:
               type: "object"
               properties:
-                city: 
+                recipientId:
                   type: "string"
-                country: 
+                address:
+                  type: "object"
+                  properties:
+                    city:
+                      type: "string"
+                    country:
+                      type: "string"
+                    postalCode:
+                      type: "string"
+                    state:
+                      type: "string"
+                    street:
+                      type: "string"
+                  required: ["city", "country", "postalCode", "state", "street"]
+                firstName:
                   type: "string"
-                postalCode:
+                lastName:
                   type: "string"
-                state:
+                description:
                   type: "string"
-                street:
+                occupation:
                   type: "string"
-            firstName:
-              type: "string"
-            lastName:
-              type: "string"
-            description:
-              type: "string"
-            occupation:
-              type: "string"
-            organization:
-              type: "string"
-          required: ["recipientId", "address", "firstName", "lastName"]
+                organization:
+                  type: "string"
+          lastEvaluatedKey:
+            type: "string"
+        required: ["data", "lastEvaluatedKey"]
+
+  # <------------------- GET Recipients By ID ------------------->
+
+  RecipientByIdResponseModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ContentType: "application/json"
+      Name: "RecipientByIdResponseModel"
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          data:
+            type: "object"
+            properties:
+              recipientId:
+                type: "string"
+              address:
+                type: "object"
+                properties:
+                  city:
+                    type: "string"
+                  country:
+                    type: "string"
+                  postalCode:
+                    type: "string"
+                  state:
+                    type: "string"
+                  street:
+                    type: "string"
+                required: ["city", "country", "postalCode", "state", "street"]
+              firstName:
+                type: "string"
+              lastName:
+                type: "string"
+              description:
+                type: "string"
+              occupation:
+                type: "string"
+              organization:
+                type: "string"
+            required: ["recipientId"]
+        required: ["data"]
+
+  # <------------------- DELETE Recipients ------------------->
+
+  RecipientDeleteResponseModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ContentType: "application/json"
+      Name: "RecipientDeleteResponseModel"
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          data:
+            type: "object"
+            properties:
+              recipientId:
+                type: "string"
+            required: ["recipientId"]
+        required: ["data"]
 
 Outputs:
   RecipientCreateRequestModelOutput:
@@ -82,3 +287,23 @@ Outputs:
     Value: !Ref RecipientUpdateRequestModel
     Export:
       Name: RecipientUpdateRequestModel
+  RecipientResponseModelOutput:
+    Value: !Ref RecipientResponseModel
+    Export:
+      Name: RecipientResponseModel
+  RecipientCreateResponseModelOutput:
+    Value: !Ref RecipientCreateResponseModel
+    Export:
+      Name: RecipientCreateResponseModel
+  RecipientUpdateResponseModelOutput:
+    Value: !Ref RecipientUpdateResponseModel
+    Export:
+      Name: RecipientUpdateResponseModel
+  RecipientByIdResponseModelOutput:
+    Value: !Ref RecipientByIdResponseModel
+    Export:
+      Name: RecipientByIdResponseModel
+  RecipientDeleteResponseModelOutput:
+    Value: !Ref RecipientDeleteResponseModel
+    Export:
+      Name: RecipientDeleteResponseModel
