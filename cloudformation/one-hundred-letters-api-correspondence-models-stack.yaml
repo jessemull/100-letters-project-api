@@ -1,6 +1,8 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
 Resources:
+  # <------------------- UPDATE Correspondence ------------------->
+
   CorrespondenceCreateRequestModel:
     Type: AWS::ApiGateway::Model
     Properties:
@@ -93,6 +95,124 @@ Resources:
               required: ["date", "imageURLs", "method", "status", "text", "title", "type"]
         required: ["correspondence", "recipient", "letters"]
   
+  CorrespondenceCreateResponseModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ContentType: "application/json"
+      Name: "CorrespondenceCreateResponseModel"
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          data:
+            type: "object"
+            properties:
+              correspondence:
+                type: "object"
+                properties:
+                  correspondenceId:
+                    type: "string"
+                  createdAt:
+                    type: "string"
+                  reason:
+                    type: "object"
+                    properties:
+                      description:
+                        type: "string"
+                      domain:
+                        type: "string"
+                      impact:
+                        type: "string"
+                        enum: ["HIGH", "MEDIUM", "LOW"]
+                    required: ["description", "domain", "impact"]
+                  status:
+                    type: "string"
+                    enum: ["COMPLETED", "PENDING", "RESPONDED", "UNSENT"]
+                  title:
+                    type: "string"
+                  updatedAt:
+                    type: "string"
+                required: ["correspondenceId", "createdAt", "reason", "status", "title", "updatedAt"]
+              recipient:
+                type: "object"
+                properties:
+                  recipientId:
+                    type: "string"
+                  address:
+                    type: "object"
+                    properties:
+                      city: 
+                        type: "string"
+                      country: 
+                        type: "string"
+                      postalCode:
+                        type: "string"
+                      state:
+                        type: "string"
+                      street:
+                        type: "string"
+                  createdAt:
+                    type: "string"
+                  firstName:
+                    type: "string"
+                  lastName:
+                    type: "string"
+                  description:
+                    type: "string"
+                  occupation:
+                    type: "string"
+                  organization:
+                    type: "string"
+                  updatedAt:
+                    type: "string"
+                required: ["address", "createdAt", "firstName", "lastName", "recipientId", "updatedAt"]
+              letters:
+                type: "array"
+                items:
+                  type: "object"
+                  properties:
+                    letterId:
+                      type: "string"
+                    createdAt:
+                      type: "string"
+                    date:
+                      type: "string"
+                      format: "date-time"
+                    description:
+                      type: "string"
+                    imageURLs:
+                      type: "array"
+                      items:
+                        type: "string"
+                        format: "uri"
+                    method:
+                      type: "string"
+                      enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
+                    receivedAt:
+                      type: "string"
+                    sentAt:
+                      type: "string"
+                    status:
+                      type: "string"
+                      enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
+                    text:
+                      type: "string"
+                    title:
+                      type: "string"
+                    type:
+                      type: "string"
+                      enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
+                    updatedAt:
+                      type: "string"
+                  required: ["date", "createdAt", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
+            required: ["correspondence", "recipient", "letters"]
+          message:
+            type: string
+        required: ["data", "message"]
+
+  # <------------------- UPDATE Correspondence ------------------->
+
   CorrespondenceUpdateRequestModel:
     Type: AWS::ApiGateway::Model
     Properties:
@@ -124,7 +244,7 @@ Resources:
                 enum: ["COMPLETED", "PENDING", "RESPONDED", "UNSENT"]
               title:
                 type: "string"
-            required: ["correspondenceId", "reason", "status", "title"]  # Moved here
+            required: ["correspondenceId", "reason", "status", "title"]
           recipient:
             type: "object"
             properties:
@@ -190,6 +310,384 @@ Resources:
                   enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
               required: ["date", "imageURLs", "letterId", "method", "status", "text", "title", "type"]
         required: ["correspondence", "recipient", "letters"]
+  
+  CorrespondenceUpdateResponseModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ContentType: "application/json"
+      Name: "CorrespondenceUpdateResponseModel"
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          data:
+            type: "object"
+            properties:
+              correspondence:
+                type: "object"
+                properties:
+                  correspondenceId:
+                    type: "string"
+                  createdAt:
+                    type: "string"
+                  reason:
+                    type: "object"
+                    properties:
+                      description:
+                        type: "string"
+                      domain:
+                        type: "string"
+                      impact:
+                        type: "string"
+                        enum: ["HIGH", "MEDIUM", "LOW"]
+                    required: ["description", "domain", "impact"]
+                  status:
+                    type: "string"
+                    enum: ["COMPLETED", "PENDING", "RESPONDED", "UNSENT"]
+                  title:
+                    type: "string"
+                  updatedAt:
+                    type: "string"
+                required: ["correspondenceId", "createdAt", "reason", "status", "title", "updatedAt"]
+              recipient:
+                type: "object"
+                properties:
+                  recipientId:
+                    type: "string"
+                  address:
+                    type: "object"
+                    properties:
+                      city: 
+                        type: "string"
+                      country: 
+                        type: "string"
+                      postalCode:
+                        type: "string"
+                      state:
+                        type: "string"
+                      street:
+                        type: "string"
+                  createdAt:
+                    type: "string"
+                  firstName:
+                    type: "string"
+                  lastName:
+                    type: "string"
+                  description:
+                    type: "string"
+                  occupation:
+                    type: "string"
+                  organization:
+                    type: "string"
+                  updatedAt:
+                    type: "string"
+                required: ["address", "createdAt", "firstName", "lastName", "recipientId", "updatedAt"]
+              letters:
+                type: "array"
+                items:
+                  type: "object"
+                  properties:
+                    letterId:
+                      type: "string"
+                    createdAt:
+                      type: "string"
+                    date:
+                      type: "string"
+                      format: "date-time"
+                    description:
+                      type: "string"
+                    imageURLs:
+                      type: "array"
+                      items:
+                        type: "string"
+                        format: "uri"
+                    method:
+                      type: "string"
+                      enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
+                    receivedAt:
+                      type: "string"
+                    sentAt:
+                      type: "string"
+                    status:
+                      type: "string"
+                      enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
+                    text:
+                      type: "string"
+                    title:
+                      type: "string"
+                    type:
+                      type: "string"
+                      enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
+                    updatedAt:
+                      type: "string"
+                  required: ["date", "createdAt", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
+            required: ["correspondence", "recipient", "letters"]
+          message:
+            type: string
+        required: ["data", "message"]
+
+  # <------------------- GET Correspondence ------------------->
+
+  CorrespondenceResponseModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ContentType: "application/json"
+      Name: "CorrespondenceResponseModel"
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          data:
+            type: "array"
+            items:
+              type: "object"
+              properties:
+                correspondence:
+                  type: "object"
+                  properties:
+                    correspondenceId:
+                      type: "string"
+                    createdAt:
+                      type: "string"
+                    reason:
+                      type: "object"
+                      properties:
+                        description:
+                          type: "string"
+                        domain:
+                          type: "string"
+                        impact:
+                          type: "string"
+                          enum: ["HIGH", "MEDIUM", "LOW"]
+                      required: ["description", "domain", "impact"]
+                    status:
+                      type: "string"
+                      enum: ["COMPLETED", "PENDING", "RESPONDED", "UNSENT"]
+                    title:
+                      type: "string"
+                    updatedAt:
+                      type: "string"
+                  required: ["correspondenceId", "createdAt", "reason", "status", "title", "updatedAt"]
+                recipient:
+                  type: "object"
+                  properties:
+                    recipientId:
+                      type: "string"
+                    address:
+                      type: "object"
+                      properties:
+                        city: 
+                          type: "string"
+                        country: 
+                          type: "string"
+                        postalCode:
+                          type: "string"
+                        state:
+                          type: "string"
+                        street:
+                          type: "string"
+                    createdAt:
+                      type: "string"
+                    firstName:
+                      type: "string"
+                    lastName:
+                      type: "string"
+                    description:
+                      type: "string"
+                    occupation:
+                      type: "string"
+                    organization:
+                      type: "string"
+                    updatedAt:
+                      type: "string"
+                  required: ["address", "createdAt", "firstName", "lastName", "recipientId", "updatedAt"]
+                letters:
+                  type: "array"
+                  items:
+                    type: "object"
+                    properties:
+                      letterId:
+                        type: "string"
+                      createdAt:
+                        type: "string"
+                      date:
+                        type: "string"
+                        format: "date-time"
+                      description:
+                        type: "string"
+                      imageURLs:
+                        type: "array"
+                        items:
+                          type: "string"
+                          format: "uri"
+                      method:
+                        type: "string"
+                        enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
+                      receivedAt:
+                        type: "string"
+                      sentAt:
+                        type: "string"
+                      status:
+                        type: "string"
+                        enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
+                      text:
+                        type: "string"
+                      title:
+                        type: "string"
+                      type:
+                        type: "string"
+                        enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
+                      updatedAt:
+                        type: "string"
+                    required: ["date", "createdAt", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
+              required: ["correspondence", "recipient", "letters"]
+          lastEvaluatedKey:
+            type: "string"
+        required: ["data", "lastEvaluatedKey"]
+
+  # <------------------- GET Correspondence By ID ------------------->
+
+  CorrespondenceByIdResponseModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ContentType: "application/json"
+      Name: "CorrespondenceByIdResponseModel"
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          data:
+            type: "object"
+            properties:
+              correspondence:
+                type: "object"
+                properties:
+                  correspondenceId:
+                    type: "string"
+                  createdAt:
+                    type: "string"
+                  reason:
+                    type: "object"
+                    properties:
+                      description:
+                        type: "string"
+                      domain:
+                        type: "string"
+                      impact:
+                        type: "string"
+                        enum: ["HIGH", "MEDIUM", "LOW"]
+                    required: ["description", "domain", "impact"]
+                  status:
+                    type: "string"
+                    enum: ["COMPLETED", "PENDING", "RESPONDED", "UNSENT"]
+                  title:
+                    type: "string"
+                  updatedAt:
+                    type: "string"
+                required: ["correspondenceId", "createdAt", "reason", "status", "title", "updatedAt"]
+              recipient:
+                type: "object"
+                properties:
+                  recipientId:
+                    type: "string"
+                  address:
+                    type: "object"
+                    properties:
+                      city: 
+                        type: "string"
+                      country: 
+                        type: "string"
+                      postalCode:
+                        type: "string"
+                      state:
+                        type: "string"
+                      street:
+                        type: "string"
+                  createdAt:
+                    type: "string"
+                  firstName:
+                    type: "string"
+                  lastName:
+                    type: "string"
+                  description:
+                    type: "string"
+                  occupation:
+                    type: "string"
+                  organization:
+                    type: "string"
+                  updatedAt:
+                    type: "string"
+                required: ["address", "createdAt", "firstName", "lastName", "recipientId", "updatedAt"]
+              letters:
+                type: "array"
+                items:
+                  type: "object"
+                  properties:
+                    letterId:
+                      type: "string"
+                    createdAt:
+                      type: "string"
+                    date:
+                      type: "string"
+                      format: "date-time"
+                    description:
+                      type: "string"
+                    imageURLs:
+                      type: "array"
+                      items:
+                        type: "string"
+                        format: "uri"
+                    method:
+                      type: "string"
+                      enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
+                    receivedAt:
+                      type: "string"
+                    sentAt:
+                      type: "string"
+                    status:
+                      type: "string"
+                      enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
+                    text:
+                      type: "string"
+                    title:
+                      type: "string"
+                    type:
+                      type: "string"
+                      enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
+                    updatedAt:
+                      type: "string"
+                  required: ["date", "createdAt", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
+            required: ["correspondence", "recipient", "letters"]
+        required: ["data"]
+
+  # <------------------- DELETE Correspondence ------------------->
+
+  CorrespondenceDeleteResponseModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: !ImportValue OneHundredLettersApi
+      ContentType: "application/json"
+      Name: "CorrespondenceDeleteResponseModel"
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          data:
+            type: "object"
+            properties:
+              correspondencId:
+                type: "string"
+              recipientId:
+                type: "string"
+              letterIds:
+                type: "array"
+                items:
+                  type: "string"
+            required: ["correspondencId", "recipientId", "letterIds"]
+        required: ["data"]
 
 Outputs:
   CorrespondenceCreateRequestModelOutput:
@@ -200,3 +698,23 @@ Outputs:
     Value: !Ref CorrespondenceUpdateRequestModel
     Export:
       Name: CorrespondenceUpdateRequestModel
+  CorrespondenceResponseModelOutput:
+    Value: !Ref CorrespondenceResponseModel
+    Export:
+      Name: CorrespondenceResponseModel
+  CorrespondenceCreateResponseModelOutput:
+    Value: !Ref CorrespondenceCreateResponseModel
+    Export:
+      Name: CorrespondenceCreateResponseModel
+  CorrespondenceUpdateResponseModelOutput:
+    Value: !Ref CorrespondenceUpdateResponseModel
+    Export:
+      Name: CorrespondenceUpdateResponseModel
+  CorrespondenceByIdResponseModelOutput:
+    Value: !Ref CorrespondenceByIdResponseModel
+    Export:
+      Name: CorrespondenceByIdResponseModel
+  CorrespondenceDeleteResponseModelOutput:
+    Value: !Ref CorrespondenceDeleteResponseModel
+    Export:
+      Name: CorrespondenceDeleteResponseModel

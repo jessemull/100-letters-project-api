@@ -293,7 +293,9 @@ Resources:
               recipientId:
                 type: "string"
             required: ["recipientId"]
-        required: ["data"]
+          message:
+            type: "string"
+        required: ["data", "message"]
 
 Outputs:
   RecipientCreateRequestModelOutput:
