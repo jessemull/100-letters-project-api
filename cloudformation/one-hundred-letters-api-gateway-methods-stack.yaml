@@ -227,6 +227,13 @@ Resources:
       RequestParameters:
         "method.request.querystring.limit": false
         "method.request.querystring.lastEvaluatedKey": false
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            "application/json": !ImportValue LetterResponseModel
+        - StatusCode: 500
+          ResponseModels:
+            "application/json": !ImportValue InternalServerError
   
   LetterByIdMethod:
     Type: AWS::ApiGateway::Method
@@ -241,6 +248,19 @@ Resources:
         Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getLetterById/invocations"
       RequestParameters:
         method.request.path.id: true
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            "application/json": !ImportValue LetterByIdResponseModel
+        - StatusCode: 400
+          ResponseModels:
+            "application/json": !ImportValue BadRequestError
+        - StatusCode: 404
+          ResponseModels:
+            "application/json": !ImportValue NotFoundError
+        - StatusCode: 500
+          ResponseModels:
+            "application/json": !ImportValue InternalServerError
 
   LetterCreateMethod:
     Type: AWS::ApiGateway::Method
@@ -257,6 +277,16 @@ Resources:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
         Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createLetter/invocations"
+      MethodResponses:
+        - StatusCode: 201
+          ResponseModels:
+            "application/json": !ImportValue LetterUpdateResponseModel
+        - StatusCode: 400
+          ResponseModels:
+            "application/json": !ImportValue BadRequestError
+        - StatusCode: 500
+          ResponseModels:
+            "application/json": !ImportValue InternalServerError
 
   LetterUpdateMethod:
     Type: AWS::ApiGateway::Method
@@ -275,6 +305,19 @@ Resources:
         Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:updateLetter/invocations"
       RequestParameters:
         method.request.path.id: true
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            "application/json": !ImportValue LetterUpdateResponseModel
+        - StatusCode: 400
+          ResponseModels:
+            "application/json": !ImportValue BadRequestError
+        - StatusCode: 404
+          ResponseModels:
+            "application/json": !ImportValue NotFoundError
+        - StatusCode: 500
+          ResponseModels:
+            "application/json": !ImportValue InternalServerError
 
   LetterDeleteMethod:
     Type: AWS::ApiGateway::Method
@@ -290,3 +333,16 @@ Resources:
         Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:deleteLetter/invocations"
       RequestParameters:
         method.request.path.id: true
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            "application/json": !ImportValue LetterDeleteResponseModel
+        - StatusCode: 400
+          ResponseModels:
+            "application/json": !ImportValue BadRequestError
+        - StatusCode: 404
+          ResponseModels:
+            "application/json": !ImportValue NotFoundError
+        - StatusCode: 500
+          ResponseModels:
+            "application/json": !ImportValue InternalServerError
