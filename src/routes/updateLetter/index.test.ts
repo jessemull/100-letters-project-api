@@ -29,7 +29,6 @@ describe('Update Letter Handler', () => {
     const event = {
       body: JSON.stringify({
         correspondenceId: '123',
-        date: '2025-03-12',
         imageURLs: 'http://example.com',
         method: 'email',
         status: 'sent',
@@ -54,7 +53,6 @@ describe('Update Letter Handler', () => {
       pathParameters: { id: '123' },
       body: JSON.stringify({
         correspondenceId: 'abc',
-        date: '2025-03-12',
         imageURLs: ['http://example.com/image.jpg'],
         method: 'email',
         status: 'sent',
@@ -108,7 +106,6 @@ describe('Update Letter Handler', () => {
       pathParameters: { id: '123' },
       body: JSON.stringify({
         correspondenceId: '123',
-        date: '2025-03-12',
         imageURLs: 'http://example.com',
         method: 'email',
         status: 'sent',
@@ -137,7 +134,6 @@ describe('Update Letter Handler', () => {
       pathParameters: { id: '123' },
       body: JSON.stringify({
         correspondenceId: '123',
-        date: '2025-03-12',
         imageURLs: 'http://example.com',
         method: 'email',
         status: 'sent',
@@ -166,7 +162,6 @@ describe('Update Letter Handler', () => {
       pathParameters: { id: '123' },
       body: JSON.stringify({
         correspondenceId: 'abc',
-        date: '2025-03-12',
         imageURLs: ['http://example.com/image.jpg'],
         method: 'email',
         status: 'sent',
@@ -195,7 +190,6 @@ describe('Update Letter Handler', () => {
       pathParameters: { id: '123' },
       body: JSON.stringify({
         correspondenceId: 'abc',
-        date: '2025-03-12',
         imageURLs: ['http://example.com/image.jpg'],
         method: 'email',
         status: 'sent',
@@ -212,7 +206,6 @@ describe('Update Letter Handler', () => {
       Attributes: {
         letterId: '123',
         correspondenceId: 'abc',
-        date: '2025-03-12',
         imageURLs: ['http://example.com/image.jpg'],
         method: 'email',
         status: 'sent',
@@ -245,7 +238,6 @@ describe('Update Letter Handler', () => {
       pathParameters: { id: '123' },
       body: JSON.stringify({
         correspondenceId: 'abc',
-        date: '2025-03-12',
         description: 'Sample description',
         imageURLs: ['http://example.com/image.jpg'],
         method: 'email',
@@ -264,7 +256,6 @@ describe('Update Letter Handler', () => {
     const mockLetterResult = {
       Attributes: {
         correspondenceId: 'abc',
-        date: '2025-03-12',
         description: 'Sample description',
         imageURLs: ['http://example.com/image.jpg'],
         letterId: '123',

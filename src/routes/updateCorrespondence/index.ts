@@ -131,9 +131,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         TableName: 'OneHundredLettersLetterTable',
         Key: { correspondenceId, letterId },
         UpdateExpression:
-          'SET #date = :date, #imageURLs = :imageURLs, #method = :method, #status = :status, #text = :text, #title = :title, #type = :type',
+          'SET #imageURLs = :imageURLs, #method = :method, #status = :status, #text = :text, #title = :title, #type = :type',
         ExpressionAttributeNames: {
-          '#date': 'date',
           '#imageURLs': 'imageURLs',
           '#method': 'method',
           '#status': 'status',
@@ -142,7 +141,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           '#type': 'type',
         },
         ExpressionAttributeValues: {
-          ':date': letterData.date,
           ':imageURLs': letterData.imageURLs,
           ':method': letterData.method,
           ':status': letterData.status,

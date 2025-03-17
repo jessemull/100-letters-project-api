@@ -69,7 +69,7 @@ Resources:
                     type: "string"
                 required: ["city", "country", "postalCode", "state", "street"]
               createdAt:
-                type: "string"
+                type: "date-time"
               firstName:
                 type: "string"
               lastName:
@@ -81,7 +81,7 @@ Resources:
               organization:
                 type: "string"
               updatedAt:
-                type: "string"
+                type: "date-time"
             required: ["address", "createdAt", "firstName", "lastName", "recipientId", "updatedAt"]
           message:
             type: string
@@ -157,7 +157,7 @@ Resources:
                     type: "string"
                 required: ["city", "country", "postalCode", "state", "street"]
               createdAt:
-                type: "string"
+                type: "date-time"
               firstName:
                 type: "string"
               lastName:
@@ -169,7 +169,7 @@ Resources:
               organization:
                 type: "string"
               updatedAt:
-                type: "string"
+                type: "date-time"
             required: ["address", "createAt", "firstName", "lastName", "recipientId", "updatedAt"]
           message:
             type: string
@@ -209,7 +209,7 @@ Resources:
                       type: "string"
                   required: ["city", "country", "postalCode", "state", "street"]
                 createdAt:
-                  type: "string"
+                  type: "date-time"
                 firstName:
                   type: "string"
                 lastName:
@@ -221,7 +221,7 @@ Resources:
                 organization:
                   type: "string"
                 updatedAt:
-                  type: "string"
+                  type: "date-time"
               required: ["address", "createdAt", "firstName", "lastName", "recipientId", "updatedAt"]
           lastEvaluatedKey:
             type: "string"
@@ -261,7 +261,7 @@ Resources:
                     type: "string"
                 required: ["city", "country", "postalCode", "state", "street"]
               createdAt:
-                type: "string"
+                type: "date-time"
               firstName:
                 type: "string"
               lastName:
@@ -273,7 +273,7 @@ Resources:
               organization:
                 type: "string"
               updatedAt:
-                type: "string"
+                type: "date-time"
             required: ["address", "firstName", "lastName", "recipientId"]
           message:
             type: string

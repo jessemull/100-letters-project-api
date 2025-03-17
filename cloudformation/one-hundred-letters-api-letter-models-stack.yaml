@@ -15,8 +15,6 @@ Resources:
         properties:
           correspondenceId:
             type: "string"
-          date:
-            type: "string"
           description:
             type: "string"
           imageURLs:
@@ -28,9 +26,9 @@ Resources:
             type: "string"
             enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
           receivedAt:
-            type: "string"
+            type: "date-time"
           sentAt:
-            type: "string"
+            type: "date-time"
           status:
             type: "string"
             enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
@@ -41,7 +39,7 @@ Resources:
           type:
             type: "string"
             enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
-        required: ["correspondenceId", "date", "imageURLs", "method", "status", "text", "title", "type"]
+        required: ["correspondenceId", "imageURLs", "method", "status", "text", "title", "type"]
   
   LetterCreateResponseModel:
     Type: AWS::ApiGateway::Model
@@ -59,9 +57,7 @@ Resources:
               correspondenceId:
                 type: "string"
               createdAt:
-                type: "string"
-              date:
-                type: "string"
+                type: "date-time"
               description:
                 type: "string"
               imageURLs:
@@ -75,9 +71,9 @@ Resources:
                 type: "string"
                 enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
               receivedAt:
-                type: "string"
+                type: "date-time"
               sentAt:
-                type: "string"
+                type: "date-time"
               status:
                 type: "string"
                 enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
@@ -89,8 +85,8 @@ Resources:
                 type: "string"
                 enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
               updatedAt:
-                type: "string"
-            required: ["correspondenceId", "createdAt", "date", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
+                type: "date-time"
+            required: ["correspondenceId", "createdAt", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
           message:
             type: string
         required: ["data", "message"]
@@ -109,8 +105,6 @@ Resources:
           properties:
             correspondenceId:
               type: "string"
-            date:
-              type: "string"
             description:
               type: "string"
             imageURLs:
@@ -124,9 +118,9 @@ Resources:
               type: "string"
               enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
             receivedAt:
-              type: "string"
+              type: "date-time"
             sentAt:
-              type: "string"
+              type: "date-time"
             status:
               type: "string"
               enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
@@ -137,7 +131,7 @@ Resources:
             type:
               type: "string"
               enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
-          required: ["correspondenceId", "date", "imageURLs", "letterId", "method", "status", "text", "title", "type"]
+          required: ["correspondenceId", "imageURLs", "letterId", "method", "status", "text", "title", "type"]
   
   LetterUpdateResponseModel:
     Type: AWS::ApiGateway::Model
@@ -155,9 +149,7 @@ Resources:
               correspondenceId:
                 type: "string"
               createdAt:
-                type: "string"
-              date:
-                type: "string"
+                type: "date-time"
               description:
                 type: "string"
               imageURLs:
@@ -171,9 +163,9 @@ Resources:
                 type: "string"
                 enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
               receivedAt:
-                type: "string"
+                type: "date-time"
               sentAt:
-                type: "string"
+                type: "date-time"
               status:
                 type: "string"
                 enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
@@ -185,8 +177,8 @@ Resources:
                 type: "string"
                 enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
               updatedAt:
-                type: "string"
-            required: ["correspondenceId", "createdAt", "date", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
+                type: "date-time"
+            required: ["correspondenceId", "createdAt", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
           message:
             type: string
         required: ["data", "message"]
@@ -211,9 +203,7 @@ Resources:
                 correspondenceId:
                   type: "string"
                 createdAt:
-                  type: "string"
-                date:
-                  type: "string"
+                  type: "date-time"
                 description:
                   type: "string"
                 imageURLs:
@@ -227,9 +217,9 @@ Resources:
                   type: "string"
                   enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
                 receivedAt:
-                  type: "string"
+                  type: "date-time"
                 sentAt:
-                  type: "string"
+                  type: "date-time"
                 status:
                   type: "string"
                   enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
@@ -241,8 +231,8 @@ Resources:
                   type: "string"
                   enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
                 updatedAt:
-                  type: "string"
-              required: ["correspondenceId", "createdAt", "date", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
+                  type: "date-time"
+              required: ["correspondenceId", "createdAt", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
           lastEvaluatedKey:
             type: "string"
           message:
@@ -267,9 +257,7 @@ Resources:
               correspondenceId:
                 type: "string"
               createdAt:
-                type: "string"
-              date:
-                type: "string"
+                type: "date-time"
               description:
                 type: "string"
               imageURLs:
@@ -283,9 +271,9 @@ Resources:
                 type: "string"
                 enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
               receivedAt:
-                type: "string"
+                type: "date-time"
               sentAt:
-                type: "string"
+                type: "date-time"
               status:
                 type: "string"
                 enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
@@ -297,8 +285,8 @@ Resources:
                 type: "string"
                 enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
               updatedAt:
-                type: "string"
-            required: ["correspondenceId", "createdAt", "date", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
+                type: "date-time"
+            required: ["correspondenceId", "createdAt", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
           message:
             type: string
         required: ["data", "message"]

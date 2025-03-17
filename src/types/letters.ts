@@ -22,7 +22,6 @@ export enum LetterType {
 
 export interface Letter {
   correspondenceId: string;
-  date: string;
   description?: string;
   imageURLs: string[];
   letterId: string;
@@ -37,7 +36,6 @@ export interface Letter {
 
 export type LetterCreateInput = {
   correspondenceId: string;
-  date: string;
   description?: string;
   imageURLs: string[];
   method: LetterMethod;
@@ -50,7 +48,6 @@ export type LetterCreateInput = {
 };
 
 export type LetterUpdateInput = {
-  date: string;
   description?: string;
   imageURLs: string[];
   letterId: string;

@@ -26,7 +26,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     const {
       correspondenceId,
-      date,
       description,
       imageURLs,
       method,
@@ -64,9 +63,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         letterId,
       },
       UpdateExpression:
-        'SET #date = :date, #imageURLs = :imageURLs, #method = :method, #status = :status, #text = :text, #title = :title, #type = :type',
+        'SET #imageURLs = :imageURLs, #method = :method, #status = :status, #text = :text, #title = :title, #type = :type',
       ExpressionAttributeNames: {
-        '#date': 'date',
         '#imageURLs': 'imageURLs',
         '#method': 'method',
         '#status': 'status',
@@ -75,7 +73,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         '#type': 'type',
       },
       ExpressionAttributeValues: {
-        ':date': date,
         ':imageURLs': imageURLs,
         ':method': method,
         ':status': status,

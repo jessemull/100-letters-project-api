@@ -776,8 +776,6 @@ components:
       properties:
         correspondenceId:
           $ref: "#/components/schemas/UUID"
-        date:
-          $ref: "#/components/schemas/DateTime"
         description:
           $ref: "#/components/schemas/LetterDescription"
         imageURLs:

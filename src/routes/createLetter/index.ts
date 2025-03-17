@@ -21,7 +21,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     const {
       correspondenceId,
-      date,
       description,
       imageURLs,
       method,
@@ -57,7 +56,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const letterData: Letter = {
       letterId,
       correspondenceId,
-      date,
       imageURLs,
       method,
       status,
