@@ -51,7 +51,6 @@ function generateLetterData(correspondenceId, letterId) {
   return {
     correspondenceId: { S: `CORRESPONDENCE#${correspondenceId}` },
     createdAt: { S: faker.date.past().toISOString() },
-    date: { S: faker.date.past().toISOString() },
     description: { S: faker.lorem.sentence() },
     imageURLs: { L: [{ S: faker.image.url() }, { S: faker.image.url() }] },
     letterId: { S: `LETTER#${letterId}` },

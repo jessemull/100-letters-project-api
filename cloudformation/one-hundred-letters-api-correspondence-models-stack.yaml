@@ -65,9 +65,6 @@ Resources:
             items:
               type: "object"
               properties:
-                date:
-                  type: "string"
-                  format: "date-time"
                 description:
                   type: "string"
                 imageURLs:
@@ -79,9 +76,9 @@ Resources:
                   type: "string"
                   enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
                 receivedAt:
-                  type: "string"
+                  type: "date-time"
                 sentAt:
-                  type: "string"
+                  type: "date-time"
                 status:
                   type: "string"
                   enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
@@ -92,7 +89,7 @@ Resources:
                 type:
                   type: "string"
                   enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
-              required: ["date", "imageURLs", "method", "status", "text", "title", "type"]
+              required: ["imageURLs", "method", "status", "text", "title", "type"]
         required: ["correspondence", "recipient", "letters"]
   
   CorrespondenceCreateResponseModel:
@@ -114,7 +111,7 @@ Resources:
                   correspondenceId:
                     type: "string"
                   createdAt:
-                    type: "string"
+                    type: "date-time"
                   reason:
                     type: "object"
                     properties:
@@ -132,7 +129,7 @@ Resources:
                   title:
                     type: "string"
                   updatedAt:
-                    type: "string"
+                    type: "date-time"
                 required: ["correspondenceId", "createdAt", "reason", "status", "title", "updatedAt"]
               recipient:
                 type: "object"
@@ -153,7 +150,7 @@ Resources:
                       street:
                         type: "string"
                   createdAt:
-                    type: "string"
+                    type: "date-time"
                   firstName:
                     type: "string"
                   lastName:
@@ -165,7 +162,7 @@ Resources:
                   organization:
                     type: "string"
                   updatedAt:
-                    type: "string"
+                    type: "date-time"
                 required: ["address", "createdAt", "firstName", "lastName", "recipientId", "updatedAt"]
               letters:
                 type: "array"
@@ -175,10 +172,7 @@ Resources:
                     letterId:
                       type: "string"
                     createdAt:
-                      type: "string"
-                    date:
-                      type: "string"
-                      format: "date-time"
+                      type: "date-time"
                     description:
                       type: "string"
                     imageURLs:
@@ -190,9 +184,9 @@ Resources:
                       type: "string"
                       enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
                     receivedAt:
-                      type: "string"
+                      type: "date-time"
                     sentAt:
-                      type: "string"
+                      type: "date-time"
                     status:
                       type: "string"
                       enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
@@ -204,8 +198,8 @@ Resources:
                       type: "string"
                       enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
                     updatedAt:
-                      type: "string"
-                  required: ["date", "createdAt", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
+                      type: "date-time"
+                  required: ["createdAt", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
             required: ["correspondence", "recipient", "letters"]
           message:
             type: string
@@ -281,9 +275,6 @@ Resources:
               properties:
                 letterId:
                   type: "string"
-                date:
-                  type: "string"
-                  format: "date-time"
                 description:
                   type: "string"
                 imageURLs:
@@ -295,9 +286,9 @@ Resources:
                   type: "string"
                   enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
                 receivedAt:
-                  type: "string"
+                  type: "date-time"
                 sentAt:
-                  type: "string"
+                  type: "date-time"
                 status:
                   type: "string"
                   enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
@@ -308,7 +299,7 @@ Resources:
                 type:
                   type: "string"
                   enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
-              required: ["date", "imageURLs", "letterId", "method", "status", "text", "title", "type"]
+              required: ["imageURLs", "letterId", "method", "status", "text", "title", "type"]
         required: ["correspondence", "recipient", "letters"]
   
   CorrespondenceUpdateResponseModel:
@@ -330,7 +321,7 @@ Resources:
                   correspondenceId:
                     type: "string"
                   createdAt:
-                    type: "string"
+                    type: "date-time"
                   reason:
                     type: "object"
                     properties:
@@ -348,7 +339,7 @@ Resources:
                   title:
                     type: "string"
                   updatedAt:
-                    type: "string"
+                    type: "date-time"
                 required: ["correspondenceId", "createdAt", "reason", "status", "title", "updatedAt"]
               recipient:
                 type: "object"
@@ -369,7 +360,7 @@ Resources:
                       street:
                         type: "string"
                   createdAt:
-                    type: "string"
+                    type: "date-time"
                   firstName:
                     type: "string"
                   lastName:
@@ -381,7 +372,7 @@ Resources:
                   organization:
                     type: "string"
                   updatedAt:
-                    type: "string"
+                    type: "date-time"
                 required: ["address", "createdAt", "firstName", "lastName", "recipientId", "updatedAt"]
               letters:
                 type: "array"
@@ -391,10 +382,7 @@ Resources:
                     letterId:
                       type: "string"
                     createdAt:
-                      type: "string"
-                    date:
-                      type: "string"
-                      format: "date-time"
+                      type: "date-time"
                     description:
                       type: "string"
                     imageURLs:
@@ -406,9 +394,9 @@ Resources:
                       type: "string"
                       enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
                     receivedAt:
-                      type: "string"
+                      type: "date-time"
                     sentAt:
-                      type: "string"
+                      type: "date-time"
                     status:
                       type: "string"
                       enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
@@ -420,8 +408,8 @@ Resources:
                       type: "string"
                       enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
                     updatedAt:
-                      type: "string"
-                  required: ["date", "createdAt", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
+                      type: "date-time"
+                  required: ["createdAt", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
             required: ["correspondence", "recipient", "letters"]
           message:
             type: string
@@ -450,7 +438,7 @@ Resources:
                     correspondenceId:
                       type: "string"
                     createdAt:
-                      type: "string"
+                      type: "date-time"
                     reason:
                       type: "object"
                       properties:
@@ -468,7 +456,7 @@ Resources:
                     title:
                       type: "string"
                     updatedAt:
-                      type: "string"
+                      type: "date-time"
                   required: ["correspondenceId", "createdAt", "reason", "status", "title", "updatedAt"]
                 recipient:
                   type: "object"
@@ -489,7 +477,7 @@ Resources:
                         street:
                           type: "string"
                     createdAt:
-                      type: "string"
+                      type: "date-time"
                     firstName:
                       type: "string"
                     lastName:
@@ -501,7 +489,7 @@ Resources:
                     organization:
                       type: "string"
                     updatedAt:
-                      type: "string"
+                      type: "date-time"
                   required: ["address", "createdAt", "firstName", "lastName", "recipientId", "updatedAt"]
                 letters:
                   type: "array"
@@ -511,10 +499,7 @@ Resources:
                       letterId:
                         type: "string"
                       createdAt:
-                        type: "string"
-                      date:
-                        type: "string"
-                        format: "date-time"
+                        type: "date-time"
                       description:
                         type: "string"
                       imageURLs:
@@ -526,9 +511,9 @@ Resources:
                         type: "string"
                         enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
                       receivedAt:
-                        type: "string"
+                        type: "date-time"
                       sentAt:
-                        type: "string"
+                        type: "date-time"
                       status:
                         type: "string"
                         enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
@@ -540,8 +525,8 @@ Resources:
                         type: "string"
                         enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
                       updatedAt:
-                        type: "string"
-                    required: ["date", "createdAt", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
+                        type: "date-time"
+                    required: ["createdAt", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
               required: ["correspondence", "recipient", "letters"]
           lastEvaluatedKey:
             type: "string"
@@ -570,7 +555,7 @@ Resources:
                   correspondenceId:
                     type: "string"
                   createdAt:
-                    type: "string"
+                    type: "date-time"
                   reason:
                     type: "object"
                     properties:
@@ -588,7 +573,7 @@ Resources:
                   title:
                     type: "string"
                   updatedAt:
-                    type: "string"
+                    type: "date-time"
                 required: ["correspondenceId", "createdAt", "reason", "status", "title", "updatedAt"]
               recipient:
                 type: "object"
@@ -609,7 +594,7 @@ Resources:
                       street:
                         type: "string"
                   createdAt:
-                    type: "string"
+                    type: "date-time"
                   firstName:
                     type: "string"
                   lastName:
@@ -621,7 +606,7 @@ Resources:
                   organization:
                     type: "string"
                   updatedAt:
-                    type: "string"
+                    type: "date-time"
                 required: ["address", "createdAt", "firstName", "lastName", "recipientId", "updatedAt"]
               letters:
                 type: "array"
@@ -631,10 +616,7 @@ Resources:
                     letterId:
                       type: "string"
                     createdAt:
-                      type: "string"
-                    date:
-                      type: "string"
-                      format: "date-time"
+                      type: "date-time"
                     description:
                       type: "string"
                     imageURLs:
@@ -646,9 +628,9 @@ Resources:
                       type: "string"
                       enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
                     receivedAt:
-                      type: "string"
+                      type: "date-time"
                     sentAt:
-                      type: "string"
+                      type: "date-time"
                     status:
                       type: "string"
                       enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
@@ -660,8 +642,8 @@ Resources:
                       type: "string"
                       enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
                     updatedAt:
-                      type: "string"
-                  required: ["date", "createdAt", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
+                      type: "date-time"
+                  required: ["createdAt", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
             required: ["correspondence", "recipient", "letters"]
           message:
             type: string

@@ -34,7 +34,6 @@ describe('Create Letter Handler', () => {
 
     const body = {
       correspondenceId: 'mock-correspondence-id',
-      date: '2025-03-10',
       imageURLs: ['http://image.url'],
       method: 'email',
       status: 'sent',
@@ -68,7 +67,6 @@ describe('Create Letter Handler', () => {
     expect(responseBody.message).toBe('Letter created successfully!');
     expect(responseBody.data).toEqual({
       correspondenceId: 'mock-correspondence-id',
-      date: '2025-03-10',
       imageURLs: ['http://image.url'],
       letterId: 'mock-letter-uuid',
       method: 'email',
@@ -108,7 +106,6 @@ describe('Create Letter Handler', () => {
   it('should return 500 error if there is a DynamoDB error', async () => {
     const body = {
       correspondenceId: 'mock-correspondence-id',
-      date: '2025-03-10',
       imageURLs: ['http://image.url'],
       method: 'email',
       status: 'sent',
@@ -159,7 +156,6 @@ describe('Create Letter Handler', () => {
 
     const body = {
       correspondenceId: 'mock-correspondence-id',
-      date: '2025-03-10',
       description: 'This is a description of the letter.',
       imageURLs: ['http://image.url'],
       method: 'email',
@@ -196,7 +192,6 @@ describe('Create Letter Handler', () => {
     expect(responseBody.message).toBe('Letter created successfully!');
     expect(responseBody.data).toEqual({
       correspondenceId: 'mock-correspondence-id',
-      date: '2025-03-10',
       description: 'This is a description of the letter.',
       imageURLs: ['http://image.url'],
       letterId: 'mock-letter-uuid',
@@ -213,7 +208,6 @@ describe('Create Letter Handler', () => {
   it('should return 404 error if correspondence is not found', async () => {
     const body = {
       correspondenceId: 'mock-correspondence-id',
-      date: '2025-03-10',
       imageURLs: ['http://image.url'],
       method: 'email',
       status: 'sent',
