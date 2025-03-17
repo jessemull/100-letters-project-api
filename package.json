@@ -11,6 +11,7 @@
     "bunyan-cloudwatch": "^2.2.0"
   },
   "devDependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.768.0",
     "@commitlint/cli": "^19.7.1",
     "@commitlint/config-conventional": "^19.7.1",
     "@faker-js/faker": "^9.5.0",
@@ -68,6 +69,7 @@
     "test:all": "jest --no-cache",
     "test:all:watch": "jest --watch",
     "test:pkg": "node scripts/test-pkg.js",
-    "test:pkg:watch": "node scripts/test-pkg-watch.js"
+    "test:pkg:watch": "node scripts/test-pkg-watch.js",
+    "token": "node scripts/cognito-token.js"
   }
 }
