@@ -13,6 +13,7 @@ on:
 
 jobs:
   deploy-stage:
+    name: Deploy API Gateway Stage
     runs-on: ubuntu-latest
 
     steps:
@@ -48,12 +49,14 @@ jobs:
           ELAPSED=0
 
           while [ "$ELAPSED" -lt "$TIMEOUT" ]; do
-            STATUS=$(aws apigateway get-deployment \
+            RESPONSE=$(aws apigateway get-deployment \
               --rest-api-id $API_ID \
               --deployment-id $DEPLOYMENT_ID \
-              --query 'ResponseMetadata.HTTPStatusCode' \
-              --output text 2>/dev/null) || STATUS="Failed"
+              --output json 2>/dev/null) || RESPONSE="Failed"
 
+            echo "Full CLI response: $RESPONSE"
+
+            STATUS=$(echo "$RESPONSE" | jq -r '.ResponseMetadata.HTTPStatusCode' 2>/dev/null) || STATUS="Failed"
             echo "Current status: $STATUS"
 
             if [ "$STATUS" = "200" ]; then
