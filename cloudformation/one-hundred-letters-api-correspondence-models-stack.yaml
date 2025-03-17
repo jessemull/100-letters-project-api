@@ -547,7 +547,7 @@ Resources:
             type: "string"
           message:
             type: string
-        required: ["data", "lastEvaluatedKey"]
+        required: ["data", "lastEvaluatedKey", "message"]
 
   # <------------------- GET Correspondence By ID ------------------->
 
@@ -665,7 +665,7 @@ Resources:
             required: ["correspondence", "recipient", "letters"]
           message:
             type: string
-        required: ["data"]
+        required: ["data", "message"]
 
   # <------------------- DELETE Correspondence ------------------->
 
@@ -693,7 +693,7 @@ Resources:
             required: ["correspondencId", "recipientId", "letterIds"]
           message:
             type: string
-        required: ["data"]
+        required: ["data", "message"]
 
 Outputs:
   CorrespondenceCreateRequestModelOutput:

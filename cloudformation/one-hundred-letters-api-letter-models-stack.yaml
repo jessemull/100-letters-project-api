@@ -247,7 +247,7 @@ Resources:
             type: "string"
           message:
             type: string
-        required: ["data", "lastEvaluatedKey"]
+        required: ["data", "lastEvaluatedKey", "message"]
 
   # <------------------- GET Letter By ID ------------------->
 
@@ -301,7 +301,7 @@ Resources:
             required: ["correspondenceId", "createdAt", "date", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
           message:
             type: string
-        required: ["data"]
+        required: ["data", "message"]
 
   # <------------------- DELETE Letters ------------------->
 
