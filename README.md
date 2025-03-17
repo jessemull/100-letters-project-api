@@ -386,6 +386,37 @@ To reset DynamoDB tables:
 npm run db:reset
 ```
 
+## Cognito ID Token
+
+All write routes are protected via Cognito User Pools. A valid ID token is required to use these endpoints.
+
+### Generating An ID Token
+
+To generate a valid ID token:
+
+```bash
+npm run token
+```
+
+### Using An ID Token
+
+To use the token add it to the Authorization request header:
+
+```bash
+curl -X POST "https://bgv89ajo02.execute-api.us-west-2.amazonaws.com/<stage>/<route>"  -H "Authorization: Bearer <token>"
+```
+
+### Environment Variables
+
+The following environment variables must be set in a `.env` file in the root of the project to generate a token:
+
+```
+COGNITO_USER_POOL_ID=cognito-user-pool-id
+COGNITO_USER_POOL_USERNAME=cognito-user-pool-username
+COGNITO_USER_POOL_PASSWORD=cognito-user-pool-password
+COGNITO_USER_POOL_CLIENT_ID=cognito-user-pool-client-id
+```
+
 ## Templating Engine
 
 A templating engine exists to scaffold out a new route.
