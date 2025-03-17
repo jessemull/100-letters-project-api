@@ -1,9 +1,5 @@
-
-
-
-
-require('dotenv').config();
-const { CognitoIdentityProviderClient, InitiateAuthCommand } = require('@aws-sdk/client-cognito-identity-provider')
+require("dotenv").config();
+const { CognitoIdentityProviderClient, InitiateAuthCommand } = require("@aws-sdk/client-cognito-identity-provider")
 
 const userPoolWebClientId = process.env.COGNITO_USER_POOL_CLIENT_ID;
 const username = process.env.COGNITO_USER_POOL_USERNAME;
