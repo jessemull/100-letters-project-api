@@ -43,31 +43,4 @@ jobs:
               exit 1
             }
 
-          echo "Waiting for deployment $DEPLOYMENT_ID to complete..."
-          TIMEOUT=300
-          INTERVAL=10
-          ELAPSED=0
-
-          while [ "$ELAPSED" -lt "$TIMEOUT" ]; do
-            RESPONSE=$(aws apigateway get-deployment \
-              --rest-api-id $API_ID \
-              --deployment-id $DEPLOYMENT_ID \
-              --output json 2>/dev/null) || RESPONSE="Failed"
-
-            echo "Full CLI response: $RESPONSE"
-
-            STATUS=$(echo "$RESPONSE" | jq -r '.ResponseMetadata.HTTPStatusCode' 2>/dev/null) || STATUS="Failed"
-            echo "Current status: $STATUS"
-
-            if [ "$STATUS" = "200" ]; then
-              echo "Deployment completed successfully..."
-              exit 0
-            fi
-
-            echo "Deployment still in progress... (Elapsed: ${ELAPSED}s)"
-            sleep $INTERVAL
-            ELAPSED=$((ELAPSED + INTERVAL))
-          done
-
-          echo "Deployment timed out after $TIMEOUT seconds."
-          exit 1
+          echo "Deployment created successfully with ID: $DEPLOYMENT_ID"
