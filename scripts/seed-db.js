@@ -1,5 +1,6 @@
 const { DynamoDBClient, PutItemCommand } = require('@aws-sdk/client-dynamodb');
 const { faker } = require('@faker-js/faker');
+const { v4: uuidv4 } = require('uuid');
 
 const dynamoDBClient = new DynamoDBClient({ region: 'us-west-2' });
 
@@ -10,6 +11,9 @@ const letterTableName = 'OneHundredLettersLetterTable';
 const numRecipients = 10;
 const numCorrespondences = 20;
 const numLetters = 30;
+
+const recipientIds = Array.from({ length: numRecipients }, () => uuidv4());
+const correspondenceIds = Array.from({ length: numCorrespondences }, () => uuidv4());
 
 function generateRecipientData(id) {
   return {
@@ -26,16 +30,16 @@ function generateRecipientData(id) {
     lastName: { S: faker.person.lastName() },
     occupation: { S: faker.person.jobTitle() },
     organization: { S: faker.company.name() },
-    recipientId: { S: `RECIPIENT#${id}` },
+    recipientId: { S: id },
     updatedAt: { S: faker.date.recent().toISOString() },
   };
 }
 
 function generateCorrespondenceData(recipientId, correspondenceId) {
   return {
-    correspondenceId: { S: `CORRESPONDENCE#${correspondenceId}` },
+    correspondenceId: { S: correspondenceId },
     createdAt: { S: faker.date.past().toISOString() },
-    recipientId: { S: `RECIPIENT#${recipientId}` },
+    recipientId: { S: recipientId },
     reason: { M: {
       description: { S: faker.lorem.sentence() },
       domain: { S: faker.person.jobArea() },
@@ -49,11 +53,11 @@ function generateCorrespondenceData(recipientId, correspondenceId) {
 
 function generateLetterData(correspondenceId, letterId) {
   return {
-    correspondenceId: { S: `CORRESPONDENCE#${correspondenceId}` },
+    correspondenceId: { S: correspondenceId },
     createdAt: { S: faker.date.past().toISOString() },
     description: { S: faker.lorem.sentence() },
     imageURLs: { L: [{ S: faker.image.url() }, { S: faker.image.url() }] },
-    letterId: { S: `LETTER#${letterId}` },
+    letterId: { S: letterId },
     method: { S: faker.helpers.arrayElement(['TYPED', 'HANDWRITTEN', 'PRINTED', 'DIGITAL', 'OTHER']) },
     status: { S: faker.helpers.arrayElement(['PENDING', 'SENT', 'RECEIVED', 'RESPONDED']) },
     text: { S: faker.lorem.paragraph() },
@@ -65,24 +69,25 @@ function generateLetterData(correspondenceId, letterId) {
 
 async function seedData() {
   try {
-    for (let i = 1; i <= numRecipients; i++) {
-      const recipient = generateRecipientData(i);
+    for (const recipientId of recipientIds) {
+      const recipient = generateRecipientData(recipientId);
       await dynamoDBClient.send(new PutItemCommand({ TableName: recipientTableName, Item: recipient }));
-      console.log(`Inserted recipient: ${recipient.recipientId.S}`);
+      console.log(`Inserted recipient: ${recipientId}`);
     }
 
-    for (let i = 1; i <= numCorrespondences; i++) {
-      const recipientId = faker.helpers.arrayElement([...Array(numRecipients).keys()].map(i => i + 1));
-      const correspondence = generateCorrespondenceData(recipientId, i);
+    for (const correspondenceId of correspondenceIds) {
+      const recipientId = faker.helpers.arrayElement(recipientIds);
+      const correspondence = generateCorrespondenceData(recipientId, correspondenceId);
       await dynamoDBClient.send(new PutItemCommand({ TableName: correspondenceTableName, Item: correspondence }));
-      console.log(`Inserted correspondence: ${correspondence.correspondenceId.S}`);
+      console.log(`Inserted correspondence: ${correspondenceId}`);
     }
 
     for (let i = 1; i <= numLetters; i++) {
-      const correspondenceId = faker.helpers.arrayElement([...Array(numCorrespondences).keys()].map(i => i + 1));
-      const letter = generateLetterData(correspondenceId, i);
+      const correspondenceId = faker.helpers.arrayElement(correspondenceIds);
+      const letterId = uuidv4();
+      const letter = generateLetterData(correspondenceId, letterId);
       await dynamoDBClient.send(new PutItemCommand({ TableName: letterTableName, Item: letter }));
-      console.log(`Inserted letter: ${letter.letterId.S}`);
+      console.log(`Inserted letter: ${letterId}`);
     }
 
     console.log('Seed data inserted successfully...');
