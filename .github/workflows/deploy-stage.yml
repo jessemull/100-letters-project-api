@@ -1,0 +1,59 @@
+name: Deploy API Gateway Stage
+
+on:
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: "API Gateway Stage"
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Deploy API Gateway Stage
+        run: |
+          API_ID=${{ secrets.API_GATEWAY_ID }}
+          STAGE_NAME="${{ github.event.inputs.stage }}"
+          set -e
+          DEPLOYMENT_ID=$(aws apigateway create-deployment \
+            --rest-api-id $API_ID \
+            --stage-name $STAGE_NAME \
+            --region us-west-2 \
+            --query 'id' \
+            --output text) || {
+              echo "Deployment creation failed..."
+              exit 1
+            }
+          echo "Waiting for deployment $DEPLOYMENT_ID to complete..."
+          while true; do
+            STATUS=$(aws apigateway get-deployment \
+              --rest-api-id $API_ID \
+              --deployment-id $DEPLOYMENT_ID \
+              --query 'responseMetadata.HTTPStatusCode' \
+              --output text) || {
+                echo "Failed to retrieve deployment status..."
+                exit 1
+              }
+            if [ "$STATUS" -eq 200 ]; then
+              echo "Deployment completed successfully..."
+              break
+            fi
+            echo "Deployment still in progress..."
+            sleep 10
+          done
