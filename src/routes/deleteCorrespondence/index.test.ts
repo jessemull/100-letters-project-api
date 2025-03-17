@@ -89,7 +89,7 @@ describe('Delete Correspondence Handler', () => {
 
     expect(response.statusCode).toBe(200);
     expect(JSON.parse(response.body).message).toBe(
-      'Successfully deleted correspondence, recipient, and letters.',
+      'Correspondence, recipient and letters deleted successfully!',
     );
     expect(dynamoClient.send).toHaveBeenCalledWith(
       expect.any(TransactWriteCommand),

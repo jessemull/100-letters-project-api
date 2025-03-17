@@ -225,6 +225,8 @@ Resources:
               required: ["address", "createdAt", "firstName", "lastName", "recipientId", "updatedAt"]
           lastEvaluatedKey:
             type: "string"
+          message:
+            type: string
         required: ["data", "lastEvaluatedKey"]
 
   # <------------------- GET Recipient By ID ------------------->
@@ -273,6 +275,8 @@ Resources:
               updatedAt:
                 type: "string"
             required: ["address", "firstName", "lastName", "recipientId"]
+          message:
+            type: string
         required: ["data"]
 
   # <------------------- DELETE Recipients ------------------->

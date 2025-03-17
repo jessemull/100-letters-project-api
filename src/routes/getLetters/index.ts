@@ -28,6 +28,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         lastEvaluatedKey: response.LastEvaluatedKey
           ? encodeURIComponent(JSON.stringify(response.LastEvaluatedKey))
           : null,
+        message: 'Letters fetched successfully!',
       }),
     };
   } catch (error) {

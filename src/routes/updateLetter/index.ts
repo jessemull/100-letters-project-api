@@ -124,8 +124,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     return {
       statusCode: 200,
       body: JSON.stringify({
-        message: 'Letter updated successfully!',
         data: result.Attributes,
+        message: 'Letter updated successfully!',
       }),
     };
   } catch (error) {

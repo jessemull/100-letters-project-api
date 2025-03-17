@@ -91,6 +91,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           recipient,
           letters,
         },
+        message: 'Correspondence fetched successfully!',
       }),
     };
   } catch (error) {
