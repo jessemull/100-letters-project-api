@@ -51,7 +51,7 @@ jobs:
             STATUS=$(aws apigateway get-deployment \
               --rest-api-id $API_ID \
               --deployment-id $DEPLOYMENT_ID \
-              --query 'responseMetadata.HTTPStatusCode' \
+              --query 'ResponseMetadata.HTTPStatusCode' \
               --output text 2>/dev/null) || STATUS="Failed"
 
             echo "Current status: $STATUS"
