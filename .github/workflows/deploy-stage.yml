@@ -12,7 +12,8 @@ on:
           - prod
 
 jobs:
-  deploy:
+  deploy-stage:
+    name: Deploy API Gateway Stage
     runs-on: ubuntu-latest
 
     steps:
@@ -31,6 +32,7 @@ jobs:
           API_ID=${{ secrets.API_GATEWAY_ID }}
           STAGE_NAME="${{ github.event.inputs.stage }}"
           set -e
+          
           DEPLOYMENT_ID=$(aws apigateway create-deployment \
             --rest-api-id $API_ID \
             --stage-name $STAGE_NAME \
@@ -40,20 +42,5 @@ jobs:
               echo "Deployment creation failed..."
               exit 1
             }
-          echo "Waiting for deployment $DEPLOYMENT_ID to complete..."
-          while true; do
-            STATUS=$(aws apigateway get-deployment \
-              --rest-api-id $API_ID \
-              --deployment-id $DEPLOYMENT_ID \
-              --query 'responseMetadata.HTTPStatusCode' \
-              --output text) || {
-                echo "Failed to retrieve deployment status..."
-                exit 1
-              }
-            if [ "$STATUS" -eq 200 ]; then
-              echo "Deployment completed successfully..."
-              break
-            fi
-            echo "Deployment still in progress..."
-            sleep 10
-          done
+
+          echo "Deployment created successfully with ID: $DEPLOYMENT_ID"
