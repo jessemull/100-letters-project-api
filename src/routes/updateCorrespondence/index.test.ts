@@ -153,7 +153,7 @@ describe('Update Correspondence Handler', () => {
 
     expect(response.statusCode).toBe(200);
     expect(JSON.parse(response.body).message).toBe(
-      'Correspondence updated successfully.',
+      'Correspondence updated successfully!',
     );
     expect(JSON.parse(response.body).data).toEqual(expectedResponse);
   });
@@ -251,7 +251,7 @@ describe('Update Correspondence Handler', () => {
     ).toBeTruthy();
     expect(response.statusCode).toBe(200);
     expect(JSON.parse(response.body).message).toBe(
-      'Correspondence updated successfully.',
+      'Correspondence updated successfully!',
     );
   });
 
@@ -320,7 +320,7 @@ describe('Update Correspondence Handler', () => {
     ).toBeTruthy();
     expect(response.statusCode).toBe(200);
     expect(JSON.parse(response.body).message).toBe(
-      'Correspondence updated successfully.',
+      'Correspondence updated successfully!',
     );
   });
 

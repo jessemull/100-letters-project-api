@@ -24,7 +24,10 @@ describe('Get Letters Handler', () => {
 
   it('should return all letters', async () => {
     const mockData = [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }];
-    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({ Items: mockData });
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Items: mockData,
+      LastEvaluatedKey: 'lastEvaluatedKey',
+    });
     const context: Context = {} as Context;
     const event: APIGatewayProxyEvent = {
       body: null,
@@ -33,17 +36,23 @@ describe('Get Letters Handler', () => {
       isBase64Encoded: false,
       path: '',
       pathParameters: null,
-      queryStringParameters: null,
+      queryStringParameters: {
+        lastEvaluatedKey: JSON.stringify('lastEvaluatedKey'),
+        limit: '25',
+      },
       stageVariables: null,
       requestContext: {} as APIGatewayProxyEvent['requestContext'],
       resource: '',
-    } as APIGatewayProxyEvent;
+    } as unknown as APIGatewayProxyEvent;
     const result = (await handler(
       event,
       context,
       () => {},
     )) as APIGatewayProxyResult;
     expect(result.statusCode).toBe(200);
+    expect(JSON.parse(result.body).lastEvaluatedKey).toBe(
+      '%22lastEvaluatedKey%22',
+    );
     expect(JSON.parse(result.body || '').data).toEqual(mockData);
   });
 

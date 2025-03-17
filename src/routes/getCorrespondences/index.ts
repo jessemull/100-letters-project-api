@@ -80,6 +80,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
               JSON.stringify(correspondenceResult.LastEvaluatedKey),
             )
           : null,
+        message: 'Correspondences fetched successfully!',
       }),
     };
   } catch (error) {

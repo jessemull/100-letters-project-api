@@ -47,8 +47,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     return {
       statusCode: 200,
       body: JSON.stringify({
-        message: 'Letter deleted successfully!',
         data: { letterId },
+        message: 'Letter deleted successfully!',
       }),
     };
   } catch (error) {

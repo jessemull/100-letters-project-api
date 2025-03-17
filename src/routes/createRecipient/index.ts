@@ -57,8 +57,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     return {
       statusCode: 201,
       body: JSON.stringify({
-        message: 'Recipient created successfully!',
         data: recipientData,
+        message: 'Recipient created successfully!',
       }),
     };
   } catch (error) {

@@ -545,6 +545,8 @@ Resources:
               required: ["correspondence", "recipient", "letters"]
           lastEvaluatedKey:
             type: "string"
+          message:
+            type: string
         required: ["data", "lastEvaluatedKey"]
 
   # <------------------- GET Correspondence By ID ------------------->
@@ -661,6 +663,8 @@ Resources:
                       type: "string"
                   required: ["date", "createdAt", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
             required: ["correspondence", "recipient", "letters"]
+          message:
+            type: string
         required: ["data"]
 
   # <------------------- DELETE Correspondence ------------------->
@@ -687,6 +691,8 @@ Resources:
                 items:
                   type: "string"
             required: ["correspondencId", "recipientId", "letterIds"]
+          message:
+            type: string
         required: ["data"]
 
 Outputs:
