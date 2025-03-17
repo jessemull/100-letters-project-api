@@ -15,6 +15,7 @@ Resources:
         properties:
           correspondenceId:
             type: "string"
+            format: "uuid"
           description:
             type: "string"
           imageURLs:
@@ -26,9 +27,11 @@ Resources:
             type: "string"
             enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
           receivedAt:
-            type: "date-time"
+            type: "string"
+            format: "date-time"
           sentAt:
-            type: "date-time"
+            type: "string"
+            format: "date-time"
           status:
             type: "string"
             enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
@@ -56,8 +59,10 @@ Resources:
             properties:
               correspondenceId:
                 type: "string"
+                format: "uuid"
               createdAt:
-                type: "date-time"
+                type: "string"
+                format: "date-time"
               description:
                 type: "string"
               imageURLs:
@@ -67,13 +72,16 @@ Resources:
                   format: "uri"
               letterId:
                 type: "string"
+                format: "uuid"
               method:
                 type: "string"
                 enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
               receivedAt:
-                type: "date-time"
+                type: "string"
+                format: "date-time"
               sentAt:
-                type: "date-time"
+                type: "string"
+                format: "date-time"
               status:
                 type: "string"
                 enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
@@ -85,7 +93,8 @@ Resources:
                 type: "string"
                 enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
               updatedAt:
-                type: "date-time"
+                type: "string"
+                format: "date-time"
             required: ["correspondenceId", "createdAt", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
           message:
             type: string
@@ -105,6 +114,7 @@ Resources:
           properties:
             correspondenceId:
               type: "string"
+              format: "uuid"
             description:
               type: "string"
             imageURLs:
@@ -114,13 +124,16 @@ Resources:
                 format: "uri"
             letterId:
               type: "string"
+              format: "uuid"
             method:
               type: "string"
               enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
             receivedAt:
-              type: "date-time"
+              type: "string"
+              format: "date-time"
             sentAt:
-              type: "date-time"
+              type: "string"
+              format: "date-time"
             status:
               type: "string"
               enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
@@ -148,8 +161,10 @@ Resources:
             properties:
               correspondenceId:
                 type: "string"
+                format: "uuid"
               createdAt:
-                type: "date-time"
+                type: "string"
+                format: "date-time"
               description:
                 type: "string"
               imageURLs:
@@ -159,13 +174,16 @@ Resources:
                   format: "uri"
               letterId:
                 type: "string"
+                format: "uuid"
               method:
                 type: "string"
                 enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
               receivedAt:
-                type: "date-time"
+                type: "string"
+                format: "date-time"
               sentAt:
-                type: "date-time"
+                type: "string"
+                format: "date-time"
               status:
                 type: "string"
                 enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
@@ -177,7 +195,8 @@ Resources:
                 type: "string"
                 enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
               updatedAt:
-                type: "date-time"
+                type: "string"
+                format: "date-time"
             required: ["correspondenceId", "createdAt", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
           message:
             type: string
@@ -202,8 +221,10 @@ Resources:
               properties:
                 correspondenceId:
                   type: "string"
+                  format: "uuid"
                 createdAt:
-                  type: "date-time"
+                  type: "string"
+                  format: "date-time"
                 description:
                   type: "string"
                 imageURLs:
@@ -213,13 +234,16 @@ Resources:
                     format: "uri"
                 letterId:
                   type: "string"
+                  format: "uuid"
                 method:
                   type: "string"
                   enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
                 receivedAt:
-                  type: "date-time"
+                  type: "string"
+                  format: "date-time"
                 sentAt:
-                  type: "date-time"
+                  type: "string"
+                  format: "date-time"
                 status:
                   type: "string"
                   enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
@@ -231,7 +255,8 @@ Resources:
                   type: "string"
                   enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
                 updatedAt:
-                  type: "date-time"
+                  type: "string"
+                  format: "date-time"
               required: ["correspondenceId", "createdAt", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
           lastEvaluatedKey:
             type: "string"
@@ -256,8 +281,10 @@ Resources:
             properties:
               correspondenceId:
                 type: "string"
+                format: "uuid"
               createdAt:
-                type: "date-time"
+                type: "string"
+                format: "date-time"
               description:
                 type: "string"
               imageURLs:
@@ -267,13 +294,16 @@ Resources:
                   format: "uri"
               letterId:
                 type: "string"
+                format: "uuid"
               method:
                 type: "string"
                 enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
               receivedAt:
-                type: "date-time"
+                type: "string"
+                format: "date-time"
               sentAt:
-                type: "date-time"
+                type: "string"
+                format: "date-time"
               status:
                 type: "string"
                 enum: ["PENDING", "SENT", "RECEIVED", "RESPONDED"]
@@ -285,7 +315,8 @@ Resources:
                 type: "string"
                 enum: ["MAIL", "EMAIL", "SMS", "OTHER"]
               updatedAt:
-                type: "date-time"
+                type: "string"
+                format: "date-time"
             required: ["correspondenceId", "createdAt", "imageURLs", "letterId", "method", "status", "text", "title", "type", "updatedAt"]
           message:
             type: string
@@ -308,6 +339,7 @@ Resources:
             properties:
               letterId:
                 type: "string"
+                format: "uuid"
             required: ["letterId"]
           message:
             type: "string"

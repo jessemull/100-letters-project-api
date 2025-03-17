@@ -54,6 +54,7 @@ Resources:
             properties:
               recipientId:
                 type: "string"
+                format: "uuid"
               address:
                 type: "object"
                 properties:
@@ -69,7 +70,8 @@ Resources:
                     type: "string"
                 required: ["city", "country", "postalCode", "state", "street"]
               createdAt:
-                type: "date-time"
+                type: "string"
+                format: "date-time"
               firstName:
                 type: "string"
               lastName:
@@ -81,7 +83,8 @@ Resources:
               organization:
                 type: "string"
               updatedAt:
-                type: "date-time"
+                type: "string"
+                format: "date-time"
             required: ["address", "createdAt", "firstName", "lastName", "recipientId", "updatedAt"]
           message:
             type: string
@@ -101,6 +104,7 @@ Resources:
         properties:
           recipientId:
             type: "string"
+            format: "uuid"
           address:
             type: "object"
             properties:
@@ -142,6 +146,7 @@ Resources:
             properties:
               recipientId:
                 type: "string"
+                format: "uuid"
               address:
                 type: "object"
                 properties:
@@ -157,7 +162,8 @@ Resources:
                     type: "string"
                 required: ["city", "country", "postalCode", "state", "street"]
               createdAt:
-                type: "date-time"
+                type: "string"
+                format: "date-time"
               firstName:
                 type: "string"
               lastName:
@@ -169,7 +175,8 @@ Resources:
               organization:
                 type: "string"
               updatedAt:
-                type: "date-time"
+                type: "string"
+                format: "date-time"
             required: ["address", "createAt", "firstName", "lastName", "recipientId", "updatedAt"]
           message:
             type: string
@@ -194,6 +201,7 @@ Resources:
               properties:
                 recipientId:
                   type: "string"
+                  format: "uuid"
                 address:
                   type: "object"
                   properties:
@@ -209,7 +217,8 @@ Resources:
                       type: "string"
                   required: ["city", "country", "postalCode", "state", "street"]
                 createdAt:
-                  type: "date-time"
+                  type: "string"
+                  format: "date-time"
                 firstName:
                   type: "string"
                 lastName:
@@ -221,7 +230,8 @@ Resources:
                 organization:
                   type: "string"
                 updatedAt:
-                  type: "date-time"
+                  type: "string"
+                  format: "date-time"
               required: ["address", "createdAt", "firstName", "lastName", "recipientId", "updatedAt"]
           lastEvaluatedKey:
             type: "string"
@@ -246,6 +256,7 @@ Resources:
             properties:
               recipientId:
                 type: "string"
+                format: "uuid"
               address:
                 type: "object"
                 properties:
@@ -261,7 +272,8 @@ Resources:
                     type: "string"
                 required: ["city", "country", "postalCode", "state", "street"]
               createdAt:
-                type: "date-time"
+                type: "string"
+                format: "date-time"
               firstName:
                 type: "string"
               lastName:
@@ -273,7 +285,8 @@ Resources:
               organization:
                 type: "string"
               updatedAt:
-                type: "date-time"
+                type: "string"
+                format: "date-time"
             required: ["address", "firstName", "lastName", "recipientId"]
           message:
             type: string
@@ -296,6 +309,7 @@ Resources:
             properties:
               recipientId:
                 type: "string"
+                format: "uuid"
             required: ["recipientId"]
           message:
             type: "string"
