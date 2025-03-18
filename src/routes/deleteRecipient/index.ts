@@ -1,7 +1,10 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { BadRequestError, DatabaseError } from '../../common/errors';
 import { DeleteCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
+import { config } from '../../common/config';
 import { dynamoClient, logger } from '../../common/util';
+
+const { correspondenceTableName, recipientTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
@@ -12,7 +15,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     }
 
     const checkParams = {
-      TableName: 'OneHundredLettersCorrespondenceTable',
+      TableName: correspondenceTableName,
       IndexName: 'RecipientIndex',
       KeyConditionExpression: 'recipientId = :recipientId',
       ExpressionAttributeValues: {
@@ -33,7 +36,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     }
 
     const deleteParams = {
-      TableName: 'OneHundredLettersRecipientTable',
+      TableName: recipientTableName,
       Key: {
         recipientId,
       },

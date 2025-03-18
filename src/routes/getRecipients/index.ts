@@ -1,7 +1,10 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { DatabaseError } from '../../common/errors';
 import { ScanCommand } from '@aws-sdk/lib-dynamodb';
+import { config } from '../../common/config';
 import { dynamoClient, logger } from '../../common/util';
+
+const { recipientTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const queryParameters = event.queryStringParameters || {};
@@ -13,7 +16,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
   try {
     const params = {
-      TableName: 'OneHundredLettersRecipientTable',
+      TableName: recipientTableName,
       Limit: limit,
       ExclusiveStartKey: lastEvaluatedKey,
     };

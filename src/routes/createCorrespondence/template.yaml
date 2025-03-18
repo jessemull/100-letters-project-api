@@ -1,6 +1,13 @@
 AWSTemplateFormatVersion: "2010-09-09"
 
 Parameters:
+  Environment:
+    Type: String
+    Description: "The environment for the deployment (dev or prod)"
+    AllowedValues:
+      - dev
+      - prod
+    ConstraintDescription: "Must be either 'dev' or 'prod'."
   S3Key:
     Type: String
     Description: The S3 key for the lambda function zip file.
@@ -18,6 +25,12 @@ Resources:
         S3Key: !Ref S3Key
       Timeout: 10
       MemorySize: 128
+      Environment:
+        Variables:
+          CORRESPONDENCE_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-correspondence-table-name-${Environment}}}"
+          ENVIRONMENT: !Ref Environment
+          LETTER_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-letter-table-name-${Environment}}}"
+          RECIPIENT_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-recipient-table-name-${Environment}}}"
 
   LambdaInvokePermissionGetRecipientById:
     Type: AWS::Lambda::Permission

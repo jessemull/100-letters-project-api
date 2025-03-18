@@ -5,7 +5,10 @@ import {
   NotFoundError,
 } from '../../common/errors';
 import { GetCommand } from '@aws-sdk/lib-dynamodb';
+import { config } from '../../common/config';
 import { dynamoClient, logger } from '../../common/util';
+
+const { recipientTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
@@ -16,7 +19,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     }
 
     const params = {
-      TableName: 'OneHundredLettersRecipientTable',
+      TableName: recipientTableName,
       Key: {
         recipientId: recipientId,
       },

@@ -27,6 +27,13 @@ on:
         description: "Zip file name in S3 (e.g., previous.zip)"
         required: true
         type: string
+      environment:
+        description: "Development environment"
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
 
 jobs:
   rollback-lambda:
@@ -46,7 +53,7 @@ jobs:
       - name: Check Change Set Update/Create 
         id: change_set_type
         run: |
-          STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
+          STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack-${{ github.event.inputs.environment }}"
           if aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region us-west-2 >/dev/null 2>&1; then
             echo "Updating change set..."
             echo "change_set_type=UPDATE" >> $GITHUB_ENV
@@ -59,7 +66,7 @@ jobs:
         id: stack_status
         if: env.change_set_type == 'UPDATE'
         run: |
-          STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
+          STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack-${{ github.event.inputs.environment }}"
           STATUS=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].StackStatus" --output text 2>/dev/null || echo "NOT_FOUND")
           echo "Status: $STATUS"
           FAILED_STATES=("CREATE_FAILED" "ROLLBACK_FAILED" "UPDATE_FAILED" "DELETE_FAILED" "UPDATE_ROLLBACK_FAILED" "UPDATE_ROLLBACK_COMPLETE" "ROLLBACK_COMPLETE")
@@ -75,17 +82,18 @@ jobs:
       - name: Create CloudFormation Change Set
         run: |
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
-          STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
+          STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack-${{ github.event.inputs.environment }}"
           TEMPLATE_FILE="src/routes/${{ github.event.inputs.lambda_function }}/template.yaml"
-          CHANGE_SET_NAME="rollback-${{ github.event.inputs.lambda_function }}-change-set"
-          S3_BUCKET="100-letters-project-api"
+          CHANGE_SET_NAME="rollback-${{ github.event.inputs.lambda_function }}-change-set-${{ github.event.inputs.environment }}"
+          CHANGE_SET_TYPE="${{ env.change_set_type }}"
+          S3_BUCKET="100-letters-project-api-${{ github.event.inputs.environment }}"
           S3_KEY="${{ github.event.inputs.lambda_function }}/${{ github.event.inputs.s3_zip_file }}"
           aws cloudformation create-change-set \
             --stack-name $STACK_NAME \
             --template-body file://$TEMPLATE_FILE \
             --parameters ParameterKey=S3Key,ParameterValue=$S3_KEY \
             --change-set-name $CHANGE_SET_NAME \
-            --change-set-type ${{ env.change_set_type }} \
+            --change-set-type $CHANGE_SET_TYPE \
             --capabilities CAPABILITY_NAMED_IAM \
             --region us-west-2
           echo "Waiting for change set to be created..."
@@ -96,8 +104,8 @@ jobs:
 
       - name: Execute CloudFormation Change Set
         run: |
-          STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
-          CHANGE_SET_NAME="rollback-${{ github.event.inputs.lambda_function }}-change-set"
+          STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack-${{ github.event.inputs.environment }}"
+          CHANGE_SET_NAME="rollback-${{ github.event.inputs.lambda_function }}-change-set-${{ github.event.inputs.environment }}"
           aws cloudformation execute-change-set \
             --stack-name $STACK_NAME \
             --change-set-name $CHANGE_SET_NAME \
@@ -107,7 +115,7 @@ jobs:
         run: |
           DONE_STATUSES=("CREATE_COMPLETE" "UPDATE_COMPLETE" "ROLLBACK_COMPLETE" "UPDATE_ROLLBACK_COMPLETE" "DELETE_COMPLETE")
           FAILED_STATUSES=("CREATE_FAILED" "UPDATE_FAILED" "ROLLBACK_FAILED" "DELETE_FAILED" "UPDATE_ROLLBACK_FAILED" "ROLLBACK_IN_PROGRESS" "DELETE_IN_PROGRESS")
-          STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack"
+          STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack-${{ github.event.inputs.environment }}"
           MAX_RETRIES=30
           RETRY_COUNT=0
           while true; do

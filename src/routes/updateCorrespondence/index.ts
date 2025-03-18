@@ -6,9 +6,10 @@ import {
   GetCommand,
   QueryCommand,
 } from '@aws-sdk/lib-dynamodb';
+import { config } from '../../common/config';
 import { dynamoClient, logger } from '../../common/util';
 
-// Request body validation is handled by the API gateway model.
+const { correspondenceTableName, letterTableName, recipientTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
@@ -19,6 +20,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         'Correspondence ID is required in the path parameters.',
       ).build();
     }
+
+    // Request body validation is handled by the API gateway model.
 
     if (!event.body) {
       return new BadRequestError('Request body is required.').build();
@@ -33,7 +36,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     // Step 1: Construct correspondence update params.
 
     const correspondenceUpdateParams: UpdateParams = {
-      TableName: 'OneHundredLettersCorrespondenceTable',
+      TableName: correspondenceTableName as string,
       Key: { correspondenceId },
       UpdateExpression:
         'SET #reason = :reason, #status = :status, #title = :title',
@@ -57,7 +60,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     // Step 2: Construct recipient update params.
 
     const recipientUpdateParams: UpdateParams = {
-      TableName: 'OneHundredLettersRecipientTable',
+      TableName: recipientTableName as string,
       Key: { recipientId: recipient.recipientId },
       UpdateExpression:
         'SET #firstName = :firstName, #lastName = :lastName, #address = :address',
@@ -128,7 +131,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       const { letterId, ...letterData } = letter;
 
       const letterUpdateParams: UpdateParams = {
-        TableName: 'OneHundredLettersLetterTable',
+        TableName: letterTableName as string,
         Key: { correspondenceId, letterId },
         UpdateExpression:
           'SET #imageURLs = :imageURLs, #method = :method, #status = :status, #text = :text, #title = :title, #type = :type',
@@ -198,7 +201,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     // Set 4: Delete missing letters.
 
     const lettersParams = {
-      TableName: 'OneHundredLettersLetterTable',
+      TableName: letterTableName,
       IndexName: 'CorrespondenceIndex',
       KeyConditionExpression: 'correspondenceId = :correspondenceId',
       ExpressionAttributeValues: {
@@ -219,7 +222,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       if (!incomingLetterIds.has(letterId)) {
         transactItems.push({
           Delete: {
-            TableName: 'OneHundredLettersLetterTable',
+            TableName: letterTableName as string,
             Key: { correspondenceId, letterId },
           },
         });
@@ -235,20 +238,20 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     const correspondenceData = await dynamoClient.send(
       new GetCommand({
-        TableName: 'OneHundredLettersCorrespondenceTable',
+        TableName: correspondenceTableName,
         Key: { correspondenceId },
       }),
     );
 
     const recipientData = await dynamoClient.send(
       new GetCommand({
-        TableName: 'OneHundredLettersRecipientTable',
+        TableName: recipientTableName,
         Key: { recipientId: recipient.recipientId },
       }),
     );
 
     const updatedLettersParams = {
-      TableName: 'OneHundredLettersLetterTable',
+      TableName: letterTableName,
       IndexName: 'CorrespondenceIndex',
       KeyConditionExpression: 'correspondenceId = :correspondenceId',
       ExpressionAttributeValues: {

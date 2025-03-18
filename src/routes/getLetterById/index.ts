@@ -5,7 +5,10 @@ import {
   NotFoundError,
 } from '../../common/errors';
 import { QueryCommand } from '@aws-sdk/lib-dynamodb';
+import { config } from '../../common/config';
 import { dynamoClient, logger } from '../../common/util';
+
+const { letterTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
@@ -16,7 +19,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     }
 
     const params = {
-      TableName: 'OneHundredLettersLetterTable',
+      TableName: letterTableName,
       IndexName: 'LetterIndex',
       KeyConditionExpression: 'letterId = :letterId',
       ExpressionAttributeValues: {

@@ -2,13 +2,16 @@ import { APIGatewayProxyHandler } from 'aws-lambda';
 import { BadRequestError, DatabaseError } from '../../common/errors';
 import { LetterCreateInput, Letter } from '../../types';
 import { TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
+import { config } from '../../common/config';
 import { dynamoClient, logger } from '../../common/util';
 import { v4 as uuidv4 } from 'uuid';
 
-// Request body validation is handled by the API gateway model.
+const { correspondenceTableName, letterTableName, recipientTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
+    // Request body validation is handled by the API gateway model.
+
     if (!event.body) {
       return new BadRequestError('Request body is required.').build();
     }
@@ -39,21 +42,21 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const transactItems = [
       {
         Put: {
-          TableName: 'OneHundredLettersRecipientTable',
+          TableName: recipientTableName,
           Item: recipientItem,
           ConditionExpression: 'attribute_not_exists(recipientId)',
         },
       },
       {
         Put: {
-          TableName: 'OneHundredLettersCorrespondenceTable',
+          TableName: correspondenceTableName,
           Item: correspondenceItem,
           ConditionExpression: 'attribute_not_exists(correspondenceId)',
         },
       },
       ...letterItems.map((letter) => ({
         Put: {
-          TableName: 'OneHundredLettersLetterTable',
+          TableName: letterTableName,
           Item: letter,
           ConditionExpression: 'attribute_not_exists(letterId)',
         },

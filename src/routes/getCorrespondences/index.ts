@@ -1,8 +1,11 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { ScanCommand, GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
-import { dynamoClient, logger } from '../../common/util';
 import { DatabaseError } from '../../common/errors';
 import { Letter } from '../../types';
+import { ScanCommand, GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
+import { config } from '../../common/config';
+import { dynamoClient, logger } from '../../common/util';
+
+const { correspondenceTableName, letterTableName, recipientTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const queryParameters = event.queryStringParameters || {};
@@ -14,7 +17,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
   try {
     const correspondenceParams = {
-      TableName: 'OneHundredLettersCorrespondenceTable',
+      TableName: correspondenceTableName,
       Limit: limit,
       ExclusiveStartKey: lastEvaluatedKey,
     };
@@ -26,7 +29,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const results = await Promise.all(
       correspondences.map(async (correspondence) => {
         const recipientParams = {
-          TableName: 'OneHundredLettersRecipientTable',
+          TableName: recipientTableName,
           Key: { recipientId: correspondence.recipientId },
         };
 
@@ -43,7 +46,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         }
 
         const lettersParams = {
-          TableName: 'OneHundredLettersLetterTable',
+          TableName: letterTableName,
           IndexName: 'CorrespondenceIndex',
           KeyConditionExpression: 'correspondenceId = :correspondenceId',
           ExpressionAttributeValues: {
