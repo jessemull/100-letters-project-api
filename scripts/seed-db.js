@@ -4,9 +4,9 @@ const { v4: uuidv4 } = require('uuid');
 
 const dynamoDBClient = new DynamoDBClient({ region: 'us-west-2' });
 
-const recipientTableName = 'OneHundredLettersRecipientTable';
-const correspondenceTableName = 'OneHundredLettersCorrespondenceTable';
-const letterTableName = 'OneHundredLettersLetterTable';
+const recipientTableName = 'one-hundred-letters-recipient-table-dev';
+const correspondenceTableName = 'one-hundred-letters-correspondence-table-dev';
+const letterTableName = 'one-hundred-letters-letter-table-dev';
 
 const numRecipients = 10;
 const numCorrespondences = 20;

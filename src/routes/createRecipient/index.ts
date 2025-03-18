@@ -2,13 +2,16 @@ import { APIGatewayProxyHandler } from 'aws-lambda';
 import { BadRequestError, DatabaseError } from '../../common/errors';
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import { Recipient } from '../../types';
+import { config } from '../../common/config';
 import { dynamoClient, logger } from '../../common/util';
 import { v4 as uuidv4 } from 'uuid';
 
-// Request body validation is handled by the API gateway model.
+const { recipientTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
+    // Request body validation is handled by the API gateway model.
+
     if (!event.body) {
       return new BadRequestError('Request body is required.').build();
     }
@@ -46,7 +49,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     }
 
     const params = {
-      TableName: 'OneHundredLettersRecipientTable',
+      TableName: recipientTableName,
       Item: recipientData,
     };
 

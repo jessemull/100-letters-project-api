@@ -10,7 +10,10 @@ import {
   QueryCommand,
   GetCommand,
 } from '@aws-sdk/lib-dynamodb';
+import { config } from '../../common/config';
 import { dynamoClient, logger } from '../../common/util';
+
+const { correspondenceTableName, letterTableName, recipientTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (
   event,
@@ -22,7 +25,7 @@ export const handler: APIGatewayProxyHandler = async (
   }
 
   const getCorrespondenceParams = {
-    TableName: 'OneHundredLettersCorrespondenceTable',
+    TableName: correspondenceTableName,
     Key: { correspondenceId },
   };
 
@@ -40,7 +43,7 @@ export const handler: APIGatewayProxyHandler = async (
     // Step 2: Delete correspondence.
 
     const deleteCorrespondenceParams = {
-      TableName: 'OneHundredLettersCorrespondenceTable',
+      TableName: correspondenceTableName as string,
       Key: { correspondenceId },
     };
 
@@ -56,7 +59,7 @@ export const handler: APIGatewayProxyHandler = async (
     // Step 3: Get and delete all letters associated with the correspondence.
 
     const queryParams = {
-      TableName: 'OneHundredLettersLetterTable',
+      TableName: letterTableName,
       KeyConditionExpression: 'correspondenceId = :correspondenceId',
       ExpressionAttributeValues: {
         ':correspondenceId': correspondenceId,
@@ -74,7 +77,7 @@ export const handler: APIGatewayProxyHandler = async (
       letters.forEach((letter) => {
         letterIds.push(letter.letterId);
         const deleteLetterParams = {
-          TableName: 'OneHundredLettersLetterTable',
+          TableName: letterTableName as string,
           Key: {
             correspondenceId: letter.correspondenceId,
             letterId: letter.letterId,
@@ -90,7 +93,7 @@ export const handler: APIGatewayProxyHandler = async (
 
     if (recipientId) {
       const deleteRecipientParams = {
-        TableName: 'OneHundredLettersRecipientTable',
+        TableName: recipientTableName as string,
         Key: { recipientId },
       };
       transactItems.push({ Delete: deleteRecipientParams });

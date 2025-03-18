@@ -1,5 +1,14 @@
 AWSTemplateFormatVersion: '2010-09-09'
+
 Parameters:
+  Environment:
+    Type: String
+    Default: "dev"
+    Description: "The environment for the deployment (dev or prod)"
+    AllowedValues:
+      - dev
+      - prod
+    ConstraintDescription: "Must be either 'dev' or 'prod'."
   LambdaS3BucketName:
     Type: String
     Default: "100-letters-project-api"
@@ -9,10 +18,10 @@ Resources:
   LambdaDeploymentBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Ref LambdaS3BucketName
+      BucketName: !Sub "${LambdaS3BucketName}-${Environment}"
 
 Outputs:
   BucketName:
     Value: !Ref LambdaDeploymentBucket
     Export:
-      Name: LambdaS3BucketName
+      Name: !Sub "${LambdaS3BucketName}-${Environment}"

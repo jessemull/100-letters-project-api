@@ -1,6 +1,14 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
 Parameters:
+  Environment:
+    Type: String
+    Default: "dev"
+    Description: "The environment for the deployment (dev or prod)"
+    AllowedValues:
+      - dev
+      - prod
+    ConstraintDescription: "Must be either 'dev' or 'prod'."
   UserPoolId:
     Type: String
     Description: Cognito User Pool ID
@@ -9,21 +17,21 @@ Resources:
   OneHundredLettersApi:
     Type: AWS::ApiGateway::RestApi
     Properties:
-      Name: OneHundredLettersApi
+      Name: !Sub "one-hundred-letters-api-${Environment}"
       Description: API for managing correspondence and letters
 
   OneHundredLettersValidator:
     Type: AWS::ApiGateway::RequestValidator
     Properties:
       RestApiId: !Ref OneHundredLettersApi
-      Name: "RequestValidator"
+      Name: !Sub "one-hundred-letters-api-validator-${Environment}"
       ValidateRequestBody: true
       ValidateRequestParameters: false
 
   OneHundredLettersAuthorizer:
     Type: AWS::ApiGateway::Authorizer
     Properties:
-      Name: CognitoAuthorizer
+      Name: !Sub "one-hundred-letters-api-authorizer-${Environment}"
       Type: COGNITO_USER_POOLS
       RestApiId: !Ref OneHundredLettersApi
       IdentitySource: method.request.header.Authorization
@@ -31,21 +39,21 @@ Resources:
         - !Sub "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}"
 
   # Correspondence Resources
-
+  
   CorrespondenceResource:
     Type: AWS::ApiGateway::Resource
     Properties:
       RestApiId: !Ref OneHundredLettersApi
       ParentId: !GetAtt OneHundredLettersApi.RootResourceId
       PathPart: "correspondence"
-      
+
   CorrespondenceByIdResource:
     Type: AWS::ApiGateway::Resource
     Properties:
       RestApiId: !Ref OneHundredLettersApi
       ParentId: !Ref CorrespondenceResource
       PathPart: "{id}"
-      
+
   # Recipient Resources
 
   RecipientsResource:
@@ -80,41 +88,41 @@ Resources:
 
 Outputs:
   ApiGatewayUrl:
-    Value: !Sub "https://${OneHundredLettersApi}.execute-api.${AWS::Region}.amazonaws.com/prod"
+    Value: !Sub "https://${OneHundredLettersApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}"
     Description: "URL of the deployed API Gateway"
   OneHundredLettersApiOutput:
     Value: !Ref OneHundredLettersApi
     Export:
-      Name: OneHundredLettersApi
+      Name: !Sub "one-hundred-letters-api-${Environment}"
   OneHundredLettersValidatorOutput:
     Value: !Ref OneHundredLettersValidator
     Export:
-      Name: OneHundredLettersValidator
+      Name: !Sub "one-hundred-letters-api-validator-${Environment}"
   OneHundredLettersAuthorizerOutput:
     Value: !Ref OneHundredLettersAuthorizer
     Export:
-      Name: OneHundredLettersAuthorizer
+      Name: !Sub "one-hundred-letters-api-authorizer-${Environment}"
   CorrespondenceResourceOutput:
     Value: !Ref CorrespondenceResource
     Export:
-      Name: CorrespondenceResource
+      Name: !Sub "one-hundred-letters-api-correspondence-resource-${Environment}"
   CorrespondenceByIdResourceOutput:
     Value: !Ref CorrespondenceByIdResource
     Export:
-      Name: CorrespondenceByIdResource
+      Name: !Sub "one-hundred-letters-api-correspondence-by-id-resource-${Environment}"
   RecipientsResourceOutput:
     Value: !Ref RecipientsResource
     Export:
-      Name: RecipientsResource
+      Name: !Sub "one-hundred-letters-api-recipients-resource-${Environment}"
   RecipientByIdResourceOutput:
     Value: !Ref RecipientByIdResource
     Export:
-      Name: RecipientByIdResource
+      Name: !Sub "one-hundred-letters-api-recipient-by-id-resource-${Environment}"
   LettersResourceOutput:
     Value: !Ref LettersResource
     Export:
-      Name: LettersResource
+      Name: !Sub "one-hundred-letters-api-letters-resource-${Environment}"
   LetterByIdResourceOutput:
     Value: !Ref LetterByIdResource
     Export:
-      Name: LetterByIdResource
+      Name: !Sub "one-hundred-letters-api-letter-by-id-resource-${Environment}"

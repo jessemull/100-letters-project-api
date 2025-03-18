@@ -1,18 +1,26 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
 Parameters:
+  Environment:
+    Type: String
+    Default: "dev"
+    Description: "The environment for the deployment (dev or prod)"
+    AllowedValues:
+      - dev
+      - prod
+    ConstraintDescription: "Must be either 'dev' or 'prod'."
   CognitoUserPoolName:
     Type: String
-    Default: OneHundredLettersUserPool
+    Default: "one-hundred-letters-user-pool"
   CognitoAppClientName:
     Type: String
-    Default: OneHundredLettersAppClient
+    Default: "one-hundred-letters-app-client"
 
 Resources:
   CognitoUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
-      UserPoolName: !Ref CognitoUserPoolName
+      UserPoolName: !Sub "${CognitoUserPoolName}-${Environment}"
       AutoVerifiedAttributes:
         - email
       Policies:
@@ -26,7 +34,7 @@ Resources:
   CognitoUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
-      ClientName: !Ref CognitoAppClientName
+      ClientName: !Sub "${CognitoAppClientName}-${Environment}"
       UserPoolId: !Ref CognitoUserPool
       ExplicitAuthFlows:
         - ALLOW_USER_SRP_AUTH
@@ -38,4 +46,4 @@ Outputs:
     Description: "Name of the Cognito User Pool"
     Value: !Ref CognitoUserPoolName
     Export:
-      Name: "OneHundredLetterCognitoUserPoolName"
+      Name: !Sub "${CognitoUserPoolName}-${Environment}"

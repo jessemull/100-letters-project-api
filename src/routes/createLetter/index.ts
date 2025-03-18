@@ -5,14 +5,17 @@ import {
   NotFoundError,
 } from '../../common/errors';
 import { PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
+import { config } from '../../common/config';
 import { dynamoClient, logger } from '../../common/util';
 import { Letter } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
 
-// Request body validation is handled by the API gateway model.
+const { correspondenceTableName, letterTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
+    // Request body validation is handled by the API gateway model.
+
     if (!event.body) {
       return new BadRequestError('Request body is required.').build();
     }
@@ -33,7 +36,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     } = body;
 
     const checkCorrespondenceParams = {
-      TableName: 'OneHundredLettersCorrespondenceTable',
+      TableName: correspondenceTableName,
       KeyConditionExpression: 'correspondenceId = :correspondenceId',
       ExpressionAttributeValues: {
         ':correspondenceId': correspondenceId,
@@ -77,7 +80,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     }
 
     const params = {
-      TableName: 'OneHundredLettersLetterTable',
+      TableName: letterTableName,
       Item: letterData,
     };
 

@@ -6,9 +6,10 @@ import {
 } from '../../common/errors';
 import { UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { UpdateParams } from '../../types';
+import { config } from '../../common/config';
 import { dynamoClient, logger } from '../../common/util';
 
-// Request body validation is handled by the API gateway model.
+const { recipientTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
@@ -17,6 +18,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     if (!recipientId) {
       return new BadRequestError('Recipient ID is required.').build();
     }
+
+    // Request body validation is handled by the API gateway model.
 
     if (!event.body) {
       return new BadRequestError('Request body is required.').build();
@@ -34,7 +37,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     } = body;
 
     const updateParams: UpdateParams = {
-      TableName: 'OneHundredLettersRecipientTable',
+      TableName: recipientTableName as string,
       Key: {
         recipientId,
       },

@@ -1,5 +1,6 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
+import { config } from '../../common/config';
 import { dynamoClient, logger } from '../../common/util';
 import {
   BadRequestError,
@@ -7,6 +8,8 @@ import {
   NotFoundError,
 } from '../../common/errors';
 import { Letter } from '../../types';
+
+const { correspondenceTableName, letterTableName, recipientTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const correspondenceId = event.pathParameters?.id;
@@ -19,7 +22,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     // Step 1: Get correspondence by ID.
 
     const correspondenceParams = {
-      TableName: 'OneHundredLettersCorrespondenceTable',
+      TableName: correspondenceTableName,
       Key: { correspondenceId },
     };
 
@@ -38,7 +41,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     if (correspondence.recipientId) {
       const recipientParams = {
-        TableName: 'OneHundredLettersRecipientTable',
+        TableName: recipientTableName,
         Key: { recipientId: correspondence.recipientId },
       };
 
@@ -63,7 +66,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     let letters: Letter[] = [];
     const lettersParams = {
-      TableName: 'OneHundredLettersLetterTable',
+      TableName: letterTableName,
       IndexName: 'CorrespondenceIndex',
       KeyConditionExpression: 'correspondenceId = :correspondenceId',
       ExpressionAttributeValues: {
