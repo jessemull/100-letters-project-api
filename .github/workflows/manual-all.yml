@@ -37,7 +37,7 @@ jobs:
       - name: Deploy All Lambdas
         run: |
           IFS=' ' read -r -a lambdas <<< "$LAMBDA_NAMES"
-          environment="${{ github.event.inputs.environment }}" # Get environment from workflow dispatch input
+          environment="${{ github.event.inputs.environment }}"
           for lambda in "${lambdas[@]}"; do
             echo "Deploying $lambda with environment $environment..."
             curl -X POST https://api.github.com/repos/${{ github.repository }}/actions/workflows/deploy-all.yml/dispatches \
