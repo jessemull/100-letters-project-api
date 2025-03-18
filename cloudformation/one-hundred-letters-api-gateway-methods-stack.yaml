@@ -1,11 +1,25 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
+Parameters:
+  Environment:
+    Type: String
+    Default: "dev"
+    Description: "The environment for the deployment (dev or prod)"
+    AllowedValues:
+      - dev
+      - prod
+    ConstraintDescription: "Must be either 'dev' or 'prod'."
+
 Resources:
   CorrespondenceGetMethod:
     Type: AWS::ApiGateway::Method
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
-      ResourceId: !ImportValue CorrespondenceResource
+      RestApiId: 
+        Fn::ImportValue:
+          !Sub "one-hundred-letters-api-${Environment}"
+      ResourceId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-correspondence-resource-${Environment}"
       HttpMethod: GET
       AuthorizationType: NONE
       Integration:
@@ -18,22 +32,36 @@ Resources:
       MethodResponses:
         - StatusCode: 200
           ResponseModels:
-            "application/json": !ImportValue CorrespondenceResponseModel
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "correspondence-response-model-${Environment}"
         - StatusCode: 500
           ResponseModels:
-            "application/json": !ImportValue InternalServerError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "internal-server-error-${Environment}"
   
   CorrespondenceCreateMethod:
     Type: AWS::ApiGateway::Method
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
-      ResourceId: !ImportValue CorrespondenceResource
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
+      ResourceId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-correspondence-resource-${Environment}"
       AuthorizationType: COGNITO_USER_POOLS
-      AuthorizerId: !ImportValue OneHundredLettersAuthorizer
+      AuthorizerId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-authorizer-${Environment}"
       HttpMethod: POST
-      RequestValidatorId: !ImportValue OneHundredLettersValidator
+      RequestValidatorId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-validator-${Environment}"
       RequestModels:
-        "application/json": !ImportValue CorrespondenceCreateRequestModel
+        "application/json":
+          Fn::ImportValue: 
+            !Sub "correspondence-create-request-model-${Environment}"
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
@@ -41,19 +69,28 @@ Resources:
       MethodResponses:
         - StatusCode: 201
           ResponseModels:
-            "application/json": !ImportValue CorrespondenceUpdateResponseModel
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "correspondence-update-response-model-${Environment}"
         - StatusCode: 400
           ResponseModels:
-            "application/json": !ImportValue BadRequestError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "bad-request-error-${Environment}"
         - StatusCode: 500
           ResponseModels:
-            "application/json": !ImportValue InternalServerError
-
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "internal-server-error-${Environment}"
   CorrespondenceByIdMethod:
     Type: AWS::ApiGateway::Method
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
-      ResourceId: !ImportValue CorrespondenceByIdResource
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
+      ResourceId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-correspondence-by-id-resource-${Environment}"
       HttpMethod: GET
       AuthorizationType: NONE
       Integration:
@@ -65,28 +102,46 @@ Resources:
       MethodResponses:
         - StatusCode: 200
           ResponseModels:
-            "application/json": !ImportValue CorrespondenceByIdResponseModel
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "correspondence-by-id-response-model-${Environment}"
         - StatusCode: 400
           ResponseModels:
-            "application/json": !ImportValue BadRequestError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "bad-request-error-${Environment}"
         - StatusCode: 404
           ResponseModels:
-            "application/json": !ImportValue NotFoundError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "not-found-error-${Environment}"
         - StatusCode: 500
           ResponseModels:
-            "application/json": !ImportValue InternalServerError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "internal-server-error-${Environment}"
   
   CorrespondenceUpdateMethod:
     Type: AWS::ApiGateway::Method
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
-      ResourceId: !ImportValue CorrespondenceByIdResource
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
+      ResourceId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-correspondence-by-id-resource-${Environment}"
       AuthorizationType: COGNITO_USER_POOLS
-      AuthorizerId: !ImportValue OneHundredLettersAuthorizer
+      AuthorizerId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-authorizer-${Environment}"
       HttpMethod: PUT
-      RequestValidatorId: !ImportValue OneHundredLettersValidator
+      RequestValidatorId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-validator-${Environment}"
       RequestModels:
-        "application/json": !ImportValue CorrespondenceUpdateRequestModel
+        "application/json":
+          Fn::ImportValue: 
+            !Sub "correspondence-update-request-model-${Environment}"
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
@@ -96,24 +151,38 @@ Resources:
       MethodResponses:
         - StatusCode: 200
           ResponseModels:
-            "application/json": !ImportValue CorrespondenceUpdateResponseModel
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "correspondence-update-response-model-${Environment}"
         - StatusCode: 400
           ResponseModels:
-            "application/json": !ImportValue BadRequestError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "bad-request-error-${Environment}"
         - StatusCode: 404
           ResponseModels:
-            "application/json": !ImportValue NotFoundError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "not-found-error-${Environment}"
         - StatusCode: 500
           ResponseModels:
-            "application/json": !ImportValue InternalServerError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "internal-server-error-${Environment}"
   
   CorrespondenceDeleteMethod:
     Type: AWS::ApiGateway::Method
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
-      ResourceId: !ImportValue CorrespondenceByIdResource
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
+      ResourceId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-correspondence-by-id-resource-${Environment}"
       AuthorizationType: COGNITO_USER_POOLS
-      AuthorizerId: !ImportValue OneHundredLettersAuthorizer
+      AuthorizerId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-authorizer-${Environment}"
       HttpMethod: DELETE
       Integration:
         IntegrationHttpMethod: POST
@@ -124,22 +193,34 @@ Resources:
       MethodResponses:
         - StatusCode: 200
           ResponseModels:
-            "application/json": !ImportValue CorrespondenceDeleteResponseModel
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "correspondence-delete-response-model-${Environment}"
         - StatusCode: 400
           ResponseModels:
-            "application/json": !ImportValue BadRequestError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "bad-request-error-${Environment}"
         - StatusCode: 404
           ResponseModels:
-            "application/json": !ImportValue NotFoundError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "not-found-error-${Environment}"
         - StatusCode: 500
           ResponseModels:
-            "application/json": !ImportValue InternalServerError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "internal-server-error-${Environment}"
   
   RecipientsGetMethod:
     Type: AWS::ApiGateway::Method
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
-      ResourceId: !ImportValue RecipientsResource
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
+      ResourceId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-recipients-resource-${Environment}"
       HttpMethod: GET
       AuthorizationType: NONE
       Integration:
@@ -152,16 +233,24 @@ Resources:
       MethodResponses:
         - StatusCode: 200
           ResponseModels:
-            "application/json": !ImportValue RecipientResponseModel
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "recipient-response-model-${Environment}"
         - StatusCode: 500
           ResponseModels:
-            "application/json": !ImportValue InternalServerError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "internal-server-error-${Environment}"
   
   RecipientByIdMethod:
     Type: AWS::ApiGateway::Method
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
-      ResourceId: !ImportValue RecipientByIdResource
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
+      ResourceId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-recipient-by-id-resource-${Environment}"
       HttpMethod: GET
       AuthorizationType: NONE
       Integration:
@@ -173,28 +262,46 @@ Resources:
       MethodResponses:
         - StatusCode: 200
           ResponseModels:
-            "application/json": !ImportValue RecipientByIdResponseModel
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "recipient-by-id-response-model-${Environment}"
         - StatusCode: 400
           ResponseModels:
-            "application/json": !ImportValue BadRequestError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "bad-request-error-${Environment}"
         - StatusCode: 404
           ResponseModels:
-            "application/json": !ImportValue NotFoundError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "not-found-error-${Environment}"
         - StatusCode: 500
           ResponseModels:
-            "application/json": !ImportValue InternalServerError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "internal-server-error-${Environment}"
   
   RecipientCreateMethod:
     Type: AWS::ApiGateway::Method
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
-      ResourceId: !ImportValue RecipientsResource
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
+      ResourceId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-recipients-resource-${Environment}"
       HttpMethod: POST
       AuthorizationType: COGNITO_USER_POOLS
-      AuthorizerId: !ImportValue OneHundredLettersAuthorizer
-      RequestValidatorId: !ImportValue OneHundredLettersValidator
+      AuthorizerId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-authorizer-${Environment}"
+      RequestValidatorId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-validator-${Environment}"
       RequestModels:
-        "application/json": !ImportValue RecipientCreateRequestModel
+        "application/json":
+          Fn::ImportValue: 
+            !Sub "recipient-create-request-model-${Environment}"
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
@@ -202,25 +309,41 @@ Resources:
       MethodResponses:
         - StatusCode: 201
           ResponseModels:
-            "application/json": !ImportValue RecipientUpdateResponseModel
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "recipient-update-response-model-${Environment}"
         - StatusCode: 400
           ResponseModels:
-            "application/json": !ImportValue BadRequestError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "bad-request-error-${Environment}"
         - StatusCode: 500
           ResponseModels:
-            "application/json": !ImportValue InternalServerError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "internal-server-error-${Environment}"
 
   RecipientUpdateMethod:
     Type: AWS::ApiGateway::Method
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
-      ResourceId: !ImportValue RecipientByIdResource
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
+      ResourceId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-recipient-by-id-resource-${Environment}"
       HttpMethod: PUT
       AuthorizationType: COGNITO_USER_POOLS
-      AuthorizerId: !ImportValue OneHundredLettersAuthorizer
-      RequestValidatorId: !ImportValue OneHundredLettersValidator
+      AuthorizerId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-authorizer-${Environment}"
+      RequestValidatorId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-validator-${Environment}"
       RequestModels:
-        "application/json": !ImportValue RecipientUpdateRequestModel
+        "application/json":
+          Fn::ImportValue: 
+            !Sub "recipient-update-request-model-${Environment}"
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
@@ -230,25 +353,39 @@ Resources:
       MethodResponses:
         - StatusCode: 200
           ResponseModels:
-            "application/json": !ImportValue RecipientUpdateResponseModel
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "recipient-update-response-model-${Environment}"
         - StatusCode: 400
           ResponseModels:
-            "application/json": !ImportValue BadRequestError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "bad-request-error-${Environment}"
         - StatusCode: 404
           ResponseModels:
-            "application/json": !ImportValue NotFoundError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "not-found-error-${Environment}"
         - StatusCode: 500
           ResponseModels:
-            "application/json": !ImportValue InternalServerError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "internal-server-error-${Environment}"
   
   RecipientDeleteMethod:
     Type: AWS::ApiGateway::Method
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
-      ResourceId: !ImportValue RecipientByIdResource
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
+      ResourceId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-recipient-by-id-resource-${Environment}"
       HttpMethod: DELETE
       AuthorizationType: COGNITO_USER_POOLS
-      AuthorizerId: !ImportValue OneHundredLettersAuthorizer
+      AuthorizerId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-authorizer-${Environment}"
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
@@ -258,22 +395,34 @@ Resources:
       MethodResponses:
         - StatusCode: 200
           ResponseModels:
-            "application/json": !ImportValue RecipientDeleteResponseModel
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "recipient-delete-response-model-${Environment}"
         - StatusCode: 400
           ResponseModels:
-            "application/json": !ImportValue BadRequestError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "bad-request-error-${Environment}"
         - StatusCode: 404
           ResponseModels:
-            "application/json": !ImportValue NotFoundError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "not-found-error-${Environment}"
         - StatusCode: 500
           ResponseModels:
-            "application/json": !ImportValue InternalServerError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "internal-server-error-${Environment}"
   
   LettersGetMethod:
     Type: AWS::ApiGateway::Method
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
-      ResourceId: !ImportValue LettersResource
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
+      ResourceId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-letters-resource-${Environment}"
       HttpMethod: GET
       AuthorizationType: NONE
       Integration:
@@ -286,16 +435,24 @@ Resources:
       MethodResponses:
         - StatusCode: 200
           ResponseModels:
-            "application/json": !ImportValue LetterResponseModel
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "letter-response-model-${Environment}"
         - StatusCode: 500
           ResponseModels:
-            "application/json": !ImportValue InternalServerError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "internal-server-error-${Environment}"
   
   LetterByIdMethod:
     Type: AWS::ApiGateway::Method
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
-      ResourceId: !ImportValue LetterByIdResource
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
+      ResourceId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-letter-by-id-resource-${Environment}"
       HttpMethod: GET
       AuthorizationType: NONE
       Integration:
@@ -307,28 +464,46 @@ Resources:
       MethodResponses:
         - StatusCode: 200
           ResponseModels:
-            "application/json": !ImportValue LetterByIdResponseModel
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "letter-by-id-response-model-${Environment}"
         - StatusCode: 400
           ResponseModels:
-            "application/json": !ImportValue BadRequestError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "bad-request-error-${Environment}"
         - StatusCode: 404
           ResponseModels:
-            "application/json": !ImportValue NotFoundError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "not-found-error-${Environment}"
         - StatusCode: 500
           ResponseModels:
-            "application/json": !ImportValue InternalServerError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "internal-server-error-${Environment}"
 
   LetterCreateMethod:
     Type: AWS::ApiGateway::Method
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
-      ResourceId: !ImportValue LettersResource
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
+      ResourceId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-letters-resource-${Environment}"
       HttpMethod: POST
       AuthorizationType: COGNITO_USER_POOLS
-      AuthorizerId: !ImportValue OneHundredLettersAuthorizer
-      RequestValidatorId: !ImportValue OneHundredLettersValidator
+      AuthorizerId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-authorizer-${Environment}"
+      RequestValidatorId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-validator-${Environment}"
       RequestModels:
-        "application/json": !ImportValue LetterCreateRequestModel
+        "application/json":
+          Fn::ImportValue: 
+            !Sub "letter-create-request-model-${Environment}"
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
@@ -336,25 +511,41 @@ Resources:
       MethodResponses:
         - StatusCode: 201
           ResponseModels:
-            "application/json": !ImportValue LetterUpdateResponseModel
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "letter-update-response-model-${Environment}"
         - StatusCode: 400
           ResponseModels:
-            "application/json": !ImportValue BadRequestError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "bad-request-error-${Environment}"
         - StatusCode: 500
           ResponseModels:
-            "application/json": !ImportValue InternalServerError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "internal-server-error-${Environment}"
 
   LetterUpdateMethod:
     Type: AWS::ApiGateway::Method
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
-      ResourceId: !ImportValue LetterByIdResource
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
+      ResourceId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-letter-by-id-resource-${Environment}"
       HttpMethod: PUT
       AuthorizationType: COGNITO_USER_POOLS
-      AuthorizerId: !ImportValue OneHundredLettersAuthorizer
-      RequestValidatorId: !ImportValue OneHundredLettersValidator
+      AuthorizerId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-authorizer-${Environment}"
+      RequestValidatorId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-validator-${Environment}"
       RequestModels:
-        "application/json": !ImportValue LetterUpdateRequestModel
+        "application/json":
+          Fn::ImportValue: 
+            !Sub "letter-update-request-model-${Environment}"
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
@@ -364,25 +555,39 @@ Resources:
       MethodResponses:
         - StatusCode: 200
           ResponseModels:
-            "application/json": !ImportValue LetterUpdateResponseModel
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "letter-update-response-model-${Environment}"
         - StatusCode: 400
           ResponseModels:
-            "application/json": !ImportValue BadRequestError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "bad-request-error-${Environment}"
         - StatusCode: 404
           ResponseModels:
-            "application/json": !ImportValue NotFoundError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "not-found-error-${Environment}"
         - StatusCode: 500
           ResponseModels:
-            "application/json": !ImportValue InternalServerError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "internal-server-error-${Environment}"
 
   LetterDeleteMethod:
     Type: AWS::ApiGateway::Method
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
-      ResourceId: !ImportValue LetterByIdResource
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
+      ResourceId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-letter-by-id-resource-${Environment}"
       HttpMethod: DELETE
       AuthorizationType: COGNITO_USER_POOLS
-      AuthorizerId: !ImportValue OneHundredLettersAuthorizer
+      AuthorizerId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-authorizer-${Environment}"
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
@@ -392,13 +597,21 @@ Resources:
       MethodResponses:
         - StatusCode: 200
           ResponseModels:
-            "application/json": !ImportValue LetterDeleteResponseModel
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "letter-delete-response-model-${Environment}"
         - StatusCode: 400
           ResponseModels:
-            "application/json": !ImportValue BadRequestError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "bad-request-error-${Environment}"
         - StatusCode: 404
           ResponseModels:
-            "application/json": !ImportValue NotFoundError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "not-found-error-${Environment}"
         - StatusCode: 500
           ResponseModels:
-            "application/json": !ImportValue InternalServerError
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "internal-server-error-${Environment}"
