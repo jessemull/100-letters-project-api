@@ -381,7 +381,7 @@ Resources:
         - StatusCode: 200
           ResponseModels:
             "application/json":
-              Fn::ImportValue: 
+              Fn::ImportValue:
                 !Sub "recipient-update-response-model-${Environment}"
         - StatusCode: 400
           ResponseModels:
