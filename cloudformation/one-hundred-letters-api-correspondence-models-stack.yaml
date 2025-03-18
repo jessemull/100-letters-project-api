@@ -1,14 +1,35 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
+Parameters:
+  Environment:
+    Type: String
+    Default: "dev"
+    Description: "The environment for the deployment (dev or prod)"
+    AllowedValues:
+      - dev
+      - prod
+    ConstraintDescription: "Must be either 'dev' or 'prod'."
+
+Mappings:
+  EnvCapitalization:
+    dev:
+      Capitalized: "Dev"
+    prod:
+      Capitalized: "Prod"
+
 Resources:
   # <------------------- UPDATE Correspondence ------------------->
 
   CorrespondenceCreateRequestModel:
     Type: AWS::ApiGateway::Model
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
       ContentType: "application/json"
-      Name: "CorrespondenceCreateModel"
+      Name: !Sub 
+        - "CorrespondenceCreateModel${CapitalizedEnv}"
+        - CapitalizedEnv: !FindInMap [EnvCapitalization, !Ref Environment, Capitalized]
       Schema:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
@@ -97,9 +118,13 @@ Resources:
   CorrespondenceCreateResponseModel:
     Type: AWS::ApiGateway::Model
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
       ContentType: "application/json"
-      Name: "CorrespondenceCreateResponseModel"
+      Name: !Sub 
+        - "CorrespondenceCreateResponseModel${CapitalizedEnv}"
+        - CapitalizedEnv: !FindInMap [EnvCapitalization, !Ref Environment, Capitalized]
       Schema:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
@@ -223,9 +248,13 @@ Resources:
   CorrespondenceUpdateRequestModel:
     Type: AWS::ApiGateway::Model
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
       ContentType: "application/json"
-      Name: "CorrespondenceUpdateModel"
+      Name: !Sub 
+        - "CorrespondenceUpdateModel${CapitalizedEnv}"
+        - CapitalizedEnv: !FindInMap [EnvCapitalization, !Ref Environment, Capitalized]
       Schema:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
@@ -323,9 +352,13 @@ Resources:
   CorrespondenceUpdateResponseModel:
     Type: AWS::ApiGateway::Model
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
       ContentType: "application/json"
-      Name: "CorrespondenceUpdateResponseModel"
+      Name: !Sub 
+        - "CorrespondenceUpdateResponseModel${CapitalizedEnv}"
+        - CapitalizedEnv: !FindInMap [EnvCapitalization, !Ref Environment, Capitalized]
       Schema:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
@@ -449,9 +482,13 @@ Resources:
   CorrespondenceResponseModel:
     Type: AWS::ApiGateway::Model
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
       ContentType: "application/json"
-      Name: "CorrespondenceResponseModel"
+      Name: !Sub 
+        - "CorrespondenceResponseModel${CapitalizedEnv}"
+        - CapitalizedEnv: !FindInMap [EnvCapitalization, !Ref Environment, Capitalized]
       Schema:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
@@ -579,9 +616,13 @@ Resources:
   CorrespondenceByIdResponseModel:
     Type: AWS::ApiGateway::Model
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
       ContentType: "application/json"
-      Name: "CorrespondenceByIdResponseModel"
+      Name: !Sub 
+        - "CorrespondenceByIdResponseModel${CapitalizedEnv}"
+        - CapitalizedEnv: !FindInMap [EnvCapitalization, !Ref Environment, Capitalized]
       Schema:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
@@ -705,9 +746,13 @@ Resources:
   CorrespondenceDeleteResponseModel:
     Type: AWS::ApiGateway::Model
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
       ContentType: "application/json"
-      Name: "CorrespondenceDeleteResponseModel"
+      Name: !Sub 
+        - "CorrespondenceDeleteResponseModel${CapitalizedEnv}"
+        - CapitalizedEnv: !FindInMap [EnvCapitalization, !Ref Environment, Capitalized]
       Schema:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
@@ -735,28 +780,28 @@ Outputs:
   CorrespondenceCreateRequestModelOutput:
     Value: !Ref CorrespondenceCreateRequestModel
     Export:
-      Name: CorrespondenceCreateRequestModel
+      Name: !Sub "correspondence-create-request-model-${Environment}"
   CorrespondenceUpdateRequestModelOutput:
     Value: !Ref CorrespondenceUpdateRequestModel
     Export:
-      Name: CorrespondenceUpdateRequestModel
+      Name: !Sub "correspondence-update-request-model-${Environment}"
   CorrespondenceResponseModelOutput:
     Value: !Ref CorrespondenceResponseModel
     Export:
-      Name: CorrespondenceResponseModel
+      Name: !Sub "correspondence-response-model-${Environment}"
   CorrespondenceCreateResponseModelOutput:
     Value: !Ref CorrespondenceCreateResponseModel
     Export:
-      Name: CorrespondenceCreateResponseModel
+      Name: !Sub "correspondence-create-response-model-${Environment}"
   CorrespondenceUpdateResponseModelOutput:
     Value: !Ref CorrespondenceUpdateResponseModel
     Export:
-      Name: CorrespondenceUpdateResponseModel
+      Name: !Sub "correspondence-update-response-model-${Environment}"
   CorrespondenceByIdResponseModelOutput:
     Value: !Ref CorrespondenceByIdResponseModel
     Export:
-      Name: CorrespondenceByIdResponseModel
+      Name: !Sub "correspondence-by-id-response-model-${Environment}"
   CorrespondenceDeleteResponseModelOutput:
     Value: !Ref CorrespondenceDeleteResponseModel
     Export:
-      Name: CorrespondenceDeleteResponseModel
+      Name: !Sub "correspondence-delete-response-model-${Environment}"

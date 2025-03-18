@@ -1,14 +1,35 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
+Parameters:
+  Environment:
+    Type: String
+    Default: "dev"
+    Description: "The environment for the deployment (dev or prod)"
+    AllowedValues:
+      - dev
+      - prod
+    ConstraintDescription: "Must be either 'dev' or 'prod'."
+
+Mappings:
+  EnvCapitalization:
+    dev:
+      Capitalized: "Dev"
+    prod:
+      Capitalized: "Prod"
+
 Resources:
   # <------------------- CREATE Recipient ------------------->
 
   RecipientCreateRequestModel:
     Type: AWS::ApiGateway::Model
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
       ContentType: "application/json"
-      Name: "RecipientCreateModel"
+      Name: !Sub 
+        - "RecipientCreateRequestModel${CapitalizedEnv}"
+        - CapitalizedEnv: !FindInMap [EnvCapitalization, !Ref Environment, Capitalized]
       Schema:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
@@ -42,9 +63,13 @@ Resources:
   RecipientCreateResponseModel:
     Type: AWS::ApiGateway::Model
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
       ContentType: "application/json"
-      Name: "RecipientCreateResponseModel"
+      Name: !Sub 
+        - "RecipientCreateResponseModel${CapitalizedEnv}"
+        - CapitalizedEnv: !FindInMap [EnvCapitalization, !Ref Environment, Capitalized]
       Schema:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
@@ -95,9 +120,13 @@ Resources:
   RecipientUpdateRequestModel:
     Type: AWS::ApiGateway::Model
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
       ContentType: "application/json"
-      Name: "RecipientUpdateRequestModel"
+      Name: !Sub 
+        - "RecipientUpdateRequestModel${CapitalizedEnv}"
+        - CapitalizedEnv: !FindInMap [EnvCapitalization, !Ref Environment, Capitalized]
       Schema:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
@@ -134,9 +163,13 @@ Resources:
   RecipientUpdateResponseModel:
     Type: AWS::ApiGateway::Model
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
       ContentType: "application/json"
-      Name: "RecipientUpdateResponseModel"
+      Name: !Sub 
+        - "RecipientUpdateResponseModel${CapitalizedEnv}"
+        - CapitalizedEnv: !FindInMap [EnvCapitalization, !Ref Environment, Capitalized]
       Schema:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
@@ -177,7 +210,7 @@ Resources:
               updatedAt:
                 type: "string"
                 format: "date-time"
-            required: ["address", "createAt", "firstName", "lastName", "recipientId", "updatedAt"]
+            required: ["address", "createdAt", "firstName", "lastName", "recipientId", "updatedAt"]
           message:
             type: string
         required: ["data", "message"]
@@ -187,9 +220,13 @@ Resources:
   RecipientResponseModel:
     Type: AWS::ApiGateway::Model
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
       ContentType: "application/json"
-      Name: "RecipientResponseModel"
+      Name: !Sub 
+        - "RecipientResponseModel${CapitalizedEnv}"
+        - CapitalizedEnv: !FindInMap [EnvCapitalization, !Ref Environment, Capitalized]
       Schema:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
@@ -244,9 +281,13 @@ Resources:
   RecipientByIdResponseModel:
     Type: AWS::ApiGateway::Model
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
       ContentType: "application/json"
-      Name: "RecipientByIdResponseModel"
+      Name: !Sub 
+        - "RecipientByIdResponseModel${CapitalizedEnv}"
+        - CapitalizedEnv: !FindInMap [EnvCapitalization, !Ref Environment, Capitalized]
       Schema:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
@@ -297,9 +338,13 @@ Resources:
   RecipientDeleteResponseModel:
     Type: AWS::ApiGateway::Model
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
       ContentType: "application/json"
-      Name: "RecipientDeleteResponseModel"
+      Name: !Sub 
+        - "RecipientDeleteResponseModel${CapitalizedEnv}"
+        - CapitalizedEnv: !FindInMap [EnvCapitalization, !Ref Environment, Capitalized]
       Schema:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
@@ -319,28 +364,28 @@ Outputs:
   RecipientCreateRequestModelOutput:
     Value: !Ref RecipientCreateRequestModel
     Export:
-      Name: RecipientCreateRequestModel
+      Name: !Sub recipient-create-request-model-${Environment}
   RecipientUpdateRequestModelOutput:
     Value: !Ref RecipientUpdateRequestModel
     Export:
-      Name: RecipientUpdateRequestModel
+      Name: !Sub recipient-update-request-model-${Environment}
   RecipientResponseModelOutput:
     Value: !Ref RecipientResponseModel
     Export:
-      Name: RecipientResponseModel
+      Name: !Sub recipient-response-model-${Environment}
   RecipientCreateResponseModelOutput:
     Value: !Ref RecipientCreateResponseModel
     Export:
-      Name: RecipientCreateResponseModel
+      Name: !Sub recipient-create-response-model-${Environment}
   RecipientUpdateResponseModelOutput:
     Value: !Ref RecipientUpdateResponseModel
     Export:
-      Name: RecipientUpdateResponseModel
+      Name: !Sub recipient-update-response-model-${Environment}
   RecipientByIdResponseModelOutput:
     Value: !Ref RecipientByIdResponseModel
     Export:
-      Name: RecipientByIdResponseModel
+      Name: !Sub recipient-by-id-response-model-${Environment}
   RecipientDeleteResponseModelOutput:
     Value: !Ref RecipientDeleteResponseModel
     Export:
-      Name: RecipientDeleteResponseModel
+      Name: !Sub recipient-delete-response-model-${Environment}

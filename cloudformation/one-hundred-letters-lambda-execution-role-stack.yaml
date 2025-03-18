@@ -1,16 +1,26 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
+Parameters:
+  Environment:
+    Type: String
+    Default: "dev"
+    Description: "The environment for the deployment (dev or prod)"
+    AllowedValues:
+      - dev
+      - prod
+    ConstraintDescription: "Must be either 'dev' or 'prod'."
+
 Resources:
   LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: OneHundredLettersLambdaRole
+      RoleName: !Sub "one-hundred-letters-lambda-role-${Environment}"
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
           - Effect: Allow
             Principal:
-              Service: 
+              Service:
                 - lambda.amazonaws.com
             Action: sts:AssumeRole
       Policies:
@@ -30,7 +40,7 @@ Resources:
                   - s3:GetObject
                   - s3:PutObject
                 Resource:
-                  - arn:aws:s3:::100-letters-project-api/*
+                  - !Sub arn:aws:s3:::100-letters-project-api-${Environment}
               - Effect: Allow
                 Action:
                   - dynamodb:PutItem
@@ -41,15 +51,16 @@ Resources:
                   - dynamodb:GetItem
                   - dynamodb:DeleteItem
                 Resource:
-                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OneHundredLettersRecipientTable
-                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OneHundredLettersCorrespondenceTable
-                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OneHundredLettersCorrespondenceTable/index/RecipientIndex
-                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OneHundredLettersLetterTable
-                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OneHundredLettersLetterTable/index/CorrespondenceIndex
-                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OneHundredLettersLetterTable/index/LetterIndex
+                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/one-hundred-letters-recipient-table-${Environment}
+                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/one-hundred-letters-correspondence-table-${Environment}
+                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/one-hundred-letters-correspondence-table-${Environment}/index/RecipientIndex
+                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/one-hundred-letters-letter-table-${Environment}
+                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/one-hundred-letters-letter-table-${Environment}/index/CorrespondenceIndex
+                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/one-hundred-letters-letter-table-${Environment}/index/LetterIndex
                   
 Outputs:
   LambdaExecutionRoleArn:
     Value: !GetAtt LambdaExecutionRole.Arn
+    Description: "Lambda execution role ARN"
     Export:
-      Name: OneHundredLettersLambdaExecutionRoleArn
+      Name: !Sub "one-hundred-letters-lambda-role-${Environment}"

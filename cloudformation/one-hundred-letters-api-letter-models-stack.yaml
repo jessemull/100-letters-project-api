@@ -1,14 +1,35 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
+Parameters:
+  Environment:
+    Type: String
+    Default: "dev"
+    Description: "The environment for the deployment (dev or prod)"
+    AllowedValues:
+      - dev
+      - prod
+    ConstraintDescription: "Must be either 'dev' or 'prod'."
+
+Mappings:
+  EnvCapitalization:
+    dev:
+      Capitalized: "Dev"
+    prod:
+      Capitalized: "Prod"
+
 Resources:
   # <------------------- CREATE Letter ------------------->
 
   LetterCreateRequestModel:
     Type: AWS::ApiGateway::Model
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
       ContentType: "application/json"
-      Name: "LetterCreateModel"
+      Name: !Sub 
+        - "LetterCreateModel${CapitalizedEnv}"
+        - CapitalizedEnv: !FindInMap [EnvCapitalization, !Ref Environment, Capitalized]
       Schema:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
@@ -47,9 +68,13 @@ Resources:
   LetterCreateResponseModel:
     Type: AWS::ApiGateway::Model
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
       ContentType: "application/json"
-      Name: "LetterCreateResponseModel"
+      Name: !Sub 
+        - "LetterCreateResponseModel${CapitalizedEnv}"
+        - CapitalizedEnv: !FindInMap [EnvCapitalization, !Ref Environment, Capitalized]
       Schema:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
@@ -105,9 +130,13 @@ Resources:
   LetterUpdateRequestModel:
       Type: AWS::ApiGateway::Model
       Properties:
-        RestApiId: !ImportValue OneHundredLettersApi
+        RestApiId: 
+          Fn::ImportValue: 
+            !Sub "one-hundred-letters-api-${Environment}"
         ContentType: "application/json"
-        Name: "LetterUpdateModel"
+        Name: !Sub 
+        - "LetterUpdateModel${CapitalizedEnv}"
+        - CapitalizedEnv: !FindInMap [EnvCapitalization, !Ref Environment, Capitalized]
         Schema:
           $schema: "http://json-schema.org/draft-04/schema#"
           type: "object"
@@ -149,9 +178,13 @@ Resources:
   LetterUpdateResponseModel:
     Type: AWS::ApiGateway::Model
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
       ContentType: "application/json"
-      Name: "LetterUpdateResponseModel"
+      Name: !Sub 
+        - "LetterUpdateResponseModel${CapitalizedEnv}"
+        - CapitalizedEnv: !FindInMap [EnvCapitalization, !Ref Environment, Capitalized]
       Schema:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
@@ -207,9 +240,13 @@ Resources:
   LetterResponseModel:
     Type: AWS::ApiGateway::Model
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
       ContentType: "application/json"
-      Name: "LetterResponseModel"
+      Name: !Sub 
+        - "LetterResponseModel${CapitalizedEnv}"
+        - CapitalizedEnv: !FindInMap [EnvCapitalization, !Ref Environment, Capitalized]
       Schema:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
@@ -269,9 +306,13 @@ Resources:
   LetterByIdResponseModel:
     Type: AWS::ApiGateway::Model
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
       ContentType: "application/json"
-      Name: "LetterByIdResponseModel"
+      Name: !Sub 
+        - "LetterByIdResponseModel${CapitalizedEnv}"
+        - CapitalizedEnv: !FindInMap [EnvCapitalization, !Ref Environment, Capitalized]
       Schema:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
@@ -327,9 +368,13 @@ Resources:
   LetterDeleteResponseModel:
     Type: AWS::ApiGateway::Model
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
       ContentType: "application/json"
-      Name: "LetterDeleteResponseModel"
+      Name: !Sub 
+        - "LetterDeleteResponseModel${CapitalizedEnv}"
+        - CapitalizedEnv: !FindInMap [EnvCapitalization, !Ref Environment, Capitalized]
       Schema:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
@@ -349,28 +394,28 @@ Outputs:
   LetterCreateRequestModelOutput:
     Value: !Ref LetterCreateRequestModel
     Export:
-      Name: LetterCreateRequestModel
+      Name: !Sub letter-create-request-model-${Environment}
   LetterUpdateRequestModelOutput:
     Value: !Ref LetterUpdateRequestModel
     Export:
-      Name: LetterUpdateRequestModel
+      Name: !Sub letter-update-request-model-${Environment}
   LetterResponseModelOutput:
     Value: !Ref LetterResponseModel
     Export:
-      Name: LetterResponseModel
+      Name: !Sub letter-response-model-${Environment}
   LetterCreateResponseModelOutput:
     Value: !Ref LetterCreateResponseModel
     Export:
-      Name: LetterCreateResponseModel
+      Name: !Sub letter-create-response-model-${Environment}
   LetterUpdateResponseModelOutput:
     Value: !Ref LetterUpdateResponseModel
     Export:
-      Name: LetterUpdateResponseModel
+      Name: !Sub letter-update-response-model-${Environment}
   LetterByIdResponseModelOutput:
     Value: !Ref LetterByIdResponseModel
     Export:
-      Name: LetterByIdResponseModel
+      Name: !Sub letter-by-id-response-model-${Environment}
   LetterDeleteResponseModelOutput:
     Value: !Ref LetterDeleteResponseModel
     Export:
-      Name: LetterDeleteResponseModel
+      Name: !Sub letter-delete-response-model-${Environment}

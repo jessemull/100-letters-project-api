@@ -1,10 +1,19 @@
 AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  Environment:
+    Type: String
+    Default: "dev"
+    Description: "The environment for the deployment (dev or prod)"
+    AllowedValues:
+      - dev
+      - prod
+    ConstraintDescription: "Must be either 'dev' or 'prod'."
 
 Resources:
   RecipientTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: "OneHundredLettersRecipientTable"
+      TableName: !Sub "one-hundred-letters-recipient-table-${Environment}"
       AttributeDefinitions:
         - AttributeName: "recipientId"
           AttributeType: "S"
@@ -14,14 +23,13 @@ Resources:
       BillingMode: PAY_PER_REQUEST
       Tags:
         - Key: "Name"
-          Value: "OneHundredLettersRecipientTable"
+          Value: !Sub "one-hundred-letters-recipient-table-${Environment}"
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
-
   CorrespondenceTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: "OneHundredLettersCorrespondenceTable"
+      TableName: !Sub "one-hundred-letters-correspondence-table-${Environment}"
       AttributeDefinitions:
         - AttributeName: "correspondenceId"
           AttributeType: "S"
@@ -40,14 +48,13 @@ Resources:
             ProjectionType: "ALL"
       Tags:
         - Key: "Name"
-          Value: "OneHundredLettersCorrespondenceTable"
+          Value: !Sub "one-hundred-letters-correspondence-table-${Environment}"
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
-
   LetterTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: "OneHundredLettersLetterTable"
+      TableName: !Sub "one-hundred-letters-letter-table-${Environment}"
       AttributeDefinitions:
         - AttributeName: "correspondenceId"
           AttributeType: "S"
@@ -76,10 +83,16 @@ Resources:
 Outputs:
   RecipientTable:
     Value: !Ref RecipientTable
-    Description: "DynamoDB table for Recipient"
+    Description: "DynamoDB table for Recipients"
+    Export:
+      Name: !Sub "one-hundred-letters-recipient-table-${Environment}"
   CorrespondenceTable:
     Value: !Ref CorrespondenceTable
     Description: "DynamoDB table for Correspondence"
+    Export:
+      Name: !Sub "one-hundred-letters-correspondence-table-${Environment}"
   LetterTable:
     Value: !Ref LetterTable
-    Description: "DynamoDB table for Letter"
+    Description: "DynamoDB table for Letters"
+    Export:
+      Name: !Sub "one-hundred-letters-letter-table-${Environment}"

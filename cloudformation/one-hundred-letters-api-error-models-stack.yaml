@@ -1,12 +1,33 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
+Parameters:
+  Environment:
+    Type: String
+    Default: "dev"
+    Description: "The environment for the deployment (dev or prod)"
+    AllowedValues:
+      - dev
+      - prod
+    ConstraintDescription: "Must be either 'dev' or 'prod'."
+
+Mappings:
+  EnvCapitalization:
+    dev:
+      Capitalized: "Dev"
+    prod:
+      Capitalized: "Prod"
+
 Resources:
   BadRequestError:
     Type: AWS::ApiGateway::Model
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
       ContentType: "application/json"
-      Name: "BadRequestError"
+      Name: !Sub 
+        - "BadRequestError${CapitalizedEnv}"
+        - CapitalizedEnv: !FindInMap [EnvCapitalization, !Ref Environment, Capitalized]
       Schema:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
@@ -19,9 +40,13 @@ Resources:
   InternalServerError:
     Type: AWS::ApiGateway::Model
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
       ContentType: "application/json"
-      Name: "InternalServerError"
+      Name: !Sub 
+        - "InternalServerError${CapitalizedEnv}"
+        - CapitalizedEnv: !FindInMap [EnvCapitalization, !Ref Environment, Capitalized]
       Schema:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
@@ -34,9 +59,13 @@ Resources:
   NotFoundError:
     Type: AWS::ApiGateway::Model
     Properties:
-      RestApiId: !ImportValue OneHundredLettersApi
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
       ContentType: "application/json"
-      Name: "NotFoundError"
+      Name: !Sub 
+        - "NotFoundError${CapitalizedEnv}"
+        - CapitalizedEnv: !FindInMap [EnvCapitalization, !Ref Environment, Capitalized]
       Schema:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
@@ -50,12 +79,12 @@ Outputs:
   BadRequestErrorOutput:
     Value: !Ref BadRequestError
     Export:
-      Name: BadRequestError
+      Name: !Sub bad-request-error-${Environment}
   InternalServerErrorOutput:
     Value: !Ref InternalServerError
     Export:
-      Name: InternalServerError
+      Name: !Sub internal-server-error-${Environment}
   NotFoundErrorOutput:
     Value: !Ref NotFoundError
     Export:
-      Name: NotFoundError
+      Name: !Sub not-found-error-${Environment}
