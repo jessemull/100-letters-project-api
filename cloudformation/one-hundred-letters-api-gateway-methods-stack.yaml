@@ -25,7 +25,10 @@ Resources:
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getCorrespondences/invocations"
+        Uri:
+          !Sub 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getCorrespondences-${Env}/invocations"
+            - { Env: !Ref Environment }
       RequestParameters:
         "method.request.querystring.limit": false
         "method.request.querystring.lastEvaluatedKey": false
@@ -65,7 +68,10 @@ Resources:
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createCorrespondence/invocations"
+        Uri:
+          !Sub 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createCorrespondence-${Env}/invocations"
+            - { Env: !Ref Environment }
       MethodResponses:
         - StatusCode: 201
           ResponseModels:
@@ -96,7 +102,10 @@ Resources:
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getCorrespondenceById/invocations"
+        Uri:
+          !Sub 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getCorrespondenceById-${Env}/invocations"
+            - { Env: !Ref Environment }
       RequestParameters:
         method.request.path.id: true
       MethodResponses:
@@ -145,7 +154,10 @@ Resources:
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:updateCorrespondence/invocations"
+        Uri:
+          !Sub 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:updateCorrespondence-${Env}/invocations"
+            - { Env: !Ref Environment }
       RequestParameters:
         method.request.path.id: true
       MethodResponses:
@@ -187,7 +199,10 @@ Resources:
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:deleteCorrespondence/invocations"
+        Uri:
+          !Sub 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:deleteCorrespondence-${Env}/invocations"
+            - { Env: !Ref Environment }
       RequestParameters:
         method.request.path.id: true
       MethodResponses:
@@ -226,7 +241,10 @@ Resources:
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRecipients/invocations"
+        Uri:
+          !Sub 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRecipients-${Env}/invocations"
+            - { Env: !Ref Environment }
       RequestParameters:
         "method.request.querystring.limit": false
         "method.request.querystring.lastEvaluatedKey": false
@@ -256,7 +274,10 @@ Resources:
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRecipientById/invocations"
+        Uri:
+          !Sub 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRecipientById-${Env}/invocations"
+            - { Env: !Ref Environment }
       RequestParameters:
         method.request.path.id: true
       MethodResponses:
@@ -305,7 +326,10 @@ Resources:
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createRecipient/invocations"
+        Uri:
+          !Sub 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createRecipient-${Env}/invocations"
+            - { Env: !Ref Environment }
       MethodResponses:
         - StatusCode: 201
           ResponseModels:
@@ -347,7 +371,10 @@ Resources:
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:updateRecipient/invocations"
+        Uri:
+          !Sub 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:updateRecipient-${Env}/invocations"
+            - { Env: !Ref Environment }
       RequestParameters:
         method.request.path.id: true
       MethodResponses:
@@ -389,7 +416,10 @@ Resources:
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:deleteRecipient/invocations"
+        Uri:
+          !Sub 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:deleteRecipient-${Env}/invocations"
+            - { Env: !Ref Environment }
       RequestParameters:
         method.request.path.id: true
       MethodResponses:
@@ -428,7 +458,10 @@ Resources:
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getLetters/invocations"
+        Uri:
+          !Sub 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getLetters-${Env}/invocations"
+            - { Env: !Ref Environment }
       RequestParameters:
         "method.request.querystring.limit": false
         "method.request.querystring.lastEvaluatedKey": false
@@ -458,7 +491,10 @@ Resources:
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getLetterById/invocations"
+        Uri:
+          !Sub 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getLetterById-${Env}/invocations"
+            - { Env: !Ref Environment }
       RequestParameters:
         method.request.path.id: true
       MethodResponses:
@@ -507,7 +543,10 @@ Resources:
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createLetter/invocations"
+        Uri:
+          !Sub 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createLetter-${Env}/invocations"
+            - { Env: !Ref Environment }
       MethodResponses:
         - StatusCode: 201
           ResponseModels:
@@ -549,7 +588,10 @@ Resources:
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:updateLetter/invocations"
+        Uri:
+          !Sub 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:updateLetter-${Env}/invocations"
+            - { Env: !Ref Environment }
       RequestParameters:
         method.request.path.id: true
       MethodResponses:
@@ -591,7 +633,10 @@ Resources:
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:deleteLetter/invocations"
+        Uri:
+          !Sub 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:deleteLetter-${Env}/invocations"
+            - { Env: !Ref Environment }
       RequestParameters:
         method.request.path.id: true
       MethodResponses:

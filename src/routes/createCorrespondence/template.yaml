@@ -16,27 +16,31 @@ Resources:
   MyLambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: createCorrespondence
+      FunctionName: !Sub "createCorrespondence-${Environment}"
       Runtime: nodejs20.x
-      Role: !ImportValue OneHundredLettersLambdaExecutionRoleArn
+      Role:
+        Fn::ImportValue: 
+            !Sub "one-hundred-letters-lambda-role-${Environment}"
       Handler: routes/createCorrespondence/index.handler
       Code:
-        S3Bucket: !ImportValue LambdaS3BucketName
+        S3Bucket:
+          Fn::ImportValue: 
+            !Sub "one-hundred-letters-api-${Environment}"
         S3Key: !Ref S3Key
       Timeout: 10
       MemorySize: 128
       Environment:
         Variables:
-          CORRESPONDENCE_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-correspondence-table-name-${Environment}}}"
+          CORRESPONDENCE_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:correspondenceTableName}}"
           ENVIRONMENT: !Ref Environment
-          LETTER_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-letter-table-name-${Environment}}}"
-          RECIPIENT_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-recipient-table-name-${Environment}}}"
+          LETTER_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:letterTableName}}"
+          RECIPIENT_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:recipientTableName}}"
 
   LambdaInvokePermissionGetRecipientById:
     Type: AWS::Lambda::Permission
     DependsOn: MyLambdaFunction
     Properties:
       Action: lambda:InvokeFunction
-      FunctionName: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createCorrespondence"
+      FunctionName: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:createCorrespondence-${Environment}"
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/POST/*"
