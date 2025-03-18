@@ -3,6 +3,11 @@ info:
   title: "OneHundredLettersApi"
   description: "API for managing correspondence, recipients and letters."
   version: "2025-03-11T16:08:24Z"
+servers:
+  - url: https://api.onehundredletters.com
+    description: Production API
+  - url: https://api-dev.onehundredletters.com
+    description: Development API
 paths:
   /letter:
     get:

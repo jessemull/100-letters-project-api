@@ -12,6 +12,12 @@ Parameters:
   UserPoolId:
     Type: String
     Description: Cognito User Pool ID
+  DomainName:
+    Type: String
+    Description: "The custom domain name for the API Gateway"
+  CertificateArn:
+    Type: String
+    Description: "The ARN of the ACM certificate for the custom domain"
 
 Resources:
   OneHundredLettersApi:
@@ -38,8 +44,26 @@ Resources:
       ProviderARNs:
         - !Sub "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}"
 
-  # Correspondence Resources
+  # Custom Domain Setup
   
+  ApiGatewayCustomDomain:
+    Type: AWS::ApiGateway::DomainName
+    Properties:
+      DomainName: !Ref DomainName
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+      RegionalCertificateArn: !Ref CertificateArn
+
+  BasePathMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      DomainName: !Ref ApiGatewayCustomDomain
+      RestApiId: !Ref OneHundredLettersApi
+      Stage: !Ref Environment
+
+  # Correspondence Resources
+
   CorrespondenceResource:
     Type: AWS::ApiGateway::Resource
     Properties:
@@ -90,6 +114,9 @@ Outputs:
   ApiGatewayUrl:
     Value: !Sub "https://${OneHundredLettersApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}"
     Description: "URL of the deployed API Gateway"
+  ApiCustomDomainUrl:
+    Value: !Sub "https://${DomainName}"
+    Description: "Custom domain URL for the API Gateway"
   OneHundredLettersApiOutput:
     Value: !Ref OneHundredLettersApi
     Export:
