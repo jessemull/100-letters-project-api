@@ -3,9 +3,9 @@ const { DynamoDBClient, ScanCommand, DeleteItemCommand } = require('@aws-sdk/cli
 const dynamoDBClient = new DynamoDBClient({ region: 'us-west-2' });
 
 const tableNames = [
-  'OneHundredLettersRecipientTable',
-  'OneHundredLettersCorrespondenceTable',
-  'OneHundredLettersLetterTable',
+  'one-hundred-letters-recipient-table-dev',
+  'one-hundred-letters-correspondence-table-dev',
+  'one-hundred-letters-letter-table-dev',
 ];
 
 async function deleteTableItems(tableName) {
@@ -24,11 +24,11 @@ async function deleteTableItems(tableName) {
 
   for (let i = 0; i < data.Items.length; i++) {
     let key;
-    if (tableName === 'OneHundredLettersRecipientTable') {
+    if (tableName === 'one-hundred-letters-recipient-table-dev') {
       key = { recipientId: data.Items[i].recipientId };
-    } else if (tableName === 'OneHundredLettersCorrespondenceTable') {
+    } else if (tableName === 'one-hundred-letters-correspondence-table-dev') {
       key = { correspondenceId: data.Items[i].correspondenceId };
-    } else if (tableName === 'OneHundredLettersLetterTable') {
+    } else if (tableName === 'one-hundred-letters-letter-table-dev') {
       key = { correspondenceId: data.Items[i].correspondenceId, letterId: data.Items[i].letterId };
     }
 

@@ -65,6 +65,7 @@
     "lint:pkg:fix": "node scripts/lint-pkg-fix.js",
     "package:all": "node scripts/package-all.js",
     "package:pkg": "node scripts/package-pkg.js",
+    "password": "node scripts/set-password.js",
     "prepare": "husky install",
     "test:all": "jest --no-cache",
     "test:all:watch": "jest --watch",
