@@ -26,7 +26,7 @@ Resources:
       Code:
         S3Bucket:
           Fn::ImportValue: 
-            !Sub "one-hundred-letters-api-${Environment}"
+            !Sub "100-letters-project-api-${Environment}"
         S3Key: !Ref S3Key
       Timeout: 10
       MemorySize: 128
