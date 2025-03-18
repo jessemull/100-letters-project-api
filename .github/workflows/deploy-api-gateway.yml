@@ -1,10 +1,10 @@
-name: Deploy API Gateway Stage
+name: Deploy API Gateway
 
 on:
   workflow_dispatch:
     inputs:
-      stage:
-        description: "API Gateway Stage"
+      environment:
+        description: "Development environment"
         required: true
         type: choice
         options:
@@ -12,7 +12,7 @@ on:
           - prod
 
 jobs:
-  deploy-stage:
+  deploy-gateway:
     name: Deploy API Gateway Stage
     runs-on: ubuntu-latest
 
@@ -29,8 +29,12 @@ jobs:
 
       - name: Deploy API Gateway Stage
         run: |
-          API_ID=${{ secrets.API_GATEWAY_ID }}
-          STAGE_NAME="${{ github.event.inputs.stage }}"
+          if [ "${{ github.event.inputs.environment }}" == "prod" ]; then
+            API_ID="${{ secrets.API_GATEWAY_ID_PROD }}"
+          else
+            API_ID="${{ secrets.API_GATEWAY_ID_DEV }}"
+          fi
+          STAGE_NAME="${{ github.event.inputs.environment }}"
           set -e
           
           DEPLOYMENT_ID=$(aws apigateway create-deployment \
