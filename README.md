@@ -8,21 +8,22 @@ The **100 Letters Project API** provides the backend services for the **100 Lett
 
 ## Table of Contents
 1. [API Documentation](#api-documentation)
-2. [Tech Stack](#tech-stack)
-3. [Setup Instructions](#setup-instructions)
-4. [Commits and Commitizen](#commits-and-commitizen)
-5. [Linting & Formatting](#linting--formatting)
+2. [Environments](#environments)
+3. [Tech Stack](#tech-stack)
+4. [Setup Instructions](#setup-instructions)
+5. [Commits and Commitizen](#commits-and-commitizen)
+6. [Linting & Formatting](#linting--formatting)
     - [Linting Commands](#linting-commands)
     - [Formatting Commands](#formatting-commands)
     - [Pre-Commit Hook](#pre-commit-hook)
-6. [Testing & Code Coverage](#testing--code-coverage)
+7. [Testing & Code Coverage](#testing--code-coverage)
     - [Testing Commands](#testing-commands)
     - [Code Coverage](#code-coverage)
-7. [Building & Packaging Bundle](#building--packaging-bundle)
+8. [Building & Packaging Bundle](#building--packaging-bundle)
     - [Install](#install)
     - [Build](#build)
     - [Package](#package)
-8. [Deployment Pipelines](#deployment-pipelines)
+9. [Deployment Pipelines](#deployment-pipelines)
     - [Deployment Strategy](#deployment-strategy)
     - [Tools Used](#tools-used)
     - [Pull Request](#pull-request)
@@ -30,14 +31,14 @@ The **100 Letters Project API** provides the backend services for the **100 Lett
     - [Deploy All Lambdas](#deploy-all-lambdas)
     - [Deploy On Merge](#deploy-on-merge)
     - [Rollback Lambda](#rollback-lambda)
-9. [Seeding & Reseting DynamoDB Tables](#seeding--reseting-dynamodb-tables)
+10. [Seeding & Reseting DynamoDB Tables](#seeding--reseting-dynamodb-tables)
     - [Seeding DynamoDB Tables](#seeding-dynamodb-tables)
     - [Reseting DynamoDB Tables](#reseting-dyanmodb-tables)
-10. [Templating Engine](#templating-engine)
+11. [Templating Engine](#templating-engine)
     - [Creating A New Route](#creating-a-new-route)
-10. [Connecting to the Bastion Host](#connecting-to-the-bastion-host)
+12. [Connecting to the Bastion Host](#connecting-to-the-bastion-host)
     - [Environment Variables](#environment-variables)
-11. [License](#license)
+13. [License](#license)
 
 ## API Documentation
 
@@ -66,6 +67,20 @@ The API supports the following primary endpoints:
 - **/correspondence**: Manage correspondences (Create, Update, Delete, Get by ID).
 
 ---
+
+## Environments
+
+The **100 Letters Project API** operates in multiple environments to ensure smooth development, testing, and production workflows.
+
+- **Development Environment**: Testing and development:
+    
+    `https://api-dev.onehundredletters.com`.
+    
+- **Production Environment**: Live version of the API:
+
+     `https://api.onehundredletters.com`.
+
+Configuration files and environment variables should be set to point to the correct environment, depending on the stage of the application.
 
 ## Tech Stack
 
