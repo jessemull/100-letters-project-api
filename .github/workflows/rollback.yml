@@ -1,4 +1,4 @@
-name: Rollback Lambda
+name: Rollback
 
 on:
   workflow_dispatch:
