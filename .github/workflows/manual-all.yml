@@ -1,4 +1,4 @@
-name: Deploy All Lambdas Manually
+name: Deploy All Lambdas
 
 on:
   workflow_dispatch:

@@ -21,7 +21,13 @@ Resources:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-correspondence-resource-${Environment}"
       HttpMethod: GET
-      AuthorizationType: NONE
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-authorizer-${Environment}"
+      RequestValidatorId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-validator-${Environment}"
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
@@ -98,7 +104,13 @@ Resources:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-correspondence-by-id-resource-${Environment}"
       HttpMethod: GET
-      AuthorizationType: NONE
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-authorizer-${Environment}"
+      RequestValidatorId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-validator-${Environment}"
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
@@ -237,7 +249,13 @@ Resources:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-recipients-resource-${Environment}"
       HttpMethod: GET
-      AuthorizationType: NONE
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-authorizer-${Environment}"
+      RequestValidatorId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-validator-${Environment}"
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
@@ -270,7 +288,13 @@ Resources:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-recipient-by-id-resource-${Environment}"
       HttpMethod: GET
-      AuthorizationType: NONE
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-authorizer-${Environment}"
+      RequestValidatorId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-validator-${Environment}"
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
@@ -454,7 +478,13 @@ Resources:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-letters-resource-${Environment}"
       HttpMethod: GET
-      AuthorizationType: NONE
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-authorizer-${Environment}"
+      RequestValidatorId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-validator-${Environment}"
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
@@ -487,7 +517,13 @@ Resources:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-letter-by-id-resource-${Environment}"
       HttpMethod: GET
-      AuthorizationType: NONE
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-authorizer-${Environment}"
+      RequestValidatorId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-validator-${Environment}"
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
