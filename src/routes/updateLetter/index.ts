@@ -97,21 +97,27 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       updateParams.ExpressionAttributeNames['#description'] = 'description';
     }
 
-    if (removeExpressions.length > 0) {
-      updateParams.UpdateExpression +=
-        ' REMOVE ' + removeExpressions.join(', ');
-    }
-
-    if (receivedAt) {
+    if (receivedAt === undefined) {
+      removeExpressions.push('#receivedAt');
+      updateParams.ExpressionAttributeNames['#receivedAt'] = 'receivedAt';
+    } else {
       updateParams.UpdateExpression += ', #receivedAt = :receivedAt';
       updateParams.ExpressionAttributeNames!['#receivedAt'] = 'receivedAt';
       updateParams.ExpressionAttributeValues[':receivedAt'] = receivedAt;
     }
 
-    if (sentAt) {
+    if (sentAt === undefined) {
+      removeExpressions.push('#sentAt');
+      updateParams.ExpressionAttributeNames['#sentAt'] = 'sentAt';
+    } else {
       updateParams.UpdateExpression += ', #sentAt = :sentAt';
       updateParams.ExpressionAttributeNames!['#sentAt'] = 'sentAt';
       updateParams.ExpressionAttributeValues[':sentAt'] = sentAt;
+    }
+
+    if (removeExpressions.length > 0) {
+      updateParams.UpdateExpression +=
+        ' REMOVE ' + removeExpressions.join(', ');
     }
 
     const command = new UpdateCommand(updateParams);
