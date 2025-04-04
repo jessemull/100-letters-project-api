@@ -3,26 +3,30 @@
     "@aws-sdk/client-dynamodb": "^3.758.0",
     "@aws-sdk/lib-dynamodb": "^3.758.0",
     "bunyan": "^1.8.15",
-    "bunyan-cloudwatch": "^2.2.0",
-    "dotenv": "^16.4.7"
+    "bunyan-cloudwatch": "^2.2.0"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.147",
     "@types/bunyan": "^1.8.11",
     "@types/node": "^22.13.9",
-    "typescript": "^5.2.2"
+    "dotenv": "^16.4.7",
+    "terser-webpack-plugin": "^5.3.14",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.8.2",
+    "webpack": "^5.98.0",
+    "webpack-cli": "^6.0.1"
   },
   "main": "dist/index.js",
   "name": "getLetterById",
   "scripts": {
-    "build": "tsc && npm run postbuild",
+    "build": "webpack --config webpack.config.js",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "package": "cd dist && zip -rq getLetterById.zip ./*",
-    "postbuild": "cp package.json dist/ && [ -f package-lock.json ] && cp package-lock.json dist/ || true && cd dist && npm install --omit=dev",
     "prebuild": "rm -rf dist",
     "test": "jest",
     "test:watch": "jest --watch"
   },
   "version": "1.0.0"
 }
+

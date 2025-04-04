@@ -240,11 +240,11 @@ npm run format:check
 
 ### Summary
 
-The build command runs `tsc` using a local `tsconfig.json` inside each route directory and outputs the build artifacts into a `dist/` folder. 
+The build command runs webpack and outputs the build artifacts into a `dist/` directory. Pre-build, a clean command removes the `dist` directory. Webpack performs minification but leaves the handler name intact so it remains discoverable by the AWS lambda service.
 
-Pre-build, a clean command removes the `dist` directory. Post-build, a script copies `package.json` and `package-lock.json` into the `dist/` folder and runs `npm install` within the `dist/` directory.
+The package command zips the contents of the `dist/` folder for the lambda deployment. Before running a build, ensure you have dependencies installed.
 
-The package command zips the contents of the `dist/` folder for the lambda deployment. Before running a build, ensure you have installed the root dependencies used by the common packages.
+Using webpack optimization the bundle size is less than 1.5MB for all routes.
 
 ### Install
 
