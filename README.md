@@ -6,6 +6,12 @@ The **100 Letters Project API** provides the backend services for the **100 Lett
 
 This API facilitates the management of the data required for the website to function correctly, allowing for the creation, retrieval, update, and deletion of letters, recipients, and correspondences.
 
+This repository is part of the **100 Letters Project** which includes the following repositories:
+
+- **[100 Letters Project API](https://github.com/jessemull/100-letters-project-api)**: The **100 Letters Project** API.
+- **[100 Letters Project Client](https://github.com/jessemull/100-letters-project)**: The **100 Letters Project** NextJS client.
+- **[100 Letters Project Lambda@Edge](https://github.com/jessemull/100-letters-project-lambda-at-edge)**: The **100 Letters Project** Lambda@Edge.
+
 ## Table of Contents
 1. [Project Overview](#project-overview)
 2. [Tech Stack](#tech-stack)
