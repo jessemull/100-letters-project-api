@@ -8,7 +8,7 @@ const config = {
   headers: {
     'Access-Control-Allow-Origin':
       process.env.ACCESS_CONTROL_ALLOW_ORIGIN || '',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
     'Access-Control-Allow-Headers':
       'Content-Type, Authorization, x-amz-date, x-api-key',
   },
