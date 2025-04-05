@@ -33,6 +33,12 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           : null,
         message: 'Letters fetched successfully!',
       }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers':
+          'Content-Type, Authorization, x-amz-date, x-api-key',
+      },
     };
   } catch (error) {
     logger.error('Error scanning from DynamoDB: ', error);

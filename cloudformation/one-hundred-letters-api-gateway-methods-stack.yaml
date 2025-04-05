@@ -471,19 +471,19 @@ Resources:
   LettersGetMethod:
     Type: AWS::ApiGateway::Method
     Properties:
-      RestApiId: 
-        Fn::ImportValue: 
+      RestApiId:
+        Fn::ImportValue:
           !Sub "one-hundred-letters-api-${Environment}"
-      ResourceId: 
-        Fn::ImportValue: 
+      ResourceId:
+        Fn::ImportValue:
           !Sub "one-hundred-letters-api-letters-resource-${Environment}"
       HttpMethod: GET
       AuthorizationType: COGNITO_USER_POOLS
       AuthorizerId:
-        Fn::ImportValue: 
+        Fn::ImportValue:
           !Sub "one-hundred-letters-api-authorizer-${Environment}"
       RequestValidatorId:
-        Fn::ImportValue: 
+        Fn::ImportValue:
           !Sub "one-hundred-letters-api-validator-${Environment}"
       Integration:
         IntegrationHttpMethod: POST
@@ -501,11 +501,53 @@ Resources:
             "application/json":
               Fn::ImportValue: 
                 !Sub "letter-response-model-${Environment}"
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Origin: "'*'"
+            method.response.header.Access-Control-Allow-Methods: "'GET, OPTIONS'"
+            method.response.header.Access-Control-Allow-Headers: "'Content-Type, Authorization, x-amz-date, x-api-key'"
         - StatusCode: 500
           ResponseModels:
             "application/json":
               Fn::ImportValue: 
                 !Sub "internal-server-error-${Environment}"
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Origin: "'*'"
+            method.response.header.Access-Control-Allow-Methods: "'GET, OPTIONS'"
+            method.response.header.Access-Control-Allow-Headers: "'Content-Type, Authorization, x-amz-date, x-api-key'"
+
+  # Adding OPTIONS Method
+  LettersOptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId:
+        Fn::ImportValue:
+          !Sub "one-hundred-letters-api-${Environment}"
+      ResourceId:
+        Fn::ImportValue:
+          !Sub "one-hundred-letters-api-letters-resource-${Environment}"
+      HttpMethod: OPTIONS
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: OPTIONS
+        Type: MOCK
+        RequestParameters: {}
+        RequestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Allow-Methods: "'GET, POST, OPTIONS'"
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type, Authorization, x-amz-date, x-api-key'"
+            ResponseTemplates:
+              application/json: "{}"
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Origin: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Headers: true
+
   
   LetterByIdMethod:
     Type: AWS::ApiGateway::Method
@@ -696,3 +738,6 @@ Resources:
             "application/json":
               Fn::ImportValue: 
                 !Sub "internal-server-error-${Environment}"
+
+Conditions:
+  IsDev: !Equals [ !Ref Environment, "dev" ]
