@@ -6,7 +6,12 @@ import { config } from '../../common/config';
 import { dynamoClient, logger } from '../../common/util';
 import { v4 as uuidv4 } from 'uuid';
 
-const { correspondenceTableName, letterTableName, recipientTableName } = config;
+const {
+  correspondenceTableName,
+  headers,
+  letterTableName,
+  recipientTableName,
+} = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
@@ -76,6 +81,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         },
         message: 'Correspondence created successfully!',
       }),
+      headers,
     };
   } catch (error) {
     logger.error('Error creating correspondence:', error);

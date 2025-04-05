@@ -4,7 +4,7 @@ import { DeleteCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
 import { dynamoClient, logger } from '../../common/util';
 
-const { correspondenceTableName, recipientTableName } = config;
+const { correspondenceTableName, headers, recipientTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
@@ -50,6 +50,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         data: { recipientId },
         message: 'Recipient deleted successfully!',
       }),
+      headers,
     };
   } catch (error) {
     logger.error('Error deleting recipient: ', error);

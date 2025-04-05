@@ -9,7 +9,12 @@ import {
 import { config } from '../../common/config';
 import { dynamoClient, logger } from '../../common/util';
 
-const { correspondenceTableName, letterTableName, recipientTableName } = config;
+const {
+  correspondenceTableName,
+  headers,
+  letterTableName,
+  recipientTableName,
+} = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
@@ -272,6 +277,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         },
         message: 'Correspondence updated successfully!',
       }),
+      headers,
     };
   } catch (error) {
     logger.error('Error updating correspondence: ', error);

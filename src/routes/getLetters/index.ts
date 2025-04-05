@@ -4,7 +4,7 @@ import { ScanCommand } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
 import { dynamoClient, logger } from '../../common/util';
 
-const { letterTableName } = config;
+const { headers, letterTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const queryParameters = event.queryStringParameters || {};
@@ -33,6 +33,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           : null,
         message: 'Letters fetched successfully!',
       }),
+      headers,
     };
   } catch (error) {
     logger.error('Error scanning from DynamoDB: ', error);

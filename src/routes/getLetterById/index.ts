@@ -8,7 +8,7 @@ import { QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
 import { dynamoClient, logger } from '../../common/util';
 
-const { letterTableName } = config;
+const { headers, letterTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
@@ -40,6 +40,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         data: response.Items[0],
         message: 'Letter fetched successfully!',
       }),
+      headers,
     };
   } catch (error) {
     logger.error('Error fetching letter from DynamoDB: ', error);

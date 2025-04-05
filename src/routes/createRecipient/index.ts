@@ -6,7 +6,7 @@ import { config } from '../../common/config';
 import { dynamoClient, logger } from '../../common/util';
 import { v4 as uuidv4 } from 'uuid';
 
-const { recipientTableName } = config;
+const { headers, recipientTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
@@ -63,6 +63,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         data: recipientData,
         message: 'Recipient created successfully!',
       }),
+      headers,
     };
   } catch (error) {
     logger.error('Error creating recipient in DynamoDB: ', error);

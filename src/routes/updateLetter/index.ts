@@ -9,7 +9,7 @@ import { config } from '../../common/config';
 import { dynamoClient, logger } from '../../common/util';
 import { UpdateParams } from '../../types';
 
-const { correspondenceTableName, letterTableName } = config;
+const { correspondenceTableName, headers, letterTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
@@ -133,6 +133,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         data: result.Attributes,
         message: 'Letter updated successfully!',
       }),
+      headers,
     };
   } catch (error) {
     logger.error('Error updating letter in DynamoDB: ', error);
