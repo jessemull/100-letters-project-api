@@ -10,7 +10,7 @@ import { dynamoClient, logger } from '../../common/util';
 import { Letter } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
 
-const { correspondenceTableName, letterTableName } = config;
+const { correspondenceTableName, headers, letterTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
@@ -93,6 +93,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         data: letterData,
         message: 'Letter created successfully!',
       }),
+      headers,
     };
   } catch (error) {
     logger.error('Error creating letter in DynamoDB: ', error);

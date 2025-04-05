@@ -32,6 +32,7 @@ Resources:
       MemorySize: 128
       Environment:
         Variables:
+          ACCESS_CONTROL_ALLOW_ORIGIN: !Sub "{{resolve:secretsmanager:one-hundred-letters-api-${Environment}:SecretString:accessControlAllowOrigin}}"
           CORRESPONDENCE_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:correspondenceTableName}}"
           ENVIRONMENT: !Ref Environment
           LETTER_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:letterTableName}}"

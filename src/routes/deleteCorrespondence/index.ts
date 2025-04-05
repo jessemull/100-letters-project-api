@@ -13,7 +13,12 @@ import {
 import { config } from '../../common/config';
 import { dynamoClient, logger } from '../../common/util';
 
-const { correspondenceTableName, letterTableName, recipientTableName } = config;
+const {
+  correspondenceTableName,
+  headers,
+  letterTableName,
+  recipientTableName,
+} = config;
 
 export const handler: APIGatewayProxyHandler = async (
   event,
@@ -117,6 +122,7 @@ export const handler: APIGatewayProxyHandler = async (
         },
         message: 'Correspondence, recipient and letters deleted successfully!',
       }),
+      headers,
     };
   } catch (error) {
     logger.error('Error performing transaction: ', error);
