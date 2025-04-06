@@ -50,6 +50,38 @@ Resources:
               Fn::ImportValue: 
                 !Sub "internal-server-error-${Environment}"
   
+  CorrespondenceOptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId:
+        Fn::ImportValue:
+          !Sub "one-hundred-letters-api-${Environment}"
+      ResourceId:
+        Fn::ImportValue:
+          !Sub "one-hundred-letters-api-correspondence-resource-${Environment}"
+      HttpMethod: OPTIONS
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: OPTIONS
+        Type: MOCK
+        RequestParameters: {}
+        RequestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Allow-Methods: "'GET, POST, PUT, DELETE, OPTIONS'"
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type, Authorization, x-amz-date, x-api-key'"
+            ResponseTemplates:
+              application/json: "{}"
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Origin: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Headers: true
+
   CorrespondenceCreateMethod:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -278,6 +310,38 @@ Resources:
               Fn::ImportValue: 
                 !Sub "internal-server-error-${Environment}"
   
+  RecipientOptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId:
+        Fn::ImportValue:
+          !Sub "one-hundred-letters-api-${Environment}"
+      ResourceId:
+        Fn::ImportValue:
+          !Sub "one-hundred-letters-api-recipients-resource-${Environment}"
+      HttpMethod: OPTIONS
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: OPTIONS
+        Type: MOCK
+        RequestParameters: {}
+        RequestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Allow-Methods: "'GET, POST, PUT, DELETE, OPTIONS'"
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type, Authorization, x-amz-date, x-api-key'"
+            ResponseTemplates:
+              application/json: "{}"
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Origin: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Headers: true
+
   RecipientByIdMethod:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -506,7 +570,7 @@ Resources:
             "application/json":
               Fn::ImportValue: 
                 !Sub "internal-server-error-${Environment}"
-                
+
   LettersOptionsMethod:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -538,7 +602,6 @@ Resources:
             method.response.header.Access-Control-Allow-Origin: true
             method.response.header.Access-Control-Allow-Methods: true
             method.response.header.Access-Control-Allow-Headers: true
-
   
   LetterByIdMethod:
     Type: AWS::ApiGateway::Method
