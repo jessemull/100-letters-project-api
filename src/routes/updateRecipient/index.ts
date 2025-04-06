@@ -9,7 +9,7 @@ import { UpdateParams } from '../../types';
 import { config } from '../../common/config';
 import { dynamoClient, logger } from '../../common/util';
 
-const { recipientTableName } = config;
+const { headers, recipientTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
@@ -103,6 +103,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         data: result.Attributes,
         message: 'Recipient updated successfully!',
       }),
+      headers,
     };
   } catch (error) {
     logger.error('Error updating recipient in DynamoDB: ', error);

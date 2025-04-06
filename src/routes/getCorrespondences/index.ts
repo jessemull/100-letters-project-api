@@ -5,7 +5,12 @@ import { ScanCommand, GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
 import { dynamoClient, logger } from '../../common/util';
 
-const { correspondenceTableName, letterTableName, recipientTableName } = config;
+const {
+  correspondenceTableName,
+  headers,
+  letterTableName,
+  recipientTableName,
+} = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const queryParameters = event.queryStringParameters || {};
@@ -85,6 +90,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           : null,
         message: 'Correspondences fetched successfully!',
       }),
+      headers,
     };
   } catch (error) {
     logger.error('Error fetching correspondences:', error);

@@ -4,7 +4,7 @@ import { DeleteCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
 import { dynamoClient, logger } from '../../common/util';
 
-const { letterTableName } = config;
+const { headers, letterTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
@@ -53,6 +53,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         data: { letterId },
         message: 'Letter deleted successfully!',
       }),
+      headers,
     };
   } catch (error) {
     logger.error('Error deleting letter: ', error);
