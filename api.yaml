@@ -612,6 +612,39 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InternalServerError"
+  /contact:
+    post:
+      summary: "Send Contact E-Mail"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendContactEmailRequest"
+        required: true
+      responses:
+        200:
+          description: "Send Contact E-Mail Success"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  message:
+                    type: "string"
+                    example: "Email sent successfully."
+        400:
+          description: "Bad Request Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+
 components:
   parameters:
     LimitParameter:
@@ -680,6 +713,10 @@ components:
     Domain:
       type: "string"
       example: "Biology"
+    Email:
+      type: "string"
+      format: "email"
+      example: "fred.jackson@domain.com"
     FirstName:
       type: "string"
       example: "Alan"
@@ -718,6 +755,9 @@ components:
     LetterTitle:
       type: "string"
       example: "George Church Letter"
+    Message:
+      type: "string"
+      example: "I am contacting you to provide feedback..."
     Method:
       type: "string"
       enum:
@@ -727,6 +767,9 @@ components:
         - "DIGITAL"
         - "OTHER"
       example: "HANDWRITTEN"
+    Name:
+      type: "string"
+      example: "Fred Jackson"
     Occupation:
       type: "string"
       example: "Architect"
@@ -969,6 +1012,22 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/LetterUpdateRequest"
+    SendContactEmailRequest:
+      required:
+        - "email"
+        - "firstName"
+        - "lastName"
+        - "message"
+      type: "object"
+      properties:
+        email:
+          $ref: "#/components/schemas/Email"
+        firstName:
+          $ref: "#/components/schemas/FirstName"
+        lastName:
+          $ref: "#/components/schemas/LastName"
+        message:
+          $ref: "#/components/schemas/Message"
     BadRequestError:
       type: "object"
       properties:

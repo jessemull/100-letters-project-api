@@ -52,6 +52,7 @@
     "clean:all": "node ./scripts/clean-all.js",
     "clean:pkg": "node ./scripts/clean-pkg.js",
     "commit": "git-cz",
+    "coverage:open": "open coverage/lcov-report/index.html",
     "create:route": "node ./scripts/create-route.js",
     "db:reset": "node ./scripts/reset-db.js",
     "db:seed": "node ./scripts/seed-db.js",

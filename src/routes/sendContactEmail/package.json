@@ -1,0 +1,31 @@
+{
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.758.0",
+    "@aws-sdk/lib-dynamodb": "^3.758.0",
+    "bunyan": "^1.8.15",
+    "bunyan-cloudwatch": "^2.2.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.147",
+    "@types/bunyan": "^1.8.11",
+    "@types/node": "^22.13.9",
+    "dotenv": "^16.4.7",
+    "terser-webpack-plugin": "^5.3.14",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.8.2",
+    "webpack": "^5.98.0",
+    "webpack-cli": "^6.0.1"
+  },
+  "main": "dist/index.js",
+  "name": "sendContactEmail",
+  "scripts": {
+    "build": "webpack --config webpack.config.js",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "package": "cd dist && zip -rq sendContactEmail.zip ./*",
+    "prebuild": "rm -rf dist",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "version": "1.0.0"
+}
