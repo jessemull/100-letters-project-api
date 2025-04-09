@@ -5,7 +5,7 @@ class InternalServerError extends Error implements CustomError {
 
   constructor(message: string) {
     super(message);
-    this.name = 'InternalServer';
+    this.name = 'InternalServerError';
     this.statusCode = 500;
     Object.setPrototypeOf(this, InternalServerError.prototype);
   }

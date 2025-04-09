@@ -37,7 +37,9 @@ Resources:
           ENVIRONMENT: !Ref Environment
           LETTER_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:letterTableName}}"
           RECIPIENT_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:recipientTableName}}"
-
+          SES_SOURCE: !Sub "{{resolve:secretsmanager:one-hundred-letters-ses-${Environment}:SecretString:sesSource}}"
+          SES_CONTACT: !Sub "{{resolve:secretsmanager:one-hundred-letters-ses-${Environment}:SecretString:sesContact}}"
+          
   LambdaInvokePermissionGetRecipientById:
     Type: AWS::Lambda::Permission
     DependsOn: MyLambdaFunction

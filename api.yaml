@@ -614,7 +614,7 @@ paths:
                 $ref: "#/components/schemas/InternalServerError"
   /contact:
     post:
-      summary: "Delete Recipient By ID"
+      summary: "Send Contact E-Mail"
       requestBody:
         content:
           application/json:

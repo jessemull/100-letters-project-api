@@ -1,6 +1,9 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { BadRequestError, InternalServerError } from 'common/errors';
-import { logger, sesClient } from 'common/util';
+import { BadRequestError, InternalServerError } from '../../common/errors';
+import { logger, sesClient } from '../../common/util';
+
+const source = process.env.SES_SOURCE as string;
+const contact = process.env.SES_CONTACT as string;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const { email, firstName, lastName, message } = JSON.parse(
@@ -26,9 +29,9 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   `;
 
   const params = {
-    Source: 'no-reply@onehundredletters.com',
+    Source: source,
     Destination: {
-      ToAddresses: ['contact@onehundredletters.com'],
+      ToAddresses: [contact],
     },
     Message: {
       Subject: {
