@@ -110,6 +110,15 @@ Resources:
       ParentId: !Ref LettersResource
       PathPart: "{id}"
 
+  # Contact Resources
+
+  ContactResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ParentId: !GetAtt OneHundredLettersApi.RootResourceId
+      PathPart: "contact"
+
 Outputs:
   ApiGatewayUrl:
     Value: !Sub "https://${OneHundredLettersApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}"
@@ -153,3 +162,7 @@ Outputs:
     Value: !Ref LetterByIdResource
     Export:
       Name: !Sub "one-hundred-letters-api-letter-by-id-resource-${Environment}"
+  ContactResourceOutput:
+    Value: !Ref ContactResource
+    Export:
+      Name: !Sub "one-hundred-letters-api-contact-resource-${Environment}"

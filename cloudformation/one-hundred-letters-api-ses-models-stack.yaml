@@ -1,0 +1,72 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: "dev"
+    Description: "The environment for the deployment (dev or prod)"
+    AllowedValues:
+      - dev
+      - prod
+    ConstraintDescription: "Must be either 'dev' or 'prod'."
+
+Mappings:
+  EnvCapitalization:
+    dev:
+      Capitalized: "Dev"
+    prod:
+      Capitalized: "Prod"
+
+Resources:
+  SesSendEmailModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
+      ContentType: "application/json"
+      Name: !Sub 
+        - "SesSendEmailModel${CapitalizedEnv}"
+        - CapitalizedEnv: !FindInMap [EnvCapitalization, !Ref Environment, Capitalized]
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          email:
+            type: "string"
+            format: "email"
+          firstName:
+            type: "string"
+          lastName:
+            type: "string"
+          message:
+            type: "string"
+        required: ["email", "firstName", "lastName", "message"]
+
+  SesSendEmailResponseModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
+      ContentType: "application/json"
+      Name: !Sub 
+        - "SesSendEmailResponseModel${CapitalizedEnv}"
+        - CapitalizedEnv: !FindInMap [EnvCapitalization, !Ref Environment, Capitalized]
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          message:
+            type: "string"
+        required: ["message"]
+
+Outputs:
+  SesSendEmailModelOutput:
+    Value: !Ref SesSendEmailModel
+    Export:
+      Name: !Sub ses-send-email-model-${Environment}
+  SesSendEmailResponseModelOutput:
+    Value: !Ref SesSendEmailResponseModel
+    Export:
+      Name: !Sub ses-send-email-response-model-${Environment}

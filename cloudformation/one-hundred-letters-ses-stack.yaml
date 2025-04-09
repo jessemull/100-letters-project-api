@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: SES Email Identity with DKIM
+
+Parameters:
+  DomainName:
+    Type: String
+    Description: Your domain (e.g. onehundredletters.com)
+    Default: onehundredletters.com
+
+Resources:
+  DomainIdentity:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity: !Ref DomainName
+      DkimSigningAttributes:
+        NextSigningKeyLength: RSA_2048_BIT
