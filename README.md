@@ -66,11 +66,13 @@ The **100 Letters Project** data is relational and the project used AWS RDS serv
 - **Correspondences**: A set of letters and a recipient with meta-data attached including the reason for the correspondence.
 - **Recipients**: A letter-worthy individual including name, address, occupation and other information.
 - **Letters**: Letter information including image URL, sent/received dates and other information.
+- **Contact**: Contact information for receiving user comments and suggestions.
 
 The API supports the following primary endpoints:
 - **/letter**: Manage individual letters (Create, Update, Delete, Get by ID).
 - **/recipient**: Manage recipients (Create, Update, Delete, Get by ID).
 - **/correspondence**: Manage correspondences (Create, Update, Delete, Get by ID).
+- **/contact**: Manage user suggestions and comments (Update).
 
 ---
 
@@ -187,6 +189,12 @@ npm run test:pkg:watch <routeName>
 ### Code Coverage
 
 Coverage thresholds are enforced at **80%** for all metrics. The build will fail if coverage drops below this threshold.
+
+To open the code coverage in the browser:
+
+```bash
+npm run coverage:open
+```
 
 ## Linting & Formatting
 
