@@ -62,6 +62,52 @@ Resources:
       RestApiId: !Ref OneHundredLettersApi
       Stage: !Ref Environment
 
+  # WAF Set Up
+
+  MyWebACL:
+    Type: AWS::WAFv2::WebACL
+    Properties:
+      Name: !Sub "MyRateLimitingWebACL-${Environment}"
+      Scope: REGIONAL
+      DefaultAction:
+        Allow: {}
+      Rules:
+        - Name: "RateLimitRule"
+          Priority: 1
+          Action:
+            Block: {}
+          Statement:
+            RateBasedStatement:
+              Limit: 1000
+              AggregateKeyType: IP
+              ScopeDownStatement:
+                ByteMatchStatement:
+                  FieldToMatch:
+                    UriPath: {}
+                  PositionalConstraint: CONTAINS
+                  SearchString: "/contact"
+                  TextTransformations:
+                    - Type: LOWERCASE
+                      Priority: 0
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: true
+            MetricName: "RateLimitMetric"
+            SampledRequestsEnabled: true
+      VisibilityConfig:
+        CloudWatchMetricsEnabled: true
+        MetricName: "MyWebACLMetrics"
+        SampledRequestsEnabled: true
+
+  MyApiGatewayWAFAssociation:
+    Type: AWS::WAFv2::WebACLAssociation
+    Properties:
+      ResourceArn:
+        Fn::Sub: arn:aws:apigateway:${AWS::Region}::/restapis/${OneHundredLettersApi}/stages/${Environment}
+      WebACLArn: 
+        Fn::GetAtt:
+          - MyWebACL
+          - Arn
+
   # Correspondence Resources
 
   CorrespondenceResource:

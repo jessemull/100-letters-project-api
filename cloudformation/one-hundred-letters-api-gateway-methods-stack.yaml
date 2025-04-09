@@ -803,10 +803,7 @@ Resources:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-contact-resource-${Environment}"
       HttpMethod: POST
-      AuthorizationType: COGNITO_USER_POOLS
-      AuthorizerId:
-        Fn::ImportValue: 
-          !Sub "one-hundred-letters-api-authorizer-${Environment}"
+      AuthorizationType: NONE
       RequestValidatorId:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-validator-${Environment}"
