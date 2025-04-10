@@ -1,9 +1,12 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { BadRequestError, InternalServerError } from '../../common/errors';
+import { config } from '../../common/config';
 import { logger, sesClient } from '../../common/util';
 
 const source = process.env.SES_SOURCE as string;
 const contact = process.env.SES_CONTACT as string;
+
+const { headers } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const { email, firstName, lastName, message } = JSON.parse(
@@ -52,6 +55,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       body: JSON.stringify({
         message: 'Email sent successfully.',
       }),
+      headers,
     };
   } catch (error) {
     logger.error('Error sending email: ', error);
