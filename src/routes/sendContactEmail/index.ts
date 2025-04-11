@@ -21,6 +21,15 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     event.headers['G-Recaptcha-Response'];
 
   if (!firstName || !lastName || !email || !message || !captchaToken) {
+    logger.error(
+      'BAD REQUEST',
+      JSON.stringify(event.headers),
+      firstName,
+      lastName,
+      email,
+      message,
+      captchaToken,
+    );
     return new BadRequestError(
       'Name, email, message and CAPTCHA are required.',
     ).build();
