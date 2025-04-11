@@ -3,8 +3,11 @@ import { BadRequestError, InternalServerError } from '../../common/errors';
 import { config } from '../../common/config';
 import { logger, sesClient } from '../../common/util';
 
-const source = process.env.SES_SOURCE as string;
+const captchaSecret = process.env.RECAPTCHA_SECRET_KEY as string;
 const contact = process.env.SES_CONTACT as string;
+const source = process.env.SES_SOURCE as string;
+
+const CAPTCHA_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify';
 
 const { headers } = config;
 
@@ -13,9 +16,34 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     event.body || '{}',
   );
 
-  if (!firstName || !lastName || !email || !message) {
+  const captchaToken =
+    event.headers['g-recaptcha-response'] ||
+    event.headers['G-Recaptcha-Response'];
+
+  if (!firstName || !lastName || !email || !message || !captchaToken) {
     return new BadRequestError(
-      'Name, email, and message are required.',
+      'Name, email, message and CAPTCHA are required.',
+    ).build();
+  }
+
+  try {
+    const captchaResponse = await fetch(CAPTCHA_VERIFY_URL, {
+      method: 'POST',
+      body: new URLSearchParams({
+        secret: captchaSecret,
+        response: captchaToken,
+      }),
+    });
+
+    const captchaData = await captchaResponse.json();
+
+    if (!captchaData.success) {
+      return new BadRequestError('Invalid CAPTCHA. Please try again.').build();
+    }
+  } catch (error) {
+    logger.error('Error verifying CAPTCHA: ', error);
+    return new InternalServerError(
+      'There was an error verifying the CAPTCHA.',
     ).build();
   }
 
