@@ -49,7 +49,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     });
 
     const captchaData = await captchaResponse.json();
-
+    logger.error(JSON.stringify(captchaData, null, 2));
     if (!captchaData.success) {
       return new BadRequestError('Invalid CAPTCHA. Please try again.').build();
     }
