@@ -72,7 +72,7 @@ Resources:
             ResponseParameters:
               method.response.header.Access-Control-Allow-Origin: "'*'"
               method.response.header.Access-Control-Allow-Methods: "'GET, POST, PUT, DELETE, OPTIONS'"
-              method.response.header.Access-Control-Allow-Headers: "'Content-Type, Authorization, x-amz-date, x-api-key'"
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type, Authorization, x-amz-date, x-api-key, g-recaptcha-response, G-Recaptcha-Response'"
             ResponseTemplates:
               application/json: "{}"
       MethodResponses:
@@ -332,7 +332,7 @@ Resources:
             ResponseParameters:
               method.response.header.Access-Control-Allow-Origin: "'*'"
               method.response.header.Access-Control-Allow-Methods: "'GET, POST, PUT, DELETE, OPTIONS'"
-              method.response.header.Access-Control-Allow-Headers: "'Content-Type, Authorization, x-amz-date, x-api-key'"
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type, Authorization, x-amz-date, x-api-key, g-recaptcha-response, G-Recaptcha-Response'"
             ResponseTemplates:
               application/json: "{}"
       MethodResponses:
@@ -593,7 +593,7 @@ Resources:
             ResponseParameters:
               method.response.header.Access-Control-Allow-Origin: "'*'"
               method.response.header.Access-Control-Allow-Methods: "'GET, POST, PUT, DELETE, OPTIONS'"
-              method.response.header.Access-Control-Allow-Headers: "'Content-Type, Authorization, x-amz-date, x-api-key'"
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type, Authorization, x-amz-date, x-api-key, g-recaptcha-response, G-Recaptcha-Response'"
             ResponseTemplates:
               application/json: "{}"
       MethodResponses:
@@ -807,6 +807,9 @@ Resources:
       RequestValidatorId:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-validator-${Environment}"
+      RequestParameters:
+        method.request.header.G-Recaptcha-Response: false
+        method.request.header.g-recaptcha-response: false
       RequestModels:
         "application/json":
           Fn::ImportValue: 
@@ -857,7 +860,7 @@ Resources:
             ResponseParameters:
               method.response.header.Access-Control-Allow-Origin: "'*'"
               method.response.header.Access-Control-Allow-Methods: "'GET, POST, PUT, DELETE, OPTIONS'"
-              method.response.header.Access-Control-Allow-Headers: "'Content-Type, Authorization, x-amz-date, x-api-key'"
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type, Authorization, x-amz-date, x-api-key, g-recaptcha-response, G-Recaptcha-Response'"
             ResponseTemplates:
               application/json: "{}"
       MethodResponses:

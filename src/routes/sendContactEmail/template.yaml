@@ -36,6 +36,7 @@ Resources:
           CORRESPONDENCE_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:correspondenceTableName}}"
           ENVIRONMENT: !Ref Environment
           LETTER_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:letterTableName}}"
+          RECAPTCHA_SECRET_KEY: !Sub "{{resolve:secretsmanager:one-hundred-letters-ses-${Environment}:SecretString:recaptchaSecretKey}}"
           RECIPIENT_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:recipientTableName}}"
           SES_SOURCE: !Sub "{{resolve:secretsmanager:one-hundred-letters-ses-${Environment}:SecretString:sesSource}}"
           SES_CONTACT: !Sub "{{resolve:secretsmanager:one-hundred-letters-ses-${Environment}:SecretString:sesContact}}"
