@@ -807,6 +807,9 @@ Resources:
       RequestValidatorId:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-validator-${Environment}"
+      RequestParameters:
+        method.request.header.G-Recaptcha-Response: false
+        method.request.header.g-recaptcha-response: false
       RequestModels:
         "application/json":
           Fn::ImportValue: 
