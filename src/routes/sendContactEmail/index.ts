@@ -12,8 +12,6 @@ const CAPTCHA_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify';
 const { headers } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
-  logger.error('INVOKED!');
-
   const { email, firstName, lastName, message } = JSON.parse(
     event.body || '{}',
   );
@@ -21,8 +19,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const captchaToken =
     event.headers['g-recaptcha-response'] ||
     event.headers['G-Recaptcha-Response'];
-
-  logger.error('INVOKED!', email, firstName, lastName, message, captchaToken);
 
   if (!firstName || !lastName || !email || !message || !captchaToken) {
     logger.error(
