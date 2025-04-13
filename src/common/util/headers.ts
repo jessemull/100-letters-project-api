@@ -7,16 +7,14 @@ const { accessControlAllowOrigins, headers } = config;
 export const getHeaders = (
   event: APIGatewayProxyEvent,
 ): { [header: string]: string | number | boolean } => {
+  logger.error(event.headers, accessControlAllowOrigins);
   const origin = event.headers.origin || event.headers.Origin || '';
-  logger.error(
-    origin,
-    event.headers.origin,
-    event.headers.Origin,
-    accessControlAllowOrigins,
-  );
+  const normalizedOrigin = origin.trim().toLowerCase();
   return {
     ...headers,
     'Access-Control-Allow-Origin':
-      origin && accessControlAllowOrigins.includes(origin) ? origin : '',
+      origin && accessControlAllowOrigins.includes(normalizedOrigin)
+        ? origin
+        : '',
   };
 };

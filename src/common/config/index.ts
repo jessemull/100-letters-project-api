@@ -3,9 +3,9 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 const config = {
-  accessControlAllowOrigins: (
-    process.env.ACCESS_CONTROL_ALLOW_ORIGIN as string
-  ).split(','),
+  accessControlAllowOrigins: process.env.ACCESS_CONTROL_ALLOW_ORIGIN
+    ? process.env.ACCESS_CONTROL_ALLOW_ORIGIN.split(',').map((o) => o.trim())
+    : [],
   correspondenceTableName: process.env.CORRESPONDENCE_TABLE_NAME,
   environment: process.env.ENVIRONMENT || 'dev',
   headers: {
