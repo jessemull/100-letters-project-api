@@ -14,6 +14,7 @@ jest.mock('../../common/util', () => ({
   sesClient: {
     sendEmail: jest.fn(),
   },
+  getHeaders: jest.fn(),
   logger: {
     error: jest.fn(),
     info: jest.fn(),

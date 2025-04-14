@@ -2,9 +2,9 @@ import { APIGatewayProxyHandler } from 'aws-lambda';
 import { BadRequestError, DatabaseError } from '../../common/errors';
 import { DeleteCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
-import { dynamoClient, logger } from '../../common/util';
+import { dynamoClient, getHeaders, logger } from '../../common/util';
 
-const { headers, letterTableName } = config;
+const { letterTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
@@ -53,7 +53,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         data: { letterId },
         message: 'Letter deleted successfully!',
       }),
-      headers,
+      headers: getHeaders(event),
     };
   } catch (error) {
     logger.error('Error deleting letter: ', error);

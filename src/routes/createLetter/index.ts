@@ -6,11 +6,11 @@ import {
 } from '../../common/errors';
 import { PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
-import { dynamoClient, logger } from '../../common/util';
+import { dynamoClient, getHeaders, logger } from '../../common/util';
 import { Letter } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
 
-const { correspondenceTableName, headers, letterTableName } = config;
+const { correspondenceTableName, letterTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
@@ -93,7 +93,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         data: letterData,
         message: 'Letter created successfully!',
       }),
-      headers,
+      headers: getHeaders(event),
     };
   } catch (error) {
     logger.error('Error creating letter in DynamoDB: ', error);

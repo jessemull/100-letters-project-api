@@ -40,7 +40,8 @@ Resources:
           RECIPIENT_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:recipientTableName}}"
           SES_SOURCE: !Sub "{{resolve:secretsmanager:one-hundred-letters-ses-${Environment}:SecretString:sesSource}}"
           SES_CONTACT: !Sub "{{resolve:secretsmanager:one-hundred-letters-ses-${Environment}:SecretString:sesContact}}"
-          
+          DEPLOY_TRIGGER: '2025-04-13T12:34:00'
+
   LambdaInvokePermissionGetRecipientById:
     Type: AWS::Lambda::Permission
     DependsOn: MyLambdaFunction

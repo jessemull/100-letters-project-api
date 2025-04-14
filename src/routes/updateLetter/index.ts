@@ -6,10 +6,10 @@ import {
 } from '../../common/errors';
 import { UpdateCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
-import { dynamoClient, logger } from '../../common/util';
+import { dynamoClient, getHeaders, logger } from '../../common/util';
 import { UpdateParams } from '../../types';
 
-const { correspondenceTableName, headers, letterTableName } = config;
+const { correspondenceTableName, letterTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
@@ -133,7 +133,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         data: result.Attributes,
         message: 'Letter updated successfully!',
       }),
-      headers,
+      headers: getHeaders(event),
     };
   } catch (error) {
     logger.error('Error updating letter in DynamoDB: ', error);
