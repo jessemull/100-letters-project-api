@@ -3,10 +3,10 @@ import { BadRequestError, DatabaseError } from '../../common/errors';
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import { Recipient } from '../../types';
 import { config } from '../../common/config';
-import { dynamoClient, logger } from '../../common/util';
+import { dynamoClient, getHeaders, logger } from '../../common/util';
 import { v4 as uuidv4 } from 'uuid';
 
-const { headers, recipientTableName } = config;
+const { recipientTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
@@ -63,7 +63,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         data: recipientData,
         message: 'Recipient created successfully!',
       }),
-      headers,
+      headers: getHeaders(event),
     };
   } catch (error) {
     logger.error('Error creating recipient in DynamoDB: ', error);

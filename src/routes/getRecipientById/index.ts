@@ -6,9 +6,9 @@ import {
 } from '../../common/errors';
 import { GetCommand } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
-import { dynamoClient, logger } from '../../common/util';
+import { dynamoClient, getHeaders, logger } from '../../common/util';
 
-const { headers, recipientTableName } = config;
+const { recipientTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
@@ -40,7 +40,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         data: result.Item,
         message: 'Recipient fetched successfully!',
       }),
-      headers,
+      headers: getHeaders(event),
     };
   } catch (error) {
     logger.error('Error fetching recipient from DynamoDB: ', error);

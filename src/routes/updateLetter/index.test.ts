@@ -11,6 +11,7 @@ jest.mock('../../common/util', () => ({
   dynamoClient: {
     send: jest.fn(),
   },
+  getHeaders: jest.fn(),
   logger: {
     error: jest.fn(),
   },

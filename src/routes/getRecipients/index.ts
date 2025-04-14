@@ -2,9 +2,9 @@ import { APIGatewayProxyHandler } from 'aws-lambda';
 import { DatabaseError } from '../../common/errors';
 import { ScanCommand } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
-import { dynamoClient, logger } from '../../common/util';
+import { dynamoClient, getHeaders, logger } from '../../common/util';
 
-const { headers, recipientTableName } = config;
+const { recipientTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const queryParameters = event.queryStringParameters || {};
@@ -39,7 +39,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           : null,
         message: 'Recipients fetched successfully!',
       }),
-      headers,
+      headers: getHeaders(event),
     };
   } catch (error) {
     logger.error('Error scanning from DynamoDB: ', error);

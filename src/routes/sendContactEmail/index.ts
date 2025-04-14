@@ -1,15 +1,12 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { BadRequestError, InternalServerError } from '../../common/errors';
-import { config } from '../../common/config';
-import { logger, sesClient } from '../../common/util';
+import { getHeaders, logger, sesClient } from '../../common/util';
 
 const captchaSecret = process.env.RECAPTCHA_SECRET_KEY as string;
 const contact = process.env.SES_CONTACT as string;
 const source = process.env.SES_SOURCE as string;
 
 const CAPTCHA_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify';
-
-const { headers } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const { email, firstName, lastName, message } = JSON.parse(
@@ -83,7 +80,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       body: JSON.stringify({
         message: 'Email sent successfully.',
       }),
-      headers,
+      headers: getHeaders(event),
     };
   } catch (error) {
     logger.error('Error sending email: ', error);

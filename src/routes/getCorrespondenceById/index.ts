@@ -1,7 +1,7 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
-import { dynamoClient, logger } from '../../common/util';
+import { dynamoClient, getHeaders, logger } from '../../common/util';
 import {
   BadRequestError,
   DatabaseError,
@@ -9,12 +9,7 @@ import {
 } from '../../common/errors';
 import { Letter } from '../../types';
 
-const {
-  correspondenceTableName,
-  headers,
-  letterTableName,
-  recipientTableName,
-} = config;
+const { correspondenceTableName, letterTableName, recipientTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const correspondenceId = event.pathParameters?.id;
@@ -101,7 +96,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         },
         message: 'Correspondence fetched successfully!',
       }),
-      headers,
+      headers: getHeaders(event),
     };
   } catch (error) {
     logger.error('Error fetching correspondence by ID:', error);
