@@ -7,7 +7,7 @@ const { accessControlAllowOrigins, headers } = config;
 export const getHeaders = (
   event: APIGatewayProxyEvent,
 ): { [header: string]: string | number | boolean } => {
-  logger.error(event.headers, accessControlAllowOrigins);
+  logger.error('HEADERS', event.headers, 'ORIGINS', accessControlAllowOrigins);
   const origin = event.headers.origin || event.headers.Origin || '';
   const normalizedOrigin = origin.trim().toLowerCase();
   return {
