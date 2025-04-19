@@ -28,13 +28,9 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const { Items } = await dynamoClient.send(new QueryCommand(checkParams));
 
     if (Items && Items.length > 0) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
-          message:
-            'Cannot delete recipient. It is attached to one or more correspondences!',
-        }),
-      };
+      return new BadRequestError(
+        'Cannot delete recipient. It is attached to one or more correspondences!',
+      ).build(headers);
     }
 
     const deleteParams = {
