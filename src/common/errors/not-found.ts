@@ -10,8 +10,9 @@ class NotFoundError extends Error implements CustomError {
     Object.setPrototypeOf(this, NotFoundError.prototype);
   }
 
-  build() {
+  build(headers = {}) {
     return {
+      headers,
       body: JSON.stringify({
         error: this.name,
         message: this.message,

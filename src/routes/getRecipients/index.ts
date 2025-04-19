@@ -10,6 +10,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const queryParameters = event.queryStringParameters || {};
   const limit = parseInt(queryParameters.limit || '50', 10);
 
+  const headers = getHeaders(event);
+
   const lastEvaluatedKey = queryParameters.lastEvaluatedKey
     ? JSON.parse(decodeURIComponent(queryParameters.lastEvaluatedKey))
     : undefined;
@@ -39,10 +41,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           : null,
         message: 'Recipients fetched successfully!',
       }),
-      headers: getHeaders(event),
+      headers,
     };
   } catch (error) {
     logger.error('Error scanning from DynamoDB: ', error);
-    return new DatabaseError('Internal Server Error').build();
+    return new DatabaseError('Internal Server Error').build(headers);
   }
 };

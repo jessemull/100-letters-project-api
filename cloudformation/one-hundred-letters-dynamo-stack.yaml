@@ -35,6 +35,8 @@ Resources:
           AttributeType: "S"
         - AttributeName: "recipientId"
           AttributeType: "S"
+        - AttributeName: "title"
+          AttributeType: "S"
       KeySchema:
         - AttributeName: "correspondenceId"
           KeyType: "HASH"
@@ -43,6 +45,12 @@ Resources:
         - IndexName: "RecipientIndex"
           KeySchema:
             - AttributeName: "recipientId"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: "ALL"
+        - IndexName: "TitleIndex"
+          KeySchema:
+            - AttributeName: "title"
               KeyType: "HASH"
           Projection:
             ProjectionType: "ALL"

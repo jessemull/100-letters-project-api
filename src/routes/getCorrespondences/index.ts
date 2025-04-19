@@ -8,6 +8,8 @@ import { dynamoClient, getHeaders, logger } from '../../common/util';
 const { correspondenceTableName, letterTableName, recipientTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
+  const headers = getHeaders(event);
+
   const queryParameters = event.queryStringParameters || {};
   const limit = parseInt(queryParameters.limit || '50', 10);
 
@@ -85,10 +87,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           : null,
         message: 'Correspondences fetched successfully!',
       }),
-      headers: getHeaders(event),
+      headers,
     };
   } catch (error) {
     logger.error('Error fetching correspondences:', error);
-    return new DatabaseError('Internal Server Error').build();
+    return new DatabaseError('Internal Server Error').build(headers);
   }
 };

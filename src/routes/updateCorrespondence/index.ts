@@ -12,19 +12,21 @@ import { dynamoClient, getHeaders, logger } from '../../common/util';
 const { correspondenceTableName, letterTableName, recipientTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
+  const headers = getHeaders(event);
+
   try {
     const correspondenceId = event.pathParameters?.id;
 
     if (!correspondenceId) {
       return new BadRequestError(
         'Correspondence ID is required in the path parameters.',
-      ).build();
+      ).build(headers);
     }
 
     // Request body validation is handled by the API gateway model.
 
     if (!event.body) {
-      return new BadRequestError('Request body is required.').build();
+      return new BadRequestError('Request body is required.').build(headers);
     }
 
     const { recipient, correspondence, letters } = JSON.parse(event.body);
@@ -272,10 +274,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         },
         message: 'Correspondence updated successfully!',
       }),
-      headers: getHeaders(event),
+      headers,
     };
   } catch (error) {
     logger.error('Error updating correspondence: ', error);
-    return new DatabaseError('Internal Server Error').build();
+    return new DatabaseError('Internal Server Error').build(headers);
   }
 };

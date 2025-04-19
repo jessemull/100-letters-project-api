@@ -9,11 +9,13 @@ import { v4 as uuidv4 } from 'uuid';
 const { correspondenceTableName, letterTableName, recipientTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
+  const headers = getHeaders(event);
+
   try {
     // Request body validation is handled by the API gateway model.
 
     if (!event.body) {
-      return new BadRequestError('Request body is required.').build();
+      return new BadRequestError('Request body is required.').build(headers);
     }
 
     const { recipient, correspondence, letters } = JSON.parse(event.body);
@@ -76,10 +78,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         },
         message: 'Correspondence created successfully!',
       }),
-      headers: getHeaders(event),
+      headers,
     };
   } catch (error) {
     logger.error('Error creating correspondence:', error);
-    return new DatabaseError('Internal Server Error').build();
+    return new DatabaseError('Internal Server Error').build(headers);
   }
 };

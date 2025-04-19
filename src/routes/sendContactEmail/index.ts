@@ -9,6 +9,8 @@ const source = process.env.SES_SOURCE as string;
 const CAPTCHA_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify';
 
 export const handler: APIGatewayProxyHandler = async (event) => {
+  const headers = getHeaders(event);
+
   const { email, firstName, lastName, message } = JSON.parse(
     event.body || '{}',
   );
@@ -20,7 +22,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   if (!firstName || !lastName || !email || !message || !captchaToken) {
     return new BadRequestError(
       'Name, email, message and CAPTCHA are required.',
-    ).build();
+    ).build(headers);
   }
 
   try {
@@ -35,13 +37,15 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const captchaData = await captchaResponse.json();
 
     if (!captchaData.success) {
-      return new BadRequestError('Invalid CAPTCHA. Please try again.').build();
+      return new BadRequestError('Invalid CAPTCHA. Please try again.').build(
+        headers,
+      );
     }
   } catch (error) {
     logger.error('Error verifying CAPTCHA: ', error);
     return new InternalServerError(
       'There was an error verifying the CAPTCHA.',
-    ).build();
+    ).build(headers);
   }
 
   const emailSubject = `New Contact Form Submission from ${firstName} ${lastName}`;
@@ -80,12 +84,12 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       body: JSON.stringify({
         message: 'Email sent successfully.',
       }),
-      headers: getHeaders(event),
+      headers,
     };
   } catch (error) {
     logger.error('Error sending email: ', error);
     return new InternalServerError(
       'There was an error sending the email.',
-    ).build();
+    ).build(headers);
   }
 };
