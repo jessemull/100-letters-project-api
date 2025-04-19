@@ -20,8 +20,10 @@ export const handler: APIGatewayProxyHandler = async (
 ): Promise<APIGatewayProxyResult> => {
   const correspondenceId = event.pathParameters?.id;
 
+  const headers = getHeaders(event);
+
   if (!correspondenceId) {
-    return new BadRequestError('Correspondence ID is required.').build();
+    return new BadRequestError('Correspondence ID is required.').build(headers);
   }
 
   const getCorrespondenceParams = {
@@ -37,7 +39,7 @@ export const handler: APIGatewayProxyHandler = async (
     );
 
     if (!correspondenceData.Item) {
-      return new NotFoundError('Correspondence not found.').build();
+      return new NotFoundError('Correspondence not found.').build(headers);
     }
 
     // Step 2: Delete correspondence.
@@ -117,10 +119,10 @@ export const handler: APIGatewayProxyHandler = async (
         },
         message: 'Correspondence, recipient and letters deleted successfully!',
       }),
-      headers: getHeaders(event),
+      headers,
     };
   } catch (error) {
     logger.error('Error performing transaction: ', error);
-    return new DatabaseError('Internal Server Error').build();
+    return new DatabaseError('Internal Server Error').build(headers);
   }
 };

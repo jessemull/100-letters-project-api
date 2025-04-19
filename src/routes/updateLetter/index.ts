@@ -12,17 +12,19 @@ import { UpdateParams } from '../../types';
 const { correspondenceTableName, letterTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
+  const headers = getHeaders(event);
+
   try {
     const letterId = event.pathParameters?.id;
 
     if (!letterId) {
-      return new BadRequestError('Letter ID is required.').build();
+      return new BadRequestError('Letter ID is required.').build(headers);
     }
 
     // Request body validation is handled by the API gateway model.
 
     if (!event.body) {
-      return new BadRequestError('Request body is required.').build();
+      return new BadRequestError('Request body is required.').build(headers);
     }
 
     const body = JSON.parse(event.body);
@@ -56,7 +58,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       !correspondenceResult.Items ||
       correspondenceResult.Items.length === 0
     ) {
-      return new NotFoundError('Correspondence ID not found.').build();
+      return new NotFoundError('Correspondence ID not found.').build(headers);
     }
 
     const updateParams: UpdateParams = {
@@ -124,7 +126,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const result = await dynamoClient.send(command);
 
     if (!result.Attributes) {
-      return new NotFoundError('Letter not found.').build();
+      return new NotFoundError('Letter not found.').build(headers);
     }
 
     return {
@@ -133,10 +135,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         data: result.Attributes,
         message: 'Letter updated successfully!',
       }),
-      headers: getHeaders(event),
+      headers,
     };
   } catch (error) {
     logger.error('Error updating letter in DynamoDB: ', error);
-    return new DatabaseError('Internal Server Error').build();
+    return new DatabaseError('Internal Server Error').build(headers);
   }
 };

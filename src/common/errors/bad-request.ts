@@ -10,8 +10,9 @@ class BadRequestError extends Error implements CustomError {
     Object.setPrototypeOf(this, BadRequestError.prototype);
   }
 
-  build() {
+  build(headers = {}) {
     return {
+      headers,
       body: JSON.stringify({
         error: this.name,
         message: this.message,

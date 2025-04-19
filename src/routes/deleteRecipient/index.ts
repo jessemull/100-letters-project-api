@@ -7,11 +7,13 @@ import { dynamoClient, getHeaders, logger } from '../../common/util';
 const { correspondenceTableName, recipientTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
+  const headers = getHeaders(event);
+
   try {
     const recipientId = event.pathParameters?.id;
 
     if (!recipientId) {
-      return new BadRequestError('Recipient ID is required.').build();
+      return new BadRequestError('Recipient ID is required.').build(headers);
     }
 
     const checkParams = {
@@ -50,10 +52,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         data: { recipientId },
         message: 'Recipient deleted successfully!',
       }),
-      headers: getHeaders(event),
+      headers,
     };
   } catch (error) {
     logger.error('Error deleting recipient: ', error);
-    return new DatabaseError('Internal Server Error').build();
+    return new DatabaseError('Internal Server Error').build(headers);
   }
 };

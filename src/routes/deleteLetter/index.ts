@@ -7,11 +7,13 @@ import { dynamoClient, getHeaders, logger } from '../../common/util';
 const { letterTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
+  const headers = getHeaders(event);
+
   try {
     const letterId = event.pathParameters?.id;
 
     if (!letterId) {
-      return new BadRequestError('Letter ID is required.').build();
+      return new BadRequestError('Letter ID is required.').build(headers);
     }
 
     const queryParams = {
@@ -26,7 +28,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const { Items } = await dynamoClient.send(new QueryCommand(queryParams));
 
     if (!Items || Items.length === 0) {
-      return new BadRequestError('Letter not found.').build();
+      return new BadRequestError('Letter not found.').build(headers);
     }
 
     const correspondenceId = Items[0].correspondenceId;
@@ -34,7 +36,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     if (!correspondenceId) {
       return new BadRequestError(
         'Correspondence ID not found for the given letter.',
-      ).build();
+      ).build(headers);
     }
 
     const deleteParams = {
@@ -53,10 +55,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         data: { letterId },
         message: 'Letter deleted successfully!',
       }),
-      headers: getHeaders(event),
+      headers,
     };
   } catch (error) {
     logger.error('Error deleting letter: ', error);
-    return new DatabaseError('Internal Server Error').build();
+    return new DatabaseError('Internal Server Error').build(headers);
   }
 };
