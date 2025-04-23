@@ -11,11 +11,13 @@ import { dynamoClient, getHeaders, logger } from '../../common/util';
 const { letterTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
+  const headers = getHeaders(event);
+
   try {
     const letterId = event.pathParameters?.id;
 
     if (!letterId) {
-      return new BadRequestError('Letter ID is required!').build();
+      return new BadRequestError('Letter ID is required!').build(headers);
     }
 
     const params = {
@@ -31,7 +33,9 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const response = await dynamoClient.send(command);
 
     if (!response.Items || response.Items.length === 0) {
-      return new NotFoundError(`Letter with ID ${letterId} not found!`).build();
+      return new NotFoundError(`Letter with ID ${letterId} not found!`).build(
+        headers,
+      );
     }
 
     return {
@@ -40,10 +44,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         data: response.Items[0],
         message: 'Letter fetched successfully!',
       }),
-      headers: getHeaders(event),
+      headers,
     };
   } catch (error) {
     logger.error('Error fetching letter from DynamoDB: ', error);
-    return new DatabaseError('Internal Server Error').build();
+    return new DatabaseError('Internal Server Error').build(headers);
   }
 };

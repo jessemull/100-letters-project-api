@@ -9,11 +9,13 @@ import { v4 as uuidv4 } from 'uuid';
 const { recipientTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
+  const headers = getHeaders(event);
+
   try {
     // Request body validation is handled by the API gateway model.
 
     if (!event.body) {
-      return new BadRequestError('Request body is required.').build();
+      return new BadRequestError('Request body is required.').build(headers);
     }
 
     const body = JSON.parse(event.body);
@@ -63,10 +65,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         data: recipientData,
         message: 'Recipient created successfully!',
       }),
-      headers: getHeaders(event),
+      headers,
     };
   } catch (error) {
     logger.error('Error creating recipient in DynamoDB: ', error);
-    return new DatabaseError('Internal Server Error').build();
+    return new DatabaseError('Internal Server Error').build(headers);
   }
 };

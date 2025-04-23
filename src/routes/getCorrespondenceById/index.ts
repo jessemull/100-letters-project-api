@@ -14,8 +14,10 @@ const { correspondenceTableName, letterTableName, recipientTableName } = config;
 export const handler: APIGatewayProxyHandler = async (event) => {
   const correspondenceId = event.pathParameters?.id;
 
+  const headers = getHeaders(event);
+
   if (!correspondenceId) {
-    return new BadRequestError('Correspondence ID is required.').build();
+    return new BadRequestError('Correspondence ID is required.').build(headers);
   }
 
   try {
@@ -32,7 +34,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const correspondence = correspondenceResult.Item;
 
     if (!correspondence) {
-      return new NotFoundError('Correspondence not found!').build();
+      return new NotFoundError('Correspondence not found!').build(headers);
     }
 
     // Step 2: Get associated recipient details.
@@ -54,12 +56,12 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           `Error fetching recipient with ID ${correspondence.recipientId}: `,
           error,
         );
-        return new DatabaseError('Internal Server Error').build();
+        return new DatabaseError('Internal Server Error').build(headers);
       }
     }
 
     if (recipient === null) {
-      return new NotFoundError('Recipient not found!').build();
+      return new NotFoundError('Recipient not found!').build(headers);
     }
 
     // Step 3: Get associated letters.
@@ -83,7 +85,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         `Error fetching letters for correspondence ID ${correspondence.correspondenceId}: `,
         error,
       );
-      return new DatabaseError('Internal Server Error').build();
+      return new DatabaseError('Internal Server Error').build(headers);
     }
 
     return {
@@ -96,10 +98,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         },
         message: 'Correspondence fetched successfully!',
       }),
-      headers: getHeaders(event),
+      headers,
     };
   } catch (error) {
     logger.error('Error fetching correspondence by ID:', error);
-    return new DatabaseError('Internal Server Error').build();
+    return new DatabaseError('Internal Server Error').build(headers);
   }
 };
