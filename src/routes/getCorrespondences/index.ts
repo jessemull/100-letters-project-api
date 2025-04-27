@@ -80,11 +80,13 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       statusCode: 200,
       body: JSON.stringify({
         data: results,
-        lastEvaluatedKey: correspondenceResult.LastEvaluatedKey
-          ? encodeURIComponent(
-              JSON.stringify(correspondenceResult.LastEvaluatedKey),
-            )
-          : null,
+        lastEvaluatedKey:
+          correspondenceResult.LastEvaluatedKey &&
+          correspondences.length >= limit
+            ? encodeURIComponent(
+                JSON.stringify(correspondenceResult.LastEvaluatedKey),
+              )
+            : null,
         message: 'Correspondences fetched successfully!',
       }),
       headers,
