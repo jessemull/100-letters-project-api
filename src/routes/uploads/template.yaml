@@ -37,6 +37,7 @@ Resources:
           ENVIRONMENT: !Ref Environment
           LETTER_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:letterTableName}}"
           RECIPIENT_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:recipientTableName}}"
+          IMAGE_S3_BUCKET_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-images-${Environment}:SecretString:imageS3BucketName}}"
 
   LambdaInvokePermissionGetRecipientById:
     Type: AWS::Lambda::Permission
