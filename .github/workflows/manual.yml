@@ -24,6 +24,7 @@ on:
           - updateCorrespondence
           - updateLetter
           - updateRecipient
+          - uploads
       environment:
         description: "Development environment"
         required: true
