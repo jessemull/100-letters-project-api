@@ -165,6 +165,15 @@ Resources:
       ParentId: !GetAtt OneHundredLettersApi.RootResourceId
       PathPart: "contact"
 
+  # Uploads Resources
+
+  UploadsResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ParentId: !GetAtt OneHundredLettersApi.RootResourceId
+      PathPart: "uploads"
+
 Outputs:
   ApiGatewayUrl:
     Value: !Sub "https://${OneHundredLettersApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}"
@@ -212,3 +221,7 @@ Outputs:
     Value: !Ref ContactResource
     Export:
       Name: !Sub "one-hundred-letters-api-contact-resource-${Environment}"
+  UploadsResourceOutput:
+    Value: !Ref UploadsResource
+    Export:
+      Name: !Sub "one-hundred-letters-api-uploads-resource-${Environment}"

@@ -1,0 +1,82 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: "dev"
+    Description: "The environment for the deployment (dev or prod)"
+    AllowedValues:
+      - dev
+      - prod
+    ConstraintDescription: "Must be either 'dev' or 'prod'."
+
+Mappings:
+  EnvCapitalization:
+    dev:
+      Capitalized: "Dev"
+    prod:
+      Capitalized: "Prod"
+
+Resources:
+  UploadsModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
+      ContentType: "application/json"
+      Name: !Sub 
+        - "UploadsModel${CapitalizedEnv}"
+        - CapitalizedEnv: !FindInMap [EnvCapitalization, !Ref Environment, Capitalized]
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          correspondenceId:
+            type: "string"
+          letterId:
+            type: "string"
+          fileType:
+            type: "string"
+            enum:
+              - image/jpeg
+              - image/png
+              - image/webp
+              - image/gif
+          view:
+            type: "string"
+            enum:
+              - ENVELOPE_FRONT
+              - ENVELOPE_BACK
+              - LETTER_FRONT
+              - LETTER_BACK
+              - OTHER
+        required: ["correspondenceId", "letterId", "fileType", "view"]
+
+  UploadsResponseModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
+      ContentType: "application/json"
+      Name: !Sub 
+        - "UploadsResponseModel${CapitalizedEnv}"
+        - CapitalizedEnv: !FindInMap [EnvCapitalization, !Ref Environment, Capitalized]
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          url:
+            type: "string"
+        required: ["url"]
+
+Outputs:
+  UploadsModelOutput:
+    Value: !Ref UploadsModel
+    Export:
+      Name: !Sub uploads-model-${Environment}
+  UploadsResponseModelOutput:
+    Value: !Ref UploadsResponseModel
+    Export:
+      Name: !Sub uploads-response-model-${Environment}
