@@ -41,6 +41,7 @@ Resources:
                   - s3:PutObject
                 Resource:
                   - !Sub arn:aws:s3:::100-letters-project-api-${Environment}
+                  - !Sub arn:aws:s3:::100-letters-project-client-images-${Environment}/*
               - Effect: Allow
                 Action:
                   - dynamodb:PutItem
