@@ -24,6 +24,7 @@ on:
           - updateCorrespondence
           - updateLetter
           - updateRecipient
+          - uploads
       s3_zip_file:
         description: "Zip file name in S3 (e.g., previous.zip)"
         required: true
