@@ -112,7 +112,10 @@ describe('Generate Signed URL Handler', () => {
 
     expect(result.statusCode).toBe(200);
     expect(JSON.parse(result.body)).toEqual({
-      url: 'https://signed-url.com',
+      data: {
+        url: 'https://signed-url.com',
+      },
+      message: 'Signed URL created successfully!',
     });
     expect(getHeaders).toHaveBeenCalledWith(event);
     expect(s3.getSignedUrlPromise).toHaveBeenCalledWith(
