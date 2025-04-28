@@ -644,7 +644,43 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InternalServerError"
-
+  /uploads:
+    post:
+      summary: "Get Signed URL"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UploadsRequest"
+        required: true
+      responses:
+        200:
+          description: Get signed URL Success"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  data:
+                    type: "object"
+                    properties:
+                      url:
+                        type: "string"
+                  message:
+                    type: "string"
+                    example: "Signed URL created successfully!"
+        400:
+          description: "Bad Request Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
 components:
   parameters:
     LimitParameter:
@@ -819,6 +855,23 @@ components:
       type: "string"
       format: "uuid"
       example: "52b249d0-7b41-4f58-bf49-d72d592f84ff"
+    View:
+      type: "string"
+      enum:
+        - "LETTER_FRONT"
+        - "LETTER_BACK"
+        - "ENVELOPE_FRONT"
+        - "ENVELOPE_BACK"
+        - "OTHER"
+      example: "ENVELOPE_BACK"
+    FileType:
+      type: "string"
+      enum:
+        - "image/jpeg"
+        - "image/png"
+        - "image/webp"
+        - "image/gif"
+      example: "image/gif"
     LetterBase:
       type: "object"
       properties:
@@ -1028,6 +1081,22 @@ components:
           $ref: "#/components/schemas/LastName"
         message:
           $ref: "#/components/schemas/Message"
+    UploadsRequest:
+      required:
+        - "correspondenceId"
+        - "letterId"
+        - "fileType"
+        - "view"
+      type: "object"
+      properties:
+        correspondenceId:
+          $ref: "#/components/schemas/UUID"
+        letterId:
+          $ref: "#/components/schemas/UUID"
+        fileType:
+          $ref: "#/components/schemas/FileType"
+        view:
+          $ref: "#/components/schemas/View"
     BadRequestError:
       type: "object"
       properties:

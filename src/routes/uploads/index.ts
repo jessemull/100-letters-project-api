@@ -32,7 +32,13 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ url }),
+      body: JSON.stringify({
+        data: {
+          url,
+        },
+        message: 'Signed URL created successfully!',
+      }),
+      headers,
     };
   } catch (error) {
     logger.error('Error generating pre-signed URL: ', error);

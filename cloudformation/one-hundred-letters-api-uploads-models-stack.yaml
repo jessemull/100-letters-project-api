@@ -67,9 +67,15 @@ Resources:
         $schema: "http://json-schema.org/draft-04/schema#"
         type: "object"
         properties:
-          url:
+          data:
+            type: "object"
+            properties:
+              url:
+                type: "string"
+            required: ["url"]
+          message:
             type: "string"
-        required: ["url"]
+        required: ["data", "message"]
 
 Outputs:
   UploadsModelOutput:
