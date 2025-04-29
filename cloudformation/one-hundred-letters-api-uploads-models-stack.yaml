@@ -34,9 +34,11 @@ Resources:
         properties:
           correspondenceId:
             type: "string"
+            format: "uuid"
           letterId:
             type: "string"
-          fileType:
+            format: "uuid"
+          mimeType:
             type: "string"
             enum:
               - image/jpeg
@@ -51,7 +53,7 @@ Resources:
               - LETTER_FRONT
               - LETTER_BACK
               - OTHER
-        required: ["correspondenceId", "letterId", "fileType", "view"]
+        required: ["correspondenceId", "letterId", "mimeType", "view"]
 
   UploadsResponseModel:
     Type: AWS::ApiGateway::Model
@@ -70,12 +72,60 @@ Resources:
           data:
             type: "object"
             properties:
-              url:
+              correspondenceId:
                 type: "string"
-            required: ["url"]
+                format: "uuid"
+              imageURL:
+                type: "string"
+                format: "uri"
+                example: "https://onehundredletters.com/images/52b249d0-7b41-4f58-bf49-d72d592f84ff/42b249d0-7b41-4f58-bf49-d72d592f84ff/ENVELOPE_FRONT/67b249d0-7b41-4f58-bf49-d72d592f84ff.webp"
+              letterId:
+                type: "string"
+                format: "uuid"
+              mimeType:
+                type: "string"
+                enum:
+                  - image/jpeg
+                  - image/png
+                  - image/webp
+                  - image/gif
+              signedUrl:
+                type: "string"
+                format: "uri"
+                example: "https://your-bucket.s3.amazonaws.com/52b249d0-7b41-4f58-bf49-d72d592f84ff/ENVELOPE_FRONT/67b249d0.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256..."
+              uuid:
+                type: "string"
+                format: "uuid"
+              view:
+                type: "string"
+                enum:
+                  - ENVELOPE_FRONT
+                  - ENVELOPE_BACK
+                  - LETTER_FRONT
+                  - LETTER_BACK
+                  - OTHER
+            required: ["correspondenceId", "imageURL", "letterId", "mimeType", "signedUrl", "uuid", "view"]
           message:
             type: "string"
         required: ["data", "message"]
+
+  DeleteUploadResponseModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
+      ContentType: "application/json"
+      Name: !Sub 
+        - "DeleteUploadResponseModel${CapitalizedEnv}"
+        - CapitalizedEnv: !FindInMap [EnvCapitalization, !Ref Environment, Capitalized]
+      Schema:
+        $schema: "http://json-schema.org/draft-04/schema#"
+        type: "object"
+        properties:
+          message:
+            type: "string"
+        required: ["message"]
 
 Outputs:
   UploadsModelOutput:
@@ -86,3 +136,7 @@ Outputs:
     Value: !Ref UploadsResponseModel
     Export:
       Name: !Sub uploads-response-model-${Environment}
+  DeleteUploadResponseModelOutput:
+    Value: !Ref DeleteUploadResponseModel
+    Export:
+      Name: !Sub delete-upload-response-model-${Environment}

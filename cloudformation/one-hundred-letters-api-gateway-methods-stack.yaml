@@ -1011,6 +1011,49 @@ Resources:
               Fn::ImportValue: 
                 !Sub "internal-server-error-${Environment}"
 
+  DeleteUploadMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
+      ResourceId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-uploads-${Environment}"
+      HttpMethod: DELETE
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-authorizer-${Environment}"
+      RequestParameters:
+        method.request.querystring.correspondenceId: true
+        method.request.querystring.letterId: true
+        method.request.querystring.view: true
+        method.request.querystring.imageId: true
+      Integration:
+        IntegrationHttpMethod: DELETE
+        Type: AWS_PROXY
+        Uri:
+          !Sub 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:deleteUpload-${Env}/invocations"
+            - { Env: !Ref Environment }
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "delete-upload-response-model-${Environment}"
+        - StatusCode: 400
+          ResponseModels:
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "bad-request-error-${Environment}"
+        - StatusCode: 500
+          ResponseModels:
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "internal-server-error-${Environment}"
+
   UploadsOptionsMethod:
     Type: AWS::ApiGateway::Method
     Properties:

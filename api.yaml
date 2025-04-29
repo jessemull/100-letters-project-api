@@ -662,13 +662,56 @@ paths:
                 type: "object"
                 properties:
                   data:
-                    type: "object"
-                    properties:
-                      url:
-                        type: "string"
+                    $ref: "#/components/schemas/UploadsResponse"
                   message:
                     type: "string"
                     example: "Signed URL created successfully!"
+        400:
+          description: "Bad Request Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+    delete:
+      summary: "Delete Image"
+      parameters:
+        - name: correspondenceId
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - name: letterId
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - name: view
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/View"
+        - name: imageId
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+      responses:
+        200:
+          description: Delete Image Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Image deleted successfully!"
         400:
           description: "Bad Request Error"
           content:
@@ -756,14 +799,58 @@ components:
     FirstName:
       type: "string"
       example: "Alan"
+    LetterImage:
+      type: object
+      required:
+        - id
+        - url
+        - view
+      properties:
+        id:
+          type: string
+          example: "abc123"
+        caption:
+          type: string
+          example: "Front of the envelope"
+        dateUploaded:
+          type: string
+          format: date-time
+          example: "2025-04-29T15:00:00Z"
+        mimeType:
+          $ref: '#/components/schemas/MimeType'
+        sizeInBytes:
+          type: integer
+          example: 204800
+        uploadedBy:
+          type: string
+          example: "user_001"
+        url:
+          type: string
+          format: uri
+          example: "https://example.com/letter-image1.png"
+        view:
+          $ref: '#/components/schemas/View'
     ImageURLs:
-      type: "array"
+      type: array
       items:
-        type: "string"
-        format: "uri"
+        $ref: '#/components/schemas/LetterImage'
       example:
-        - "https://example.com/letter-image1.png"
-        - "https://example.com/letter-image2.png"
+        - id: "img1"
+          caption: "Letter front"
+          dateUploaded: "2025-04-28T12:00:00Z"
+          mimeType: "image/jpeg"
+          sizeInBytes: 123456
+          uploadedBy: "user123"
+          url: "https://example.com/letter-image1.jpg"
+          view: "LETTER_FRONT"
+        - id: "img2"
+          caption: "Envelope back"
+          dateUploaded: "2025-04-28T12:05:00Z"
+          mimeType: "image/png"
+          sizeInBytes: 654321
+          uploadedBy: "user123"
+          url: "https://example.com/letter-image2.png"
+          view: "ENVELOPE_BACK"
     Impact:
       type: "string"
       enum:
@@ -864,7 +951,7 @@ components:
         - "ENVELOPE_BACK"
         - "OTHER"
       example: "ENVELOPE_BACK"
-    FileType:
+    MimeType:
       type: "string"
       enum:
         - "image/jpeg"
@@ -962,6 +1049,35 @@ components:
               $ref: "#/components/schemas/DateTime"
             updatedAt:
               $ref: "#/components/schemas/DateTime"
+    UploadsResponse:
+      type: "object"
+      properties:
+        correspondenceId:
+          $ref: "#/components/schemas/UUID"
+        imageURL:
+          type: "string"
+          format: "uri"
+          example: "https://onehundredletters.com/images/52b249d0-7b41-4f58-bf49-d72d592f84ff/42b249d0-7b41-4f58-bf49-d72d592f84ff/ENVELOPE_FRONT/67b249d0-7b41-4f58-bf49-d72d592f84ff.webp"
+        letterId:
+          $ref: "#/components/schemas/UUID"
+        mimeType:
+          $ref: "#/components/schemas/MimeType"
+        signedUrl:
+          type: "string"
+          format: "uri"
+          example: "https://your-bucket.s3.amazonaws.com/52b249d0-7b41-4f58-bf49-d72d592f84ff/ENVELOPE_FRONT/67b249d0.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256..."
+        uuid:
+          $ref: "#/components/schemas/UUID"
+        view:
+          $ref: "#/components/schemas/View"
+      required:
+        - correspondenceId
+        - imageURL
+        - letterId
+        - mimeType
+        - signedUrl
+        - uuid
+        - view
     RecipientCreateRequest:
       allOf:
         - $ref: "#/components/schemas/RecipientBase"
@@ -1085,7 +1201,7 @@ components:
       required:
         - "correspondenceId"
         - "letterId"
-        - "fileType"
+        - "mimeType"
         - "view"
       type: "object"
       properties:
@@ -1093,8 +1209,24 @@ components:
           $ref: "#/components/schemas/UUID"
         letterId:
           $ref: "#/components/schemas/UUID"
-        fileType:
-          $ref: "#/components/schemas/FileType"
+        mimeType:
+          $ref: "#/components/schemas/MimeType"
+        view:
+          $ref: "#/components/schemas/View"
+    DeleteUploadRequest:
+      required:
+        - "correspondenceId"
+        - "letterId"
+        - "imageId"
+        - "view"
+      type: "object"
+      properties:
+        correspondenceId:
+          $ref: "#/components/schemas/UUID"
+        letterId:
+          $ref: "#/components/schemas/UUID"
+        imageId:
+          $ref: "#/components/schemas/UUID"
         view:
           $ref: "#/components/schemas/View"
     BadRequestError:

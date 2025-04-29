@@ -6,17 +6,16 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const headers = getHeaders(event);
 
   try {
-    if (!event.body) {
-      return new BadRequestError('Request body is required.').build(headers);
+    const { correspondenceId, imageId, letterId, view } =
+      event.queryStringParameters || {};
+
+    if (!correspondenceId || !imageId || !letterId || !view) {
+      return new BadRequestError('Missing required query parameters.').build(
+        headers,
+      );
     }
 
-    const { correspondenceId, letterId, view } = JSON.parse(event.body);
-
-    if (!correspondenceId || !letterId || !view) {
-      return new BadRequestError('Missing required fields.').build(headers);
-    }
-
-    const fileKey = `${correspondenceId}/${letterId}/${view}`;
+    const fileKey = `${correspondenceId}/${letterId}/${view}/${imageId}`;
 
     const params = {
       Bucket: process.env.IMAGE_S3_BUCKET_NAME as string,

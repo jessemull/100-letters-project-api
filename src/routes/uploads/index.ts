@@ -11,30 +11,38 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       return new BadRequestError('Request body is required.').build(headers);
     }
 
-    const { correspondenceId, letterId, fileType, view } = JSON.parse(
+    const { correspondenceId, letterId, mimeType, view } = JSON.parse(
       event.body,
     );
 
-    if (!correspondenceId || !letterId || !fileType || !view) {
+    if (!correspondenceId || !letterId || !mimeType || !view) {
       return new BadRequestError('Missing required fields.').build(headers);
     }
 
-    const fileKey = `${correspondenceId}/${letterId}/${view}/${randomUUID()}`;
+    const uuid = randomUUID();
+    const fileKey = `${correspondenceId}/${letterId}/${view}/${uuid}`;
+    const imageURL = `https://${process.env.PUBLIC_IMAGE_DOMAIN}/images/${fileKey}`;
 
     const params = {
       Bucket: process.env.IMAGE_S3_BUCKET_NAME,
-      Key: fileKey,
+      ContentType: mimeType,
       Expires: 60,
-      ContentType: fileType,
+      Key: fileKey,
     };
 
-    const url = await s3.getSignedUrlPromise('putObject', params);
+    const signedUrl = await s3.getSignedUrlPromise('putObject', params);
 
     return {
       statusCode: 200,
       body: JSON.stringify({
         data: {
-          url,
+          correspondenceId,
+          imageURL,
+          letterId,
+          mimeType,
+          signedUrl,
+          uuid,
+          view,
         },
         message: 'Signed URL created successfully!',
       }),
