@@ -42,8 +42,28 @@ Resources:
           imageURLs:
             type: "array"
             items:
-              type: "string"
-              format: "uri"
+              type: "object"
+              properties:
+                caption: 
+                  type: "string"
+                dateUploaded:
+                  type: "string"
+                  format: "date-time"
+                id:
+                  type: "string"
+                  format: "uuid"
+                mimeType: 
+                  type: "string"
+                  enum: ["image/jpeg", "image/png", "image/webp", "image/gif"]
+                sizeInBytes: 
+                  type: "number"
+                uploadedBy: 
+                  type: "string"
+                url: 
+                  type: "string"
+                view: 
+                  type: "string"
+              required: ["id", "url", "view"]
           method:
             type: "string"
             enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
@@ -93,8 +113,28 @@ Resources:
               imageURLs:
                 type: "array"
                 items:
-                  type: "string"
-                  format: "uri"
+                  type: "object"
+                  properties:
+                    caption: 
+                      type: "string"
+                    dateUploaded:
+                      type: "string"
+                      format: "date-time"
+                    id:
+                      type: "string"
+                      format: "uuid"
+                    mimeType: 
+                      type: "string"
+                      enum: ["image/jpeg", "image/png", "image/webp", "image/gif"]
+                    sizeInBytes: 
+                      type: "number"
+                    uploadedBy: 
+                      type: "string"
+                    url: 
+                      type: "string"
+                    view: 
+                      type: "string"
+                  required: ["id", "url", "view"]
               letterId:
                 type: "string"
                 format: "uuid"
@@ -149,8 +189,28 @@ Resources:
             imageURLs:
               type: "array"
               items:
-                type: "string"
-                format: "uri"
+                type: "object"
+                properties:
+                  caption: 
+                    type: "string"
+                  dateUploaded:
+                    type: "string"
+                    format: "date-time"
+                  id:
+                    type: "string"
+                    format: "uuid"
+                  mimeType: 
+                    type: "string"
+                    enum: ["image/jpeg", "image/png", "image/webp", "image/gif"]
+                  sizeInBytes: 
+                    type: "number"
+                  uploadedBy: 
+                    type: "string"
+                  url: 
+                    type: "string"
+                  view: 
+                    type: "string"
+                required: ["id", "url", "view"]
             letterId:
               type: "string"
               format: "uuid"
@@ -203,8 +263,28 @@ Resources:
               imageURLs:
                 type: "array"
                 items:
-                  type: "string"
-                  format: "uri"
+                  type: "object"
+                  properties:
+                    caption: 
+                      type: "string"
+                    dateUploaded:
+                      type: "string"
+                      format: "date-time"
+                    id:
+                      type: "string"
+                      format: "uuid"
+                    mimeType: 
+                      type: "string"
+                      enum: ["image/jpeg", "image/png", "image/webp", "image/gif"]
+                    sizeInBytes: 
+                      type: "number"
+                    uploadedBy: 
+                      type: "string"
+                    url: 
+                      type: "string"
+                    view: 
+                      type: "string"
+                  required: ["id", "url", "view"]
               letterId:
                 type: "string"
                 format: "uuid"
@@ -267,8 +347,28 @@ Resources:
                 imageURLs:
                   type: "array"
                   items:
-                    type: "string"
-                    format: "uri"
+                    type: "object"
+                    properties:
+                      caption: 
+                        type: "string"
+                      dateUploaded:
+                        type: "string"
+                        format: "date-time"
+                      id:
+                        type: "string"
+                        format: "uuid"
+                      mimeType: 
+                        type: "string"
+                        enum: ["image/jpeg", "image/png", "image/webp", "image/gif"]
+                      sizeInBytes: 
+                        type: "number"
+                      uploadedBy: 
+                        type: "string"
+                      url: 
+                        type: "string"
+                      view: 
+                        type: "string"
+                    required: ["id", "url", "view"]
                 letterId:
                   type: "string"
                   format: "uuid"
@@ -331,8 +431,28 @@ Resources:
               imageURLs:
                 type: "array"
                 items:
-                  type: "string"
-                  format: "uri"
+                  type: "object"
+                  properties:
+                    caption: 
+                      type: "string"
+                    dateUploaded:
+                      type: "string"
+                      format: "date-time"
+                    id:
+                      type: "string"
+                      format: "uuid"
+                    mimeType: 
+                      type: "string"
+                      enum: ["image/jpeg", "image/png", "image/webp", "image/gif"]
+                    sizeInBytes: 
+                      type: "number"
+                    uploadedBy: 
+                      type: "string"
+                    url: 
+                      type: "string"
+                    view: 
+                      type: "string"
+                  required: ["id", "url", "view"]
               letterId:
                 type: "string"
                 format: "uuid"

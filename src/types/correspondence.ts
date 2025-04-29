@@ -36,8 +36,8 @@ export type CorrespondenceCreateInput = {
     status: Status;
     title: string;
   };
-  recipient: RecipientCreateInput;
   letters: LetterCreateInput[];
+  recipient: RecipientCreateInput;
 };
 
 export type CorrespondenceUpdateInput = {
@@ -47,6 +47,6 @@ export type CorrespondenceUpdateInput = {
     status: Status;
     title: string;
   };
-  recipient: RecipientUpdateInput;
   letters: LetterUpdateInput[];
+  recipient: RecipientUpdateInput;
 };

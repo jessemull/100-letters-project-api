@@ -51,12 +51,30 @@ function generateCorrespondenceData(recipientId, correspondenceId) {
   };
 }
 
+function generateImageURLData() {
+  const mimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+  const views = ['ENVELOPE_FRONT', 'ENVELOPE_BACK', 'LETTER_FRONT', 'LETTER_BACK'];
+
+  return {
+    M: {
+      id: { S: uuidv4() },
+      url: { S: faker.image.url() },
+      view: { S: faker.helpers.arrayElement(views) },
+      caption: { S: faker.lorem.sentence() },
+      dateUploaded: { S: faker.date.recent().toISOString() },
+      mimeType: { S: faker.helpers.arrayElement(mimeTypes) },
+      sizeInBytes: { N: faker.number.int({ min: 10000, max: 5000000 }).toString() }, // 10KB - 5MB
+      uploadedBy: { S: faker.internet.email() },
+    }
+  };
+}
+
 function generateLetterData(correspondenceId, letterId) {
   return {
     correspondenceId: { S: correspondenceId },
     createdAt: { S: faker.date.past().toISOString() },
     description: { S: faker.lorem.sentence() },
-    imageURLs: { L: [{ S: faker.image.url() }, { S: faker.image.url() }] },
+    imageURLs: { L: [generateImageURLData(), generateImageURLData()] },
     letterId: { S: letterId },
     method: { S: faker.helpers.arrayElement(['TYPED', 'HANDWRITTEN', 'PRINTED', 'DIGITAL', 'OTHER']) },
     status: { S: faker.helpers.arrayElement(['PENDING', 'SENT', 'RECEIVED', 'RESPONDED']) },

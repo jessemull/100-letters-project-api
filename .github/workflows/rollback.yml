@@ -14,6 +14,7 @@ on:
           - deleteCorrespondence
           - deleteLetter
           - deleteRecipient
+          - deleteUpload
           - getCorrespondences
           - getCorrespondenceById
           - getLetterById

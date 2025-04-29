@@ -20,10 +20,35 @@ export enum LetterType {
   OTHER = 'OTHER',
 }
 
+export enum LetterMimeType {
+  JPEG = 'image/jpeg',
+  PNG = 'image/png',
+  WEBP = 'image/webp',
+  GIF = 'image/gif',
+}
+
+export enum View {
+  ENVELOPE_FRONT = 'ENVELOPE_FRONT',
+  ENVELOPE_BACK = 'ENVELOPE_BACK',
+  LETTER_FRONT = 'LETTER_FRONT',
+  LETTER_BACK = 'LETTER_BACK',
+}
+
+export type LetterImage = {
+  caption?: string;
+  dateUploaded?: string;
+  id: string;
+  mimeType?: LetterMimeType;
+  sizeInBytes?: number;
+  uploadedBy?: string;
+  url: string;
+  view: View;
+};
+
 export interface Letter {
   correspondenceId: string;
   description?: string;
-  imageURLs: string[];
+  imageURLs: LetterImage[];
   letterId: string;
   method: LetterMethod;
   receivedAt?: string;
@@ -37,7 +62,7 @@ export interface Letter {
 export type LetterCreateInput = {
   correspondenceId: string;
   description?: string;
-  imageURLs: string[];
+  imageURLs: LetterImage[];
   method: LetterMethod;
   receivedAt?: string;
   sentAt?: string;
@@ -49,7 +74,7 @@ export type LetterCreateInput = {
 
 export type LetterUpdateInput = {
   description?: string;
-  imageURLs: string[];
+  imageURLs: LetterImage[];
   letterId: string;
   method: LetterMethod;
   receivedAt?: string;
