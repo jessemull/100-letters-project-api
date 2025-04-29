@@ -21,7 +21,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     const uuid = randomUUID();
     const fileKey = `${correspondenceId}/${letterId}/${view}/${uuid}`;
-    const imageURL = `https://${process.env.PUBLIC_IMAGE_DOMAIN}/images/${fileKey}`;
+    const imageURL = `https://${process.env.PUBLIC_IMAGE_DOMAIN || 'dev.onehundredletters.com'}/images/${fileKey}`;
 
     const params = {
       Bucket: process.env.IMAGE_S3_BUCKET_NAME,

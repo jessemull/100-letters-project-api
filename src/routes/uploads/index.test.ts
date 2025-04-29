@@ -6,6 +6,10 @@ import {
 import { handler } from './index';
 import { s3, getHeaders } from '../../common/util';
 
+jest.mock('crypto', () => ({
+  randomUUID: jest.fn(() => 'b5e0452b-21e4-48c6-ada3-f6a6e110f711'),
+}));
+
 jest.mock('../../common/util', () => ({
   s3: {
     getSignedUrlPromise: jest.fn(),
@@ -68,7 +72,7 @@ describe('Generate Signed URL Handler', () => {
       body: JSON.stringify({
         correspondenceId: '123',
         letterId: '456',
-        // fileType missing
+        // mimeButton missing
         view: 'front',
       }),
     } as unknown as APIGatewayProxyEvent;
@@ -99,7 +103,7 @@ describe('Generate Signed URL Handler', () => {
       body: JSON.stringify({
         correspondenceId: '123',
         letterId: '456',
-        fileType: 'image/jpeg',
+        mimeType: 'image/jpeg',
         view: 'front',
       }),
     } as unknown as APIGatewayProxyEvent;
@@ -113,7 +117,14 @@ describe('Generate Signed URL Handler', () => {
     expect(result.statusCode).toBe(200);
     expect(JSON.parse(result.body)).toEqual({
       data: {
-        url: 'https://signed-url.com',
+        correspondenceId: '123',
+        imageURL:
+          'https://dev.onehundredletters.com/images/123/456/front/b5e0452b-21e4-48c6-ada3-f6a6e110f711',
+        letterId: '456',
+        mimeType: 'image/jpeg',
+        signedUrl: 'https://signed-url.com',
+        uuid: 'b5e0452b-21e4-48c6-ada3-f6a6e110f711',
+        view: 'front',
       },
       message: 'Signed URL created successfully!',
     });
@@ -137,7 +148,7 @@ describe('Generate Signed URL Handler', () => {
       body: JSON.stringify({
         correspondenceId: '123',
         letterId: '456',
-        fileType: 'image/jpeg',
+        mimeType: 'image/jpeg',
         view: 'front',
       }),
     } as unknown as APIGatewayProxyEvent;
