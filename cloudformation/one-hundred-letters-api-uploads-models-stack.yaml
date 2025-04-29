@@ -78,7 +78,6 @@ Resources:
               imageURL:
                 type: "string"
                 format: "uri"
-                example: "https://onehundredletters.com/images/52b249d0-7b41-4f58-bf49-d72d592f84ff/42b249d0-7b41-4f58-bf49-d72d592f84ff/ENVELOPE_FRONT/67b249d0-7b41-4f58-bf49-d72d592f84ff.webp"
               letterId:
                 type: "string"
                 format: "uuid"
@@ -92,7 +91,6 @@ Resources:
               signedUrl:
                 type: "string"
                 format: "uri"
-                example: "https://your-bucket.s3.amazonaws.com/52b249d0-7b41-4f58-bf49-d72d592f84ff/ENVELOPE_FRONT/67b249d0.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256..."
               uuid:
                 type: "string"
                 format: "uuid"

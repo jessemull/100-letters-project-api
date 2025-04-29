@@ -1019,7 +1019,7 @@ Resources:
           !Sub "one-hundred-letters-api-${Environment}"
       ResourceId: 
         Fn::ImportValue: 
-          !Sub "one-hundred-letters-api-uploads-${Environment}"
+          !Sub "one-hundred-letters-api-uploads-resource-${Environment}"
       HttpMethod: DELETE
       AuthorizationType: COGNITO_USER_POOLS
       AuthorizerId:
