@@ -44,7 +44,7 @@ describe('Delete Image Handler', () => {
     (getHeaders as jest.Mock).mockReturnValue({});
 
     const event = {
-      body: null,
+      queryStringParameters: null,
     } as unknown as APIGatewayProxyEvent;
 
     const result = (await handler(
@@ -56,7 +56,7 @@ describe('Delete Image Handler', () => {
     expect(result.statusCode).toBe(400);
     expect(JSON.parse(result.body)).toEqual({
       error: 'BadRequestError',
-      message: 'Request body is required.',
+      message: 'Missing required query parameters.',
     });
     expect(getHeaders).toHaveBeenCalledWith(event);
   });
@@ -65,11 +65,12 @@ describe('Delete Image Handler', () => {
     (getHeaders as jest.Mock).mockReturnValue({});
 
     const event = {
-      body: JSON.stringify({
+      queryStringParameters: {
         correspondenceId: '123',
         letterId: '456',
+        imageId: '789',
         // view missing
-      }),
+      },
     } as unknown as APIGatewayProxyEvent;
 
     const result = (await handler(
@@ -81,7 +82,7 @@ describe('Delete Image Handler', () => {
     expect(result.statusCode).toBe(400);
     expect(JSON.parse(result.body)).toEqual({
       error: 'BadRequestError',
-      message: 'Missing required fields.',
+      message: 'Missing required query parameters.',
     });
     expect(getHeaders).toHaveBeenCalledWith(event);
   });
@@ -95,12 +96,12 @@ describe('Delete Image Handler', () => {
     }));
 
     const event = {
-      body: JSON.stringify({
+      queryStringParameters: {
         correspondenceId: '123',
         letterId: '456',
-        fileType: 'image/gif',
+        imageId: '789',
         view: 'front',
-      }),
+      },
     } as unknown as APIGatewayProxyEvent;
 
     const result = (await handler(
@@ -117,7 +118,7 @@ describe('Delete Image Handler', () => {
     expect(s3.deleteObject).toHaveBeenCalledWith(
       expect.objectContaining({
         Bucket: process.env.IMAGE_S3_BUCKET_NAME,
-        Key: '123/456/front',
+        Key: '123/456/front/789',
       }),
     );
   });
@@ -129,11 +130,12 @@ describe('Delete Image Handler', () => {
     }));
 
     const event = {
-      body: JSON.stringify({
+      queryStringParameters: {
         correspondenceId: '123',
         letterId: '456',
+        imageId: '789',
         view: 'front',
-      }),
+      },
     } as unknown as APIGatewayProxyEvent;
 
     const result = (await handler(
