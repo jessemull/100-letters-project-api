@@ -976,7 +976,10 @@ Resources:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-uploads-resource-${Environment}"
       HttpMethod: POST
-      AuthorizationType: NONE
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-authorizer-${Environment}"
       RequestValidatorId:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-validator-${Environment}"
@@ -1031,7 +1034,7 @@ Resources:
         method.request.querystring.view: true
         method.request.querystring.imageId: true
       Integration:
-        IntegrationHttpMethod: DELETE
+        IntegrationHttpMethod: POST
         Type: AWS_PROXY
         Uri:
           !Sub 

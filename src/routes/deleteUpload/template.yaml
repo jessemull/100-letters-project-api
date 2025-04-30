@@ -35,10 +35,11 @@ Resources:
           ACCESS_CONTROL_ALLOW_ORIGIN: !Sub "{{resolve:secretsmanager:one-hundred-letters-api-${Environment}:SecretString:accessControlAllowOrigin}}"
           CORRESPONDENCE_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:correspondenceTableName}}"
           ENVIRONMENT: !Ref Environment
+          IMAGE_S3_BUCKET_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-images-${Environment}:SecretString:imageS3BucketName}}"
           LETTER_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:letterTableName}}"
           RECIPIENT_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:recipientTableName}}"
 
-  LambdaInvokePermissionGetRecipientById:
+  LambdaInvokePermissionDeleteUpload:
     Type: AWS::Lambda::Permission
     DependsOn: MyLambdaFunction
     Properties:
