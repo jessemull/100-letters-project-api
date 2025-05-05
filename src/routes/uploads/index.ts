@@ -3,6 +3,13 @@ import { BadRequestError, DatabaseError } from '../../common/errors';
 import { getHeaders, logger, s3 } from '../../common/util';
 import { randomUUID } from 'crypto';
 
+const extensionMap: { [key: string]: string } = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'image/gif': 'gif',
+};
+
 export const handler: APIGatewayProxyHandler = async (event) => {
   const headers = getHeaders(event);
 
@@ -19,9 +26,17 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       return new BadRequestError('Missing required fields.').build(headers);
     }
 
+    const extension = extensionMap[mimeType];
+
+    if (!extension) {
+      return new BadRequestError(`Unsupported MIME type: ${mimeType}`).build(
+        headers,
+      );
+    }
+
     const uuid = randomUUID();
-    const fileKey = `${correspondenceId}/${letterId}/${view}/${uuid}`;
-    const imageURL = `https://${process.env.PUBLIC_IMAGE_DOMAIN || 'dev.onehundredletters.com'}/images/${fileKey}`;
+    const fileKey = `images/${correspondenceId}/${letterId}/${view}/${uuid}.${extension}`;
+    const imageURL = `https://${process.env.PUBLIC_IMAGE_DOMAIN || 'dev.onehundredletters.com'}/${fileKey}`;
 
     const params = {
       Bucket: process.env.IMAGE_S3_BUCKET_NAME,
