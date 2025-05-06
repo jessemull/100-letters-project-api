@@ -98,7 +98,7 @@ jobs:
             --parameters ParameterKey=S3Key,ParameterValue=$S3_KEY \
             --change-set-name $CHANGE_SET_NAME \
             --change-set-type $CHANGE_SET_TYPE \
-            --capabilities CAPABILITY_NAMED_IAM \
+            --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND \
             --region us-west-2
           echo "Waiting for change set to be created..."
           aws cloudformation wait change-set-create-complete \
