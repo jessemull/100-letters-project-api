@@ -59,7 +59,7 @@ jobs:
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
           npm install
           cd src/routes/$FUNCTION_NAME
-          npm install --include=optional --os=linux --cpu=x64
+          npm install
           npm run build
           npm run package
           cd ../../
@@ -94,22 +94,22 @@ jobs:
             echo "change_set_type=CREATE" >> $GITHUB_ENV
           fi
 
-      # - name: Check Stack Status
-      #   id: stack_status
-      #   if: env.change_set_type == 'UPDATE'
-      #   run: |
-      #     STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack-${{ github.event.inputs.environment }}"
-      #     STATUS=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].StackStatus" --output text 2>/dev/null || echo "NOT_FOUND")
-      #     echo "Status: $STATUS"
-      #     FAILED_STATES=("CREATE_FAILED" "ROLLBACK_FAILED" "UPDATE_FAILED" "DELETE_FAILED" "UPDATE_ROLLBACK_FAILED" "UPDATE_ROLLBACK_COMPLETE" "ROLLBACK_COMPLETE")
-      #     if [[ " ${FAILED_STATES[@]} " =~ " ${STATUS} " ]]; then
-      #       echo "Deleting stack due to status..."
-      #       aws cloudformation delete-stack --stack-name "$STACK_NAME" --region us-west-2
-      #       echo "Waiting for stack deletion to complete..."
-      #       aws cloudformation wait stack-delete-complete --stack-name "$STACK_NAME" --region us-west-2
-      #       echo "Stack deleted successfully!"
-      #       echo "change_set_type=CREATE" >> $GITHUB_ENV
-      #     fi
+      - name: Check Stack Status
+        id: stack_status
+        if: env.change_set_type == 'UPDATE'
+        run: |
+          STACK_NAME="one-hundred-letters-route-${{ github.event.inputs.lambda_function }}-stack-${{ github.event.inputs.environment }}"
+          STATUS=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].StackStatus" --output text 2>/dev/null || echo "NOT_FOUND")
+          echo "Status: $STATUS"
+          FAILED_STATES=("CREATE_FAILED" "ROLLBACK_FAILED" "UPDATE_FAILED" "DELETE_FAILED" "UPDATE_ROLLBACK_FAILED" "UPDATE_ROLLBACK_COMPLETE" "ROLLBACK_COMPLETE")
+          if [[ " ${FAILED_STATES[@]} " =~ " ${STATUS} " ]]; then
+            echo "Deleting stack due to status..."
+            aws cloudformation delete-stack --stack-name "$STACK_NAME" --region us-west-2
+            echo "Waiting for stack deletion to complete..."
+            aws cloudformation wait stack-delete-complete --stack-name "$STACK_NAME" --region us-west-2
+            echo "Stack deleted successfully!"
+            echo "change_set_type=CREATE" >> $GITHUB_ENV
+          fi
 
       - name: Create CloudFormation Change Set
         run: |

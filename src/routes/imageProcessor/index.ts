@@ -1,5 +1,5 @@
 import path from 'path';
-import sharp from 'sharp';
+import { Jimp } from 'jimp';
 import { S3Handler } from 'aws-lambda';
 import { logger, s3 } from '../../common/util';
 
@@ -26,10 +26,9 @@ export const handler: S3Handler = async (event) => {
       }
 
       const [correspondenceId, letterId, view, uuid] = parts;
-
       const destinationBase = `images/${correspondenceId}/${letterId}/${view}/${uuid}`;
-      const largeKey = `${destinationBase}_large.webp`;
-      const thumbnailKey = `${destinationBase}_thumb.webp`;
+      const largeKey = `${destinationBase}_large.jpg`;
+      const thumbnailKey = `${destinationBase}_thumb.jpg`;
 
       const s3Object = await s3
         .getObject({
@@ -39,16 +38,14 @@ export const handler: S3Handler = async (event) => {
         .promise();
 
       const imageBuffer = s3Object.Body as Buffer;
+      const image = await Jimp.read(imageBuffer);
+
+      const largeImage = image.clone().resize({ w: 1200 });
+      const thumbnailImage = image.clone().resize({ w: 300 });
 
       const [largeBuffer, thumbnailBuffer] = await Promise.all([
-        sharp(imageBuffer)
-          .resize({ width: 1200 })
-          .webp({ quality: 80 })
-          .toBuffer(),
-        sharp(imageBuffer)
-          .resize({ width: 300 })
-          .webp({ quality: 70 })
-          .toBuffer(),
+        largeImage.getBuffer('image/jpeg'),
+        thumbnailImage.getBuffer('image/jpeg'),
       ]);
 
       await Promise.all([
@@ -57,7 +54,7 @@ export const handler: S3Handler = async (event) => {
             Bucket: bucketName,
             Key: largeKey,
             Body: largeBuffer,
-            ContentType: 'image/webp',
+            ContentType: 'image/jpeg',
           })
           .promise(),
         s3
@@ -65,7 +62,7 @@ export const handler: S3Handler = async (event) => {
             Bucket: bucketName,
             Key: thumbnailKey,
             Body: thumbnailBuffer,
-            ContentType: 'image/webp',
+            ContentType: 'image/jpeg',
           })
           .promise(),
       ]);

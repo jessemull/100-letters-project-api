@@ -2,9 +2,10 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.758.0",
     "@aws-sdk/lib-dynamodb": "^3.758.0",
+    "@jimp/wasm-webp": "^1.6.0",
     "bunyan": "^1.8.15",
     "bunyan-cloudwatch": "^2.2.0",
-    "sharp": "^0.34.1"
+    "jimp": "^1.6.0"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.147",
