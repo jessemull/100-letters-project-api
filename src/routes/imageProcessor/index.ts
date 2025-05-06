@@ -63,6 +63,14 @@ export const handler: S3Handler = async (event) => {
       ]);
 
       // Save images back to S3
+      logger.info('Uploading resized images to S3', {
+        bucket: bucketName,
+        largeKey,
+        thumbnailKey,
+        largeSize: largeBuffer.length,
+        thumbnailSize: thumbnailBuffer.length,
+      });
+
       await Promise.all([
         s3
           .putObject({
@@ -71,7 +79,10 @@ export const handler: S3Handler = async (event) => {
             Body: largeBuffer,
             ContentType: 'image/jpeg',
           })
-          .promise(),
+          .promise()
+          .then(() => logger.info(`Successfully uploaded: ${largeKey}`))
+          .catch((err) => logger.error(`Error uploading ${largeKey}`, err)),
+
         s3
           .putObject({
             Bucket: bucketName,
@@ -79,7 +90,9 @@ export const handler: S3Handler = async (event) => {
             Body: thumbnailBuffer,
             ContentType: 'image/jpeg',
           })
-          .promise(),
+          .promise()
+          .then(() => logger.info(`Successfully uploaded: ${thumbnailKey}`))
+          .catch((err) => logger.error(`Error uploading ${thumbnailKey}`, err)),
       ]);
 
       logger.info(`Processed and saved images: ${largeKey}, ${thumbnailKey}`);
