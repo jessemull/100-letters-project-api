@@ -20,7 +20,7 @@ export const handler: S3Handler = async (event) => {
 
       const ext = path.extname(fileKey);
       const fileName = path.basename(fileKey, ext);
-      const parts = fileName.split('_');
+      const parts = fileName.split('___');
 
       if (parts.length !== 4) {
         logger.error(`Invalid file name format: ${fileKey}`);

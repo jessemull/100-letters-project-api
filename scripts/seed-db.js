@@ -57,7 +57,9 @@ function generateImageURLData() {
   return {
     M: {
       id: { S: uuidv4() },
+      fileKey: { S: `letters/${uuidv4()}` },
       url: { S: faker.image.url() },
+      urlThumbnail: { S: faker.image.url() + '?thumb=true' },
       view: { S: faker.helpers.arrayElement(views) },
       caption: { S: faker.lorem.sentence() },
       dateUploaded: { S: faker.date.recent().toISOString() },
@@ -69,7 +71,9 @@ function generateImageURLData() {
 }
 
 function generateLetterData(correspondenceId, letterId) {
-  return {
+  const maybeDate = () => (Math.random() > 0.5 ? { S: faker.date.past().toISOString() } : undefined);
+
+  const letter = {
     correspondenceId: { S: correspondenceId },
     createdAt: { S: faker.date.past().toISOString() },
     description: { S: faker.lorem.sentence() },
@@ -82,6 +86,13 @@ function generateLetterData(correspondenceId, letterId) {
     type: { S: faker.helpers.arrayElement(['MAIL', 'EMAIL', 'SMS', 'OTHER']) },
     updatedAt: { S: faker.date.recent().toISOString() }
   };
+
+  const sentAt = maybeDate();
+  const receivedAt = maybeDate();
+  if (sentAt) letter.sentAt = sentAt;
+  if (receivedAt) letter.receivedAt = receivedAt;
+
+  return letter;
 }
 
 async function seedData() {

@@ -15,7 +15,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     const ext = path.extname(fileKey);
     const fileName = path.basename(fileKey, ext);
-    const parts = fileName.split('_');
+    const parts = fileName.split('___');
 
     if (parts.length !== 4) {
       return new BadRequestError(`Invalid file key format: ${fileKey}`).build(
