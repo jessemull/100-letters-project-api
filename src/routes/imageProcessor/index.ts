@@ -53,8 +53,8 @@ export const handler: S3Handler = async (event) => {
       const image = await Jimp.read(imageBuffer);
 
       // Resize images
-      const largeImage = image.clone().resize({ w: 1200 });
-      const thumbnailImage = image.clone().resize({ w: 300 });
+      const largeImage = await image.clone().resize({ w: 1200 });
+      const thumbnailImage = await image.clone().resize({ w: 300 });
 
       logger.info('Uploading resized images to S3', {
         bucket: bucketName,
