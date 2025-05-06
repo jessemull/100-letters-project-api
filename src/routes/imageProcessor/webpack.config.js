@@ -17,8 +17,7 @@ module.exports = {
     module: 'commonjs module',
     os: 'commonjs os',
     path: 'commonjs path',
-    stream: 'commonjs stream',
-    sharp: "commonjs2 sharp"
+    stream: 'commonjs stream'
   },
   output: {
     filename: 'index.js',
