@@ -30,7 +30,7 @@ Resources:
             !Sub "100-letters-project-api-${Environment}"
         S3Key: !Ref S3Key
       Timeout: 10
-      MemorySize: 128
+      MemorySize: 2048
       Environment:
         Variables:
           ACCESS_CONTROL_ALLOW_ORIGIN: !Sub "{{resolve:secretsmanager:one-hundred-letters-api-${Environment}:SecretString:accessControlAllowOrigin}}"
