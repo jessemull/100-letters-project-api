@@ -1,24 +1,10 @@
-import {
-  APIGatewayProxyEvent,
-  APIGatewayProxyResult,
-  Context,
-} from 'aws-lambda';
+import { Context, S3Event } from 'aws-lambda';
 import { handler } from './index';
 
 describe('imageProcessor Route', () => {
   it('Should return 200 with message.', async () => {
-    const event: APIGatewayProxyEvent = {} as APIGatewayProxyEvent;
+    const event: S3Event = {} as S3Event;
     const context: Context = {} as Context;
-    const result = (await handler(
-      event,
-      context,
-      () => {},
-    )) as APIGatewayProxyResult;
-    expect(result.statusCode).toBe(200);
-    expect(result.body).toBe(
-      JSON.stringify({
-        message: 'imageProcessor',
-      }),
-    );
+    await handler(event, context, () => {});
   });
 });

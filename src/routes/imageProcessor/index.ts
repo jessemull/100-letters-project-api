@@ -2,6 +2,7 @@ import path from 'path';
 import { Jimp } from 'jimp';
 import { S3Handler } from 'aws-lambda';
 import { logger, s3 } from '../../common/util';
+import { WithImplicitCoercion } from 'buffer';
 
 export const handler: S3Handler = async (event) => {
   try {
@@ -37,20 +38,30 @@ export const handler: S3Handler = async (event) => {
         })
         .promise();
 
-      logger.error(typeof s3Object.Body);
-      logger.error(s3Object.Body);
+      logger.debug('Image data fetched from S3');
 
-      const imageBuffer = s3Object.Body as Buffer;
-      const image = await Jimp.fromBuffer(imageBuffer);
+      // Ensure we handle the Body as a Buffer properly
+      const imageBuffer = Buffer.isBuffer(s3Object.Body)
+        ? s3Object.Body
+        : Buffer.from(s3Object.Body as WithImplicitCoercion<ArrayLike<number>>);
 
+      // Check if we are working with the correct buffer type
+      logger.debug(`Buffer length: ${imageBuffer.length}`);
+
+      // Make sure Jimp reads the buffer
+      const image = await Jimp.read(imageBuffer);
+
+      // Resize images
       const largeImage = image.clone().resize({ w: 1200 });
       const thumbnailImage = image.clone().resize({ w: 300 });
 
+      // Create buffers for the resized images
       const [largeBuffer, thumbnailBuffer] = await Promise.all([
         largeImage.getBuffer('image/jpeg'),
         thumbnailImage.getBuffer('image/jpeg'),
       ]);
 
+      // Save images back to S3
       await Promise.all([
         s3
           .putObject({
