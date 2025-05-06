@@ -28,6 +28,8 @@ Resources:
     Properties:
       FunctionName: !Sub "imageProcessor-${Environment}"
       Runtime: nodejs20.x
+      Architectures:
+        - x86_64
       Layers:
         - !GetAtt ["SharpLambdaLayer", "Outputs.LayerVersion"]
       Role:
