@@ -10,7 +10,6 @@
     "@types/bunyan": "^1.8.11",
     "@types/node": "^22.13.9",
     "dotenv": "^16.4.7",
-    "sharp": "^0.34.1",
     "terser-webpack-plugin": "^5.3.14",
     "ts-loader": "^9.5.2",
     "typescript": "^5.8.2",
