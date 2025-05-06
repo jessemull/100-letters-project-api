@@ -59,7 +59,7 @@ jobs:
           FUNCTION_NAME="${{ github.event.inputs.lambda_function }}"
           npm install
           cd src/routes/$FUNCTION_NAME
-          npm install
+          npm install --os=linux --cpu=x64
           npm run build
           npm run package
           cd ../../

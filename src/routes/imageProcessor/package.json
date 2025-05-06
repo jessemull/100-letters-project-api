@@ -3,13 +3,13 @@
     "@aws-sdk/client-dynamodb": "^3.758.0",
     "@aws-sdk/lib-dynamodb": "^3.758.0",
     "bunyan": "^1.8.15",
-    "bunyan-cloudwatch": "^2.2.0"
+    "bunyan-cloudwatch": "^2.2.0",
+    "sharp": "^0.34.1"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.147",
     "@types/bunyan": "^1.8.11",
     "@types/node": "^22.13.9",
-    "@types/sharp": "^0.32.0",
     "dotenv": "^16.4.7",
     "terser-webpack-plugin": "^5.3.14",
     "ts-loader": "^9.5.2",
