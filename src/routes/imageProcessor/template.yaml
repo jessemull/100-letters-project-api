@@ -15,23 +15,11 @@ Parameters:
     Description: The S3 key for the lambda function zip file.
 
 Resources:
-  SharpLambdaLayer:
-    Type: AWS::Serverless::Application
-    DeletionPolicy: Delete           
-    UpdateReplacePolicy: Delete
-    Properties:
-      Location:
-        ApplicationId: arn:aws:serverlessrepo:us-east-1:987481058235:applications/nodejs-sharp-lambda-layer
-        SemanticVersion: 0.34.1
   MyLambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Sub "imageProcessor-${Environment}"
       Runtime: nodejs20.x
-      Architectures:
-        - x86_64
-      Layers:
-        - !GetAtt ["SharpLambdaLayer", "Outputs.LayerVersion"]
       Role:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-lambda-role-${Environment}"
