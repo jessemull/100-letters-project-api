@@ -10,17 +10,25 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const { fileKey } = event.queryStringParameters || {};
 
     if (!fileKey) {
-      return new BadRequestError(
-        'Missing required query parameter: fileKey',
-      ).build(headers);
+      return new BadRequestError('Missing file key!').build(headers);
     }
 
     const ext = path.extname(fileKey);
-    const baseName = path.basename(fileKey, ext);
+    const fileName = path.basename(fileKey, ext);
+    const parts = fileName.split('_');
 
-    const originalKey = `${baseName}${ext}`;
-    const thumbnailKey = `${baseName}_thumb.webp`;
-    const largeKey = `${baseName}_large.webp`;
+    if (parts.length !== 4) {
+      return new BadRequestError(`Invalid file key format: ${fileKey}`).build(
+        headers,
+      );
+    }
+
+    const [correspondenceId, letterId, view, uuid] = parts;
+
+    const originalKey = fileKey;
+    const basePath = `images/${correspondenceId}/${letterId}/${view}/${uuid}`;
+    const thumbnailKey = `${basePath}_thumb.webp`;
+    const largeKey = `${basePath}_large.webp`;
 
     await Promise.all([
       s3

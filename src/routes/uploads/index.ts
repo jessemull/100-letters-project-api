@@ -35,11 +35,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     }
 
     const uuid = randomUUID();
-    const fileKey = `images/${correspondenceId}/${letterId}/${view}/original_${uuid}.${extension}`;
+    const fileKey = `unprocessed/${correspondenceId}_${letterId}_${view}_${uuid}.${extension}`;
     const basePath = `images/${correspondenceId}/${letterId}/${view}/${uuid}`;
-    const originalImageURL = `https://${process.env.PUBLIC_IMAGE_DOMAIN || 'dev.onehundredletters.com'}/${basePath}.${extension}`;
-    const thumbnailImageURL = `https://${process.env.PUBLIC_IMAGE_DOMAIN || 'dev.onehundredletters.com'}/${basePath}_thumb.webp`;
-    const largeImageURL = `https://${process.env.PUBLIC_IMAGE_DOMAIN || 'dev.onehundredletters.com'}/${basePath}_large.webp`;
+    const imageURL = `https://${process.env.PUBLIC_IMAGE_DOMAIN || 'dev.onehundredletters.com'}/${basePath}_large.webp`;
+    const thumbnailURL = `https://${process.env.PUBLIC_IMAGE_DOMAIN || 'dev.onehundredletters.com'}/${basePath}_thumb.webp`;
 
     const params = {
       Bucket: process.env.IMAGE_S3_BUCKET_NAME,
@@ -56,9 +55,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         data: {
           correspondenceId,
           fileKey,
-          originalImageURL,
-          largeImageURL,
-          thumbnailImageURL,
+          imageURL,
+          thumbnailURL,
           letterId,
           mimeType,
           signedUrl,
