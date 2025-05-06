@@ -7,6 +7,7 @@ import { WithImplicitCoercion } from 'buffer';
 export const handler: S3Handler = async (event) => {
   try {
     for (const record of event.Records) {
+      logger.info('Processing record: ', record);
       const bucketName = record.s3.bucket.name;
       const fileKey = decodeURIComponent(
         record.s3.object.key.replace(/\+/g, ' '),
@@ -38,7 +39,7 @@ export const handler: S3Handler = async (event) => {
         })
         .promise();
 
-      logger.debug('Image data fetched from S3');
+      logger.info('Image data fetched from S3', s3Object);
 
       // Ensure we handle the Body as a Buffer properly
       const imageBuffer = Buffer.isBuffer(s3Object.Body)
@@ -46,7 +47,7 @@ export const handler: S3Handler = async (event) => {
         : Buffer.from(s3Object.Body as WithImplicitCoercion<ArrayLike<number>>);
 
       // Check if we are working with the correct buffer type
-      logger.debug(`Buffer length: ${imageBuffer.length}`);
+      logger.info(`Buffer length: ${imageBuffer.length}`);
 
       // Make sure Jimp reads the buffer
       const image = await Jimp.read(imageBuffer);
