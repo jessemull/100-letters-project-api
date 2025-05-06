@@ -56,6 +56,14 @@ export const handler: S3Handler = async (event) => {
       const largeImage = image.clone().resize({ w: 1200 });
       const thumbnailImage = image.clone().resize({ w: 300 });
 
+      logger.info('Uploading resized images to S3', {
+        bucket: bucketName,
+        largeKey,
+        thumbnailKey,
+        largeImage,
+        thumbnailImage,
+      });
+
       // Create buffers for the resized images
       const [largeBuffer, thumbnailBuffer] = await Promise.all([
         largeImage.getBuffer('image/jpeg'),
