@@ -681,26 +681,11 @@ paths:
     delete:
       summary: "Delete Image"
       parameters:
-        - name: correspondenceId
+        - name: fileKey
           in: query
           required: true
           schema:
-            $ref: "#/components/schemas/UUID"
-        - name: letterId
-          in: query
-          required: true
-          schema:
-            $ref: "#/components/schemas/UUID"
-        - name: view
-          in: query
-          required: true
-          schema:
-            $ref: "#/components/schemas/View"
-        - name: imageId
-          in: query
-          required: true
-          schema:
-            $ref: "#/components/schemas/UUID"
+            $ref: "#/components/schemas/FileKey"
       responses:
         200:
           description: Delete Image Success
@@ -799,11 +784,16 @@ components:
     FirstName:
       type: "string"
       example: "Alan"
+    FileKey:
+      type: "string"
+      example: "unprocessed/filename.jpg"
     LetterImage:
       type: object
       required:
+        - fileKey
         - id
         - url
+        - urlThumbnail
         - view
       properties:
         id:
@@ -816,6 +806,8 @@ components:
           type: string
           format: date-time
           example: "2025-04-29T15:00:00Z"
+        fileKey:
+          $ref: "#/components/schemas/FileKey"
         mimeType:
           $ref: '#/components/schemas/MimeType'
         sizeInBytes:
@@ -825,6 +817,10 @@ components:
           type: string
           example: "user_001"
         url:
+          type: string
+          format: uri
+          example: "https://example.com/letter-image1.png"
+        urlThumbnail:
           type: string
           format: uri
           example: "https://example.com/letter-image1.png"
@@ -1054,6 +1050,8 @@ components:
       properties:
         correspondenceId:
           $ref: "#/components/schemas/UUID"
+        fileKey:
+          $ref: "#/components/schemas/FileKey"
         imageURL:
           type: "string"
           format: "uri"
@@ -1066,16 +1064,22 @@ components:
           type: "string"
           format: "uri"
           example: "https://your-bucket.s3.amazonaws.com/52b249d0-7b41-4f58-bf49-d72d592f84ff/ENVELOPE_FRONT/67b249d0.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256..."
+        thumbnailUrl:
+          type: "string"
+          format: "uri"
+          example: "https://onehundredletters.com/images/52b249d0-7b41-4f58-bf49-d72d592f84ff/42b249d0-7b41-4f58-bf49-d72d592f84ff/ENVELOPE_FRONT/67b249d0-7b41-4f58-bf49-d72d592f84ff.webp"
         uuid:
           $ref: "#/components/schemas/UUID"
         view:
           $ref: "#/components/schemas/View"
       required:
         - correspondenceId
+        - fileKey
         - imageURL
         - letterId
         - mimeType
         - signedUrl
+        - thumbnailUrl
         - uuid
         - view
     RecipientCreateRequest:

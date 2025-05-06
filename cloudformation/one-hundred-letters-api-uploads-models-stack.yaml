@@ -75,6 +75,8 @@ Resources:
               correspondenceId:
                 type: "string"
                 format: "uuid"
+              fileKey:
+                type: "string"
               imageURL:
                 type: "string"
                 format: "uri"
@@ -89,6 +91,9 @@ Resources:
                   - image/webp
                   - image/gif
               signedUrl:
+                type: "string"
+                format: "uri"
+              thumbnailUrl:
                 type: "string"
                 format: "uri"
               uuid:
