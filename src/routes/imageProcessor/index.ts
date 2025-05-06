@@ -66,8 +66,12 @@ export const handler: S3Handler = async (event) => {
 
       // Create buffers for the resized images
       const [largeBuffer, thumbnailBuffer] = await Promise.all([
-        largeImage.getBuffer('image/jpeg'),
-        thumbnailImage.getBuffer('image/jpeg'),
+        largeImage.getBuffer('image/jpeg', {
+          quality: 75,
+        }),
+        thumbnailImage.getBuffer('image/jpeg', {
+          quality: 75,
+        }),
       ]);
 
       // Save images back to S3
