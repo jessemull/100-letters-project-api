@@ -37,9 +37,12 @@ export const handler: S3Handler = async (event) => {
         })
         .promise();
 
+      logger.error(typeof s3Object.Body);
+      logger.error(s3Object.Body);
+
       const imageBuffer = s3Object.Body as Buffer;
       const image = await Jimp.read(imageBuffer);
-
+      logger.error(image, typeof image, image.mime);
       const largeImage = image.clone().resize({ w: 1200 });
       const thumbnailImage = image.clone().resize({ w: 300 });
 
