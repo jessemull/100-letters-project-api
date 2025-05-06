@@ -21,6 +21,7 @@ on:
           - getLetters
           - getRecipientById
           - getRecipients
+          - imageProcessor
           - sendContactEmail
           - updateCorrespondence
           - updateLetter
