@@ -70,9 +70,13 @@ function generateImageURLData() {
   };
 }
 
-function generateLetterData(correspondenceId, letterId) {
-  const maybeDate = () => (Math.random() > 0.5 ? { S: faker.date.past().toISOString() } : undefined);
+function maybeDateField() {
+  return Math.random() > 0.5
+    ? { S: faker.date.recent().toISOString() }
+    : undefined;
+}
 
+function generateLetterData(correspondenceId, letterId) {
   const letter = {
     correspondenceId: { S: correspondenceId },
     createdAt: { S: faker.date.past().toISOString() },
@@ -87,8 +91,8 @@ function generateLetterData(correspondenceId, letterId) {
     updatedAt: { S: faker.date.recent().toISOString() }
   };
 
-  const sentAt = maybeDate();
-  const receivedAt = maybeDate();
+  const sentAt = maybeDateField();
+  const receivedAt = maybeDateField();
   if (sentAt) letter.sentAt = sentAt;
   if (receivedAt) letter.receivedAt = receivedAt;
 

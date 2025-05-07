@@ -37,8 +37,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const uuid = randomUUID();
     const fileKey = `unprocessed/${correspondenceId}___${letterId}___${view}___${uuid}.${extension}`;
     const basePath = `images/${correspondenceId}/${letterId}/${view}/${uuid}`;
-    const imageURL = `https://${process.env.PUBLIC_IMAGE_DOMAIN || 'dev.onehundredletters.com'}/${basePath}_large.webp`;
-    const thumbnailURL = `https://${process.env.PUBLIC_IMAGE_DOMAIN || 'dev.onehundredletters.com'}/${basePath}_thumb.webp`;
+    const imageURL = `https://${process.env.PUBLIC_IMAGE_DOMAIN || 'dev.onehundredletters.com'}/${basePath}_large.jpg`;
+    const thumbnailURL = `https://${process.env.PUBLIC_IMAGE_DOMAIN || 'dev.onehundredletters.com'}/${basePath}_thumb.jpg`;
 
     const params = {
       Bucket: process.env.IMAGE_S3_BUCKET_NAME,
