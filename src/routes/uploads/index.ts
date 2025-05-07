@@ -10,6 +10,13 @@ const extensionMap: { [key: string]: string } = {
   'image/gif': 'gif',
 };
 
+function decodeJwtPayload(token: string): { 'cognito:username': string } {
+  const parts = token.split('.');
+  if (parts.length !== 3) throw new Error('Invalid JWT token format');
+  const payload = Buffer.from(parts[1], 'base64').toString('utf-8');
+  return JSON.parse(payload);
+}
+
 export const handler: APIGatewayProxyHandler = async (event) => {
   const headers = getHeaders(event);
 
@@ -27,12 +34,25 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     }
 
     const extension = extensionMap[mimeType];
-
     if (!extension) {
       return new BadRequestError(`Unsupported MIME type: ${mimeType}`).build(
         headers,
       );
     }
+
+    const authHeader =
+      event.headers?.Authorization || event.headers?.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return new BadRequestError(
+        'Missing or malformed Authorization header',
+      ).build(headers);
+    }
+
+    const token = authHeader.split(' ')[1];
+    const payload = decodeJwtPayload(token);
+
+    const uploadedBy = payload['cognito:username'] || 'unknown-user';
+    const dateUploaded = new Date().toISOString();
 
     const uuid = randomUUID();
     const fileKey = `unprocessed/${correspondenceId}___${letterId}___${view}___${uuid}.${extension}`;
@@ -41,7 +61,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const thumbnailURL = `https://${process.env.PUBLIC_IMAGE_DOMAIN || 'dev.onehundredletters.com'}/${basePath}_thumb.jpg`;
 
     const params = {
-      Bucket: process.env.IMAGE_S3_BUCKET_NAME,
+      Bucket: process.env.IMAGE_S3_BUCKET_NAME!,
       ContentType: mimeType,
       Expires: 60,
       Key: fileKey,
@@ -62,6 +82,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           signedUrl,
           uuid,
           view,
+          dateUploaded,
+          uploadedBy,
         },
         message: 'Signed URL created successfully!',
       }),
