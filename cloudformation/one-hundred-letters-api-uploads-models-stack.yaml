@@ -75,6 +75,9 @@ Resources:
               correspondenceId:
                 type: "string"
                 format: "uuid"
+              dateUploaded:
+                type: "string"
+                format: "date-time"
               fileKey:
                 type: "string"
               imageURL:
@@ -96,6 +99,8 @@ Resources:
               thumbnailUrl:
                 type: "string"
                 format: "uri"
+              uploadedBy: 
+                type: "string"
               uuid:
                 type: "string"
                 format: "uuid"

@@ -813,9 +813,6 @@ components:
         sizeInBytes:
           type: integer
           example: 204800
-        uploadedBy:
-          type: string
-          example: "user_001"
         url:
           type: string
           format: uri
@@ -1050,6 +1047,10 @@ components:
       properties:
         correspondenceId:
           $ref: "#/components/schemas/UUID"
+        dateUploaded:
+          type: string
+          format: date-time
+          example: "2025-04-29T15:00:00Z"
         fileKey:
           $ref: "#/components/schemas/FileKey"
         imageURL:
@@ -1068,18 +1069,23 @@ components:
           type: "string"
           format: "uri"
           example: "https://onehundredletters.com/images/52b249d0-7b41-4f58-bf49-d72d592f84ff/42b249d0-7b41-4f58-bf49-d72d592f84ff/ENVELOPE_FRONT/67b249d0-7b41-4f58-bf49-d72d592f84ff.webp"
+        uploadedBy:
+          type: string
+          example: "user-dev"
         uuid:
           $ref: "#/components/schemas/UUID"
         view:
           $ref: "#/components/schemas/View"
       required:
         - correspondenceId
+        - dateUploaded
         - fileKey
         - imageURL
         - letterId
         - mimeType
         - signedUrl
         - thumbnailUrl
+        - uploadedBy
         - uuid
         - view
     RecipientCreateRequest:
