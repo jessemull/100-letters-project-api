@@ -1026,13 +1026,10 @@ Resources:
       HttpMethod: DELETE
       AuthorizationType: COGNITO_USER_POOLS
       AuthorizerId:
-        Fn::ImportValue: 
+        Fn::ImportValue:
           !Sub "one-hundred-letters-api-authorizer-${Environment}"
       RequestParameters:
-        method.request.querystring.correspondenceId: true
-        method.request.querystring.letterId: true
-        method.request.querystring.view: true
-        method.request.querystring.imageId: true
+        method.request.querystring.fileKey: true
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY

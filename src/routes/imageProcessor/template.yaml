@@ -1,0 +1,55 @@
+Transform: AWS::Serverless-2016-10-31
+AWSTemplateFormatVersion: "2010-09-09"
+
+Parameters:
+  Environment:
+    Type: String
+    Description: "The environment for the deployment (dev or prod)"
+    AllowedValues:
+      - dev
+      - prod
+    Default: dev
+    ConstraintDescription: "Must be either 'dev' or 'prod'."
+  S3Key:
+    Type: String
+    Description: The S3 key for the lambda function zip file.
+
+Resources:
+  MyLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "imageProcessor-${Environment}"
+      Runtime: nodejs20.x
+      Role:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-lambda-role-${Environment}"
+      Handler: routes/imageProcessor/index.handler
+      Code:
+        S3Bucket:
+          Fn::ImportValue: 
+            !Sub "100-letters-project-api-${Environment}"
+        S3Key: !Ref S3Key
+      Timeout: 10
+      MemorySize: 2048
+      Environment:
+        Variables:
+          ACCESS_CONTROL_ALLOW_ORIGIN: !Sub "{{resolve:secretsmanager:one-hundred-letters-api-${Environment}:SecretString:accessControlAllowOrigin}}"
+          CORRESPONDENCE_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:correspondenceTableName}}"
+          ENVIRONMENT: !Ref Environment
+          LETTER_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:letterTableName}}"
+          RECIPIENT_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:recipientTableName}}"
+
+  ImageBucketInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref MyLambdaFunction
+      Principal: s3.amazonaws.com
+      SourceArn: !Sub "arn:${AWS::Partition}:s3:::100-letters-project-client-images-${Environment}"
+
+Outputs:
+  ImageProcessorLambdaArn:
+    Description: "ARN of the image processor Lambda function"
+    Value: !GetAtt MyLambdaFunction.Arn
+    Export:
+      Name: !Sub "image-processor-lambda-arn-${Environment}"

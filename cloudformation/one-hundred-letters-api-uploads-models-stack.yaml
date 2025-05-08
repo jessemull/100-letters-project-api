@@ -75,6 +75,11 @@ Resources:
               correspondenceId:
                 type: "string"
                 format: "uuid"
+              dateUploaded:
+                type: "string"
+                format: "date-time"
+              fileKey:
+                type: "string"
               imageURL:
                 type: "string"
                 format: "uri"
@@ -91,6 +96,11 @@ Resources:
               signedUrl:
                 type: "string"
                 format: "uri"
+              thumbnailUrl:
+                type: "string"
+                format: "uri"
+              uploadedBy: 
+                type: "string"
               uuid:
                 type: "string"
                 format: "uuid"

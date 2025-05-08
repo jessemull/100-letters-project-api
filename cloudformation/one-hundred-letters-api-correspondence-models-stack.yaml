@@ -98,6 +98,8 @@ Resources:
                       dateUploaded:
                         type: "string"
                         format: "date-time"
+                      fileKey:
+                        type: "string"
                       id:
                         type: "string"
                         format: "uuid"
@@ -110,9 +112,17 @@ Resources:
                         type: "string"
                       url: 
                         type: "string"
-                      view: 
+                      urlThumbnail: 
                         type: "string"
-                    required: ["id", "url", "view"]
+                      view:
+                        type: "string"
+                        enum:
+                          - ENVELOPE_FRONT
+                          - ENVELOPE_BACK
+                          - LETTER_FRONT
+                          - LETTER_BACK
+                          - OTHER
+                    required: ["fileKey", "id", "url", "urlThumbnail", "view"]
                 method:
                   type: "string"
                   enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
@@ -240,6 +250,8 @@ Resources:
                           dateUploaded:
                             type: "string"
                             format: "date-time"
+                          fileKey:
+                            type: "string"
                           id:
                             type: "string"
                             format: "uuid"
@@ -252,9 +264,17 @@ Resources:
                             type: "string"
                           url: 
                             type: "string"
-                          view: 
+                          urlThumbnail: 
                             type: "string"
-                        required: ["id", "url", "view"]
+                          view:
+                            type: "string"
+                            enum:
+                              - ENVELOPE_FRONT
+                              - ENVELOPE_BACK
+                              - LETTER_FRONT
+                              - LETTER_BACK
+                              - OTHER
+                        required: ["fileKey", "id", "url", "urlThumbnail", "view"]
                     method:
                       type: "string"
                       enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
@@ -372,6 +392,8 @@ Resources:
                       dateUploaded:
                         type: "string"
                         format: "date-time"
+                      fileKey:
+                        type: "string"
                       id:
                         type: "string"
                         format: "uuid"
@@ -384,9 +406,17 @@ Resources:
                         type: "string"
                       url: 
                         type: "string"
-                      view: 
+                      urlThumbnail: 
                         type: "string"
-                    required: ["id", "url", "view"]
+                      view:
+                        type: "string"
+                        enum:
+                          - ENVELOPE_FRONT
+                          - ENVELOPE_BACK
+                          - LETTER_FRONT
+                          - LETTER_BACK
+                          - OTHER
+                    required: ["fileKey", "id", "url", "urlThumbnail", "view"]
                 method:
                   type: "string"
                   enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
@@ -514,6 +544,8 @@ Resources:
                           dateUploaded:
                             type: "string"
                             format: "date-time"
+                          fileKey:
+                            type: "string"
                           id:
                             type: "string"
                             format: "uuid"
@@ -526,9 +558,17 @@ Resources:
                             type: "string"
                           url: 
                             type: "string"
-                          view: 
+                          urlThumbnail: 
                             type: "string"
-                        required: ["id", "url", "view"]
+                          view:
+                            type: "string"
+                            enum:
+                              - ENVELOPE_FRONT
+                              - ENVELOPE_BACK
+                              - LETTER_FRONT
+                              - LETTER_BACK
+                              - OTHER
+                        required: ["fileKey", "id", "url", "urlThumbnail", "view"]
                     method:
                       type: "string"
                       enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
@@ -666,6 +706,8 @@ Resources:
                             dateUploaded:
                               type: "string"
                               format: "date-time"
+                            fileKey:
+                              type: "string"
                             id:
                               type: "string"
                               format: "uuid"
@@ -678,9 +720,17 @@ Resources:
                               type: "string"
                             url: 
                               type: "string"
-                            view: 
+                            urlThumbnail: 
                               type: "string"
-                          required: ["id", "url", "view"]
+                            view:
+                              type: "string"
+                              enum:
+                                - ENVELOPE_FRONT
+                                - ENVELOPE_BACK
+                                - LETTER_FRONT
+                                - LETTER_BACK
+                                - OTHER
+                          required: ["fileKey", "id", "url", "urlThumbnail", "view"]
                       method:
                         type: "string"
                         enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]
@@ -818,6 +868,8 @@ Resources:
                           dateUploaded:
                             type: "string"
                             format: "date-time"
+                          fileKey:
+                            type: "string"
                           id:
                             type: "string"
                             format: "uuid"
@@ -830,9 +882,17 @@ Resources:
                             type: "string"
                           url: 
                             type: "string"
-                          view: 
+                          urlThumbnail: 
                             type: "string"
-                        required: ["id", "url", "view"]
+                          view:
+                            type: "string"
+                            enum:
+                              - ENVELOPE_FRONT
+                              - ENVELOPE_BACK
+                              - LETTER_FRONT
+                              - LETTER_BACK
+                              - OTHER
+                        required: ["fileKey", "id", "url", "urlThumbnail", "view"]
                     method:
                       type: "string"
                       enum: ["TYPED", "HANDWRITTEN", "PRINTED", "DIGITAL", "OTHER"]

@@ -40,11 +40,12 @@ This repository is part of the **100 Letters Project** which includes the follow
 10. [Seeding & Reseting DynamoDB Tables](#seeding--reseting-dynamodb-tables)
     - [Seeding DynamoDB Tables](#seeding-dynamodb-tables)
     - [Reseting DynamoDB Tables](#reseting-dyanmodb-tables)
-11. [Templating Engine](#templating-engine)
+11. [Image Processing](#image-processing)
+12. [Templating Engine](#templating-engine)
     - [Creating A New Route](#creating-a-new-route)
-12. [Connecting to the Bastion Host](#connecting-to-the-bastion-host)
+13. [Connecting to the Bastion Host](#connecting-to-the-bastion-host)
     - [Environment Variables](#environment-variables)
-13. [License](#license)
+14. [License](#license)
 
 ## API Documentation
 
@@ -414,6 +415,46 @@ To reset DynamoDB tables:
 ```bash
 npm run db:reset
 ```
+
+## Image Processing
+
+The 100 Letters Project uses an automated image processing workflow to handle uploads of letter images and generate both thumbnail and full-size versions for display. This automated pipeline ensures that uploaded images are optimized for web use and properly managed throughout their lifecycle.
+
+### CloudFront
+
+These images are served via **CloudFront** behind a custom domain for fast global delivery.
+
+**Example image source test:**
+
+http://www.dev.onehundredletters.com/images/correspondenceId/letterId/view/imageId.jpg
+
+**Example image source production:**
+
+http://www.onehundredletters.com/images/correspondenceId/letterId/view/imageId.jpg
+
+### Upload
+
+- **Client Upload**. A user initiates an image upload by sending letter metadata including the correspondence ID, letter ID, mime type and view to the **uploads** handler. 
+   - Generates a **pre-signed URL** for uploading the original image to S3 under the `/unprocessed/` directory.
+   - Returns the S3 `fileKey` of the unprocessed image to use later in the delete request.
+   - Returns the URLs of the processed thumbnail and full-size image.
+
+- **Client S3 PUT**. The client uploads the image using the pre-signed URL via an HTTP `PUT` request. This stores the image in the `unprocessed` directory of the image bucket.
+
+### Processing
+
+- **Image Processor**. The **imageProcessor** handler is triggered by an S3 `PUT` event in the `/unprocessed/` directory.
+
+    - Reads the uploaded image using the `Jimp` image processing library.
+    - Generates a thumbnail and full-size version of the image.
+    - Compresses and normalizes the quality of the images.
+    - The processed images are then saved back to S3 with the following path structure: **/images/{correspondenceId}/{letterId}/{view}/{imageId}.jpg**.
+
+### Delete
+
+- **Delete All Images**. The original image, full size image and thumbnail are deleted in tandem.
+    - The stored `fileKey` is used to identify and delete the original file in the `/unprocessed/` directory.
+    - The image path is parsed to construct and delete the associated thumbnail and full-size images from the `/images/` directory.
 
 ## Cognito ID Token
 

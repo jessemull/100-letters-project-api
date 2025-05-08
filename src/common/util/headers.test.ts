@@ -1,4 +1,4 @@
-import { getHeaders } from './headers';
+import { decodeJwtPayload, getHeaders } from './headers';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 
 jest.mock('../config', () => ({
@@ -85,5 +85,36 @@ describe('getHeaders', () => {
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': '  http://localhost:3000  ',
     });
+  });
+});
+
+describe('decodeJwtPayload', () => {
+  it('should decode a valid JWT payload', () => {
+    const payload = { 'cognito:username': 'test-user' };
+    const encodedPayload = Buffer.from(JSON.stringify(payload)).toString(
+      'base64',
+    );
+    const token = `header.${encodedPayload}.signature`;
+
+    const result = decodeJwtPayload(token);
+
+    expect(result).toEqual(payload);
+  });
+
+  it('should throw an error if token does not have 3 parts', () => {
+    expect(() => decodeJwtPayload('invalid.token')).toThrow(
+      'Invalid JWT token format',
+    );
+  });
+
+  it('should throw if payload is not valid base64', () => {
+    const token = 'header.!!!not_base64!!!.signature';
+    expect(() => decodeJwtPayload(token)).toThrow();
+  });
+
+  it('should throw if payload is not valid JSON', () => {
+    const invalidJson = Buffer.from('not json').toString('base64');
+    const token = `header.${invalidJson}.signature`;
+    expect(() => decodeJwtPayload(token)).toThrow();
   });
 });
