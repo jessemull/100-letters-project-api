@@ -65,8 +65,14 @@ Resources:
                   type: "string"
                 urlThumbnail: 
                   type: "string"
-                view: 
+                view:
                   type: "string"
+                  enum:
+                    - ENVELOPE_FRONT
+                    - ENVELOPE_BACK
+                    - LETTER_FRONT
+                    - LETTER_BACK
+                    - OTHER
               required: ["fileKey", "id", "url", "urlThumbnail", "view"]
           method:
             type: "string"
@@ -140,8 +146,14 @@ Resources:
                       type: "string"
                     urlThumbnail: 
                       type: "string"
-                    view: 
+                    view:
                       type: "string"
+                      enum:
+                        - ENVELOPE_FRONT
+                        - ENVELOPE_BACK
+                        - LETTER_FRONT
+                        - LETTER_BACK
+                        - OTHER
                   required: ["fileKey", "id", "url", "urlThumbnail", "view"]
               letterId:
                 type: "string"
@@ -220,8 +232,14 @@ Resources:
                     type: "string"
                   urlThumbnail: 
                     type: "string"
-                  view: 
+                  view:
                     type: "string"
+                    enum:
+                      - ENVELOPE_FRONT
+                      - ENVELOPE_BACK
+                      - LETTER_FRONT
+                      - LETTER_BACK
+                      - OTHER
                 required: ["fileKey", "id", "url", "urlThumbnail", "view"]
             letterId:
               type: "string"
@@ -298,8 +316,14 @@ Resources:
                       type: "string"
                     urlThumbnail: 
                       type: "string"
-                    view: 
+                    view:
                       type: "string"
+                      enum:
+                        - ENVELOPE_FRONT
+                        - ENVELOPE_BACK
+                        - LETTER_FRONT
+                        - LETTER_BACK
+                        - OTHER
                   required: ["fileKey", "id", "url", "urlThumbnail", "view"]
               letterId:
                 type: "string"
@@ -386,8 +410,14 @@ Resources:
                         type: "string"
                       urlThumbnail: 
                         type: "string"
-                      view: 
+                      view:
                         type: "string"
+                        enum:
+                          - ENVELOPE_FRONT
+                          - ENVELOPE_BACK
+                          - LETTER_FRONT
+                          - LETTER_BACK
+                          - OTHER
                     required: ["fileKey", "id", "url", "urlThumbnail", "view"]
                 letterId:
                   type: "string"
@@ -474,8 +504,14 @@ Resources:
                       type: "string"
                     urlThumbnail: 
                       type: "string"
-                    view: 
+                    view:
                       type: "string"
+                      enum:
+                        - ENVELOPE_FRONT
+                        - ENVELOPE_BACK
+                        - LETTER_FRONT
+                        - LETTER_BACK
+                        - OTHER
                   required: ["fileKey", "id", "url", "urlThumbnail", "view"]
               letterId:
                 type: "string"
