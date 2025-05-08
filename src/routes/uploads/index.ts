@@ -1,6 +1,6 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { BadRequestError, DatabaseError } from '../../common/errors';
-import { getHeaders, logger, s3 } from '../../common/util';
+import { decodeJwtPayload, getHeaders, logger, s3 } from '../../common/util';
 import { randomUUID } from 'crypto';
 
 const extensionMap: { [key: string]: string } = {
@@ -9,13 +9,6 @@ const extensionMap: { [key: string]: string } = {
   'image/webp': 'webp',
   'image/gif': 'gif',
 };
-
-function decodeJwtPayload(token: string): { 'cognito:username': string } {
-  const parts = token.split('.');
-  if (parts.length !== 3) throw new Error('Invalid JWT token format');
-  const payload = Buffer.from(parts[1], 'base64').toString('utf-8');
-  return JSON.parse(payload);
-}
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const headers = getHeaders(event);

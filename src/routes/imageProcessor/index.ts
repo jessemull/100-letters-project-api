@@ -41,30 +41,17 @@ export const handler: S3Handler = async (event) => {
 
       logger.info('Image data fetched from S3', s3Object);
 
-      // Ensure we handle the Body as a Buffer properly
       const imageBuffer = Buffer.isBuffer(s3Object.Body)
         ? s3Object.Body
         : Buffer.from(s3Object.Body as WithImplicitCoercion<ArrayLike<number>>);
 
-      // Check if we are working with the correct buffer type
       logger.info(`Buffer length: ${imageBuffer.length}`);
 
-      // Make sure Jimp reads the buffer
       const image = await Jimp.read(imageBuffer);
 
-      // Resize images
       const largeImage = await image.clone().resize({ w: 800 });
       const thumbnailImage = await image.clone().resize({ w: 300 });
 
-      logger.info('Uploading resized images to S3', {
-        bucket: bucketName,
-        largeKey,
-        thumbnailKey,
-        largeImage,
-        thumbnailImage,
-      });
-
-      // Create buffers for the resized images
       const [largeBuffer, thumbnailBuffer] = await Promise.all([
         largeImage.getBuffer('image/jpeg', {
           quality: 50,
@@ -73,15 +60,6 @@ export const handler: S3Handler = async (event) => {
           quality: 50,
         }),
       ]);
-
-      // Save images back to S3
-      logger.info('Uploading resized images to S3', {
-        bucket: bucketName,
-        largeKey,
-        thumbnailKey,
-        largeSize: largeBuffer.length,
-        thumbnailSize: thumbnailBuffer.length,
-      });
 
       await Promise.all([
         s3
