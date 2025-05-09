@@ -12,6 +12,7 @@ const numCorrespondences = 60;
 
 function generateRecipientData(id) {
   return {
+    searchPartition: { S: 'RECIPIENT' }, // Added searchPartition field
     address: {
       M: {
         city: { S: faker.location.city() },

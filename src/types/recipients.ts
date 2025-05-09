@@ -14,6 +14,7 @@ export type Recipient = {
   occupation?: string;
   organization?: string;
   recipientId: string;
+  searchPartition: string;
 };
 
 export type RecipientCreateInput = {

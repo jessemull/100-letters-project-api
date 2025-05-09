@@ -17,10 +17,19 @@ Resources:
       AttributeDefinitions:
         - AttributeName: "recipientId"
           AttributeType: "S"
+        - AttributeName: "lastName"
+          AttributeType: "S"
       KeySchema:
         - AttributeName: "recipientId"
           KeyType: "HASH"
       BillingMode: PAY_PER_REQUEST
+      GlobalSecondaryIndexes:
+        - IndexName: "LastNameIndex"
+          KeySchema:
+            - AttributeName: "lastName"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: "ALL"
       Tags:
         - Key: "Name"
           Value: !Sub "one-hundred-letters-recipient-table-${Environment}"
@@ -68,6 +77,8 @@ Resources:
           AttributeType: "S"
         - AttributeName: "letterId"
           AttributeType: "S"
+        - AttributeName: "title"
+          AttributeType: "S"
       KeySchema:
         - AttributeName: "correspondenceId"
           KeyType: "HASH"
@@ -84,6 +95,12 @@ Resources:
         - IndexName: "LetterIndex"
           KeySchema:
             - AttributeName: "letterId"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: "ALL"
+        - IndexName: "TitleIndex"
+          KeySchema:
+            - AttributeName: "title"
               KeyType: "HASH"
           Projection:
             ProjectionType: "ALL"
