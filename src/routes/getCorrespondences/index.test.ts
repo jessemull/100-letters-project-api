@@ -5,6 +5,7 @@ import {
 } from 'aws-lambda';
 import { dynamoClient, logger } from '../../common/util';
 import { handler } from './index';
+import { Correspondence } from '../../types';
 
 jest.mock('../../common/util', () => ({
   dynamoClient: {
@@ -298,5 +299,152 @@ describe('Get Correspondences Handler', () => {
         letters: [],
       },
     ]);
+  });
+
+  it('should apply search filter when search query parameter is provided', async () => {
+    const mockCorrespondences = [
+      { correspondenceId: '1', recipientId: '123', title: 'Test Title' },
+    ];
+    const mockRecipient = { recipientId: '123', name: 'Jane Doe' };
+    const mockLetters = [
+      { correspondenceId: '1', text: 'Search result letter' },
+    ];
+
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Items: mockCorrespondences,
+    });
+
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Item: mockRecipient,
+    });
+
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Items: mockLetters,
+    });
+
+    const context: Context = {} as Context;
+    const event: APIGatewayProxyEvent = {
+      body: null,
+      headers: {},
+      httpMethod: 'GET',
+      isBase64Encoded: false,
+      path: '',
+      pathParameters: null,
+      queryStringParameters: {
+        search: 'Test',
+      },
+      stageVariables: null,
+      requestContext: {} as APIGatewayProxyEvent['requestContext'],
+      resource: '',
+    } as unknown as APIGatewayProxyEvent;
+
+    const result = (await handler(
+      event,
+      context,
+      () => {},
+    )) as APIGatewayProxyResult;
+
+    const response = JSON.parse(result.body || '');
+
+    expect(result.statusCode).toBe(200);
+    expect(response.data).toEqual([
+      {
+        correspondenceId: '1',
+        recipientId: '123',
+        title: 'Test Title',
+        recipient: mockRecipient,
+        letters: mockLetters,
+      },
+    ]);
+
+    expect(
+      (dynamoClient.send as jest.Mock).mock.calls[0][0].input,
+    ).toMatchObject({
+      FilterExpression: 'contains(#t, :search)',
+      ExpressionAttributeNames: { '#t': 'title' },
+      ExpressionAttributeValues: { ':search': 'Test' },
+    });
+  });
+
+  it('should sort correspondences by title in ascending order', async () => {
+    const mockCorrespondences = [
+      { correspondenceId: '1', recipientId: 'a', title: 'zebra' },
+      { correspondenceId: '2', recipientId: 'b', title: 'Alpha' },
+      { correspondenceId: '3', recipientId: 'c', title: 'mango' },
+    ];
+
+    const mockLetters = [{ correspondenceId: 'dummy', text: 'Letter text' }];
+    const mockRecipient = { name: 'John Doe' };
+
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Items: mockCorrespondences,
+    });
+
+    (dynamoClient.send as jest.Mock)
+      .mockResolvedValueOnce({ Item: mockRecipient })
+      .mockResolvedValueOnce({ Item: mockRecipient })
+      .mockResolvedValueOnce({ Item: mockRecipient });
+
+    (dynamoClient.send as jest.Mock)
+      .mockResolvedValueOnce({ Items: mockLetters })
+      .mockResolvedValueOnce({ Items: mockLetters })
+      .mockResolvedValueOnce({ Items: mockLetters });
+
+    const context: Context = {} as Context;
+
+    const event: APIGatewayProxyEvent = {
+      body: null,
+      headers: {},
+      httpMethod: 'GET',
+      isBase64Encoded: false,
+      path: '',
+      pathParameters: null,
+      queryStringParameters: null,
+      stageVariables: null,
+      requestContext: {} as APIGatewayProxyEvent['requestContext'],
+      resource: '',
+    } as APIGatewayProxyEvent;
+
+    const result = (await handler(
+      event,
+      context,
+      () => {},
+    )) as APIGatewayProxyResult;
+
+    const sortedTitles = JSON.parse(result.body).data.map(
+      (item: Correspondence) => item.title,
+    );
+
+    expect(sortedTitles).toEqual(['Alpha', 'mango', 'zebra']);
+  });
+
+  it('should default to an empty array and not throw when correspondence items are undefined', async () => {
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      // No Items key at all to simulate undefined
+    });
+
+    const context: Context = {} as Context;
+    const event: APIGatewayProxyEvent = {
+      body: null,
+      headers: {},
+      httpMethod: 'GET',
+      isBase64Encoded: false,
+      path: '',
+      pathParameters: null,
+      queryStringParameters: null,
+      stageVariables: null,
+      requestContext: {} as APIGatewayProxyEvent['requestContext'],
+      resource: '',
+    } as APIGatewayProxyEvent;
+
+    const result = (await handler(
+      event,
+      context,
+      () => {},
+    )) as APIGatewayProxyResult;
+
+    const responseBody = JSON.parse(result.body || '');
+    expect(result.statusCode).toBe(200);
+    expect(responseBody.data).toEqual([]);
   });
 });

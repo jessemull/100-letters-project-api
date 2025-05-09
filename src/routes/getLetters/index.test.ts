@@ -116,4 +116,59 @@ describe('Get Letters Handler', () => {
       expect.any(Error),
     );
   });
+
+  it('should apply search filter when search query parameter is provided', async () => {
+    const mockData = [
+      { id: '1', title: 'Apple' },
+      { id: '2', title: 'Banana' },
+      { id: '3', title: 'Cherry' },
+    ];
+
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Items: mockData,
+      LastEvaluatedKey: null,
+    });
+
+    const context: Context = {} as Context;
+    const event: APIGatewayProxyEvent = {
+      body: null,
+      headers: {},
+      httpMethod: 'GET',
+      isBase64Encoded: false,
+      path: '',
+      pathParameters: null,
+      queryStringParameters: {
+        search: 'ap',
+        limit: '10',
+      },
+      stageVariables: null,
+      requestContext: {} as APIGatewayProxyEvent['requestContext'],
+      resource: '',
+    } as unknown as APIGatewayProxyEvent;
+
+    const result = (await handler(
+      event,
+      context,
+      () => {},
+    )) as APIGatewayProxyResult;
+
+    const parsed = JSON.parse(result.body || '');
+    expect(result.statusCode).toBe(200);
+    expect(parsed.data).toEqual(mockData);
+    expect(parsed.lastEvaluatedKey).toBe(null);
+
+    expect(dynamoClient.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: expect.objectContaining({
+          FilterExpression: 'contains(#t, :search)',
+          ExpressionAttributeNames: {
+            '#t': 'title',
+          },
+          ExpressionAttributeValues: {
+            ':search': 'ap',
+          },
+        }),
+      }),
+    );
+  });
 });

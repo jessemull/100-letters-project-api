@@ -117,4 +117,54 @@ describe('Get Recipients Handler', () => {
       expect.any(Error),
     );
   });
+
+  it('should apply a filter expression when search is provided', async () => {
+    const mockData = [
+      { id: '1', lastName: 'Smith' },
+      { id: '2', lastName: 'Smythe' },
+    ];
+
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Items: mockData,
+    });
+
+    const context: Context = {} as Context;
+
+    const event: APIGatewayProxyEvent = {
+      body: null,
+      headers: {},
+      httpMethod: 'GET',
+      isBase64Encoded: false,
+      path: '',
+      pathParameters: null,
+      queryStringParameters: {
+        search: 'Sm',
+      },
+      stageVariables: null,
+      requestContext: {} as APIGatewayProxyEvent['requestContext'],
+      resource: '',
+    } as unknown as APIGatewayProxyEvent;
+
+    const result = (await handler(
+      event,
+      context,
+      () => {},
+    )) as APIGatewayProxyResult;
+    const body = JSON.parse(result.body || '');
+
+    expect(result.statusCode).toBe(200);
+    expect(body.data).toEqual(mockData);
+
+    expect(
+      (dynamoClient.send as jest.Mock).mock.calls[0][0].input,
+    ).toMatchObject({
+      FilterExpression: 'contains(#ln, :search)',
+      ExpressionAttributeNames: {
+        '#ln': 'lastName',
+      },
+      ExpressionAttributeValues: {
+        ':search': 'Sm',
+      },
+    });
+  });
 });

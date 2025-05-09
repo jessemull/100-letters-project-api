@@ -92,7 +92,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       }),
     );
 
-    const sortedItems = (results || []).sort((a, b) => {
+    const sortedItems = results.sort((a, b) => {
       const titleA = a.title?.toLowerCase() || '';
       const titleB = b.title?.toLowerCase() || '';
       return titleA.localeCompare(titleB);
