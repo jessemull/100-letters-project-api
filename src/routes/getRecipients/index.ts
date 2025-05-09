@@ -25,7 +25,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     };
 
     if (search) {
-      params.FilterExpression = 'contains(#ln, :search)';
+      params.FilterExpression = 'contains(LOWER(#ln), :search)';
       params.ExpressionAttributeNames = {
         '#ln': 'lastName',
       };
