@@ -1,7 +1,12 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { DatabaseError } from '../../common/errors';
-import { Letter } from '../../types';
-import { ScanCommand, GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
+import { Correspondence, Letter } from '../../types';
+import {
+  ScanCommand,
+  GetCommand,
+  QueryCommand,
+  ScanCommandInput,
+} from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
 import { dynamoClient, getHeaders, logger } from '../../common/util';
 
@@ -12,21 +17,32 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
   const queryParameters = event.queryStringParameters || {};
   const limit = parseInt(queryParameters.limit || '50', 10);
-
+  const search = queryParameters.search;
   const lastEvaluatedKey = queryParameters.lastEvaluatedKey
     ? JSON.parse(decodeURIComponent(queryParameters.lastEvaluatedKey))
     : undefined;
 
   try {
-    const correspondenceParams = {
+    const correspondenceParams: ScanCommandInput = {
       TableName: correspondenceTableName,
       Limit: limit,
       ExclusiveStartKey: lastEvaluatedKey,
     };
 
+    if (search) {
+      correspondenceParams.FilterExpression = 'contains(#t, :search)';
+      correspondenceParams.ExpressionAttributeNames = {
+        '#t': 'title',
+      };
+      correspondenceParams.ExpressionAttributeValues = {
+        ':search': search,
+      };
+    }
+
     const correspondenceCommand = new ScanCommand(correspondenceParams);
     const correspondenceResult = await dynamoClient.send(correspondenceCommand);
-    const correspondences = correspondenceResult.Items || [];
+    const correspondences =
+      (correspondenceResult.Items as Correspondence[]) || [];
 
     const results = await Promise.all(
       correspondences.map(async (correspondence) => {
@@ -76,10 +92,16 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       }),
     );
 
+    const sortedItems = results.sort((a, b) => {
+      const titleA = a.title?.toLowerCase() || '';
+      const titleB = b.title?.toLowerCase() || '';
+      return titleA.localeCompare(titleB);
+    });
+
     return {
       statusCode: 200,
       body: JSON.stringify({
-        data: results,
+        data: sortedItems,
         lastEvaluatedKey: correspondenceResult.LastEvaluatedKey
           ? encodeURIComponent(
               JSON.stringify(correspondenceResult.LastEvaluatedKey),

@@ -38,6 +38,7 @@ Resources:
       RequestParameters:
         "method.request.querystring.limit": false
         "method.request.querystring.lastEvaluatedKey": false
+        "method.request.querystring.search": false
       MethodResponses:
         - StatusCode: 200
           ResponseModels:
@@ -331,6 +332,7 @@ Resources:
       RequestParameters:
         "method.request.querystring.limit": false
         "method.request.querystring.lastEvaluatedKey": false
+        "method.request.querystring.search": false
       MethodResponses:
         - StatusCode: 200
           ResponseModels:
@@ -623,6 +625,7 @@ Resources:
       RequestParameters:
         "method.request.querystring.limit": false
         "method.request.querystring.lastEvaluatedKey": false
+        "method.request.querystring.search": false
       MethodResponses:
         - StatusCode: 200
           ResponseModels:
