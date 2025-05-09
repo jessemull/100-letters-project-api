@@ -9,7 +9,7 @@ const { recipientTableName } = config;
 export const handler: APIGatewayProxyHandler = async (event) => {
   const queryParameters = event.queryStringParameters || {};
   const limit = parseInt(queryParameters.limit || '50', 10);
-  const search = queryParameters.search?.toLowerCase();
+  const search = queryParameters.search;
 
   const headers = getHeaders(event);
 
