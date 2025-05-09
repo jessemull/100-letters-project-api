@@ -1,6 +1,6 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { DatabaseError } from '../../common/errors';
-import { ScanCommand } from '@aws-sdk/lib-dynamodb';
+import { ScanCommand, ScanCommandInput } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
 import { dynamoClient, getHeaders, logger } from '../../common/util';
 
@@ -9,6 +9,7 @@ const { recipientTableName } = config;
 export const handler: APIGatewayProxyHandler = async (event) => {
   const queryParameters = event.queryStringParameters || {};
   const limit = parseInt(queryParameters.limit || '50', 10);
+  const search = queryParameters.search?.toLowerCase();
 
   const headers = getHeaders(event);
 
@@ -17,11 +18,21 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     : undefined;
 
   try {
-    const params = {
+    const params: ScanCommandInput = {
       TableName: recipientTableName,
       Limit: limit,
       ExclusiveStartKey: lastEvaluatedKey,
     };
+
+    if (search) {
+      params.FilterExpression = 'contains(#ln, :search)';
+      params.ExpressionAttributeNames = {
+        '#ln': 'lastName',
+      };
+      params.ExpressionAttributeValues = {
+        ':search': search,
+      };
+    }
 
     const command = new ScanCommand(params);
     const result = await dynamoClient.send(command);
