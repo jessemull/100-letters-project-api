@@ -19,6 +19,8 @@ Resources:
           AttributeType: "S"
         - AttributeName: "lastName"
           AttributeType: "S"
+        - AttributeName: "searchPartition"
+          AttributeType: "S"
       KeySchema:
         - AttributeName: "recipientId"
           KeyType: "HASH"
@@ -26,8 +28,10 @@ Resources:
       GlobalSecondaryIndexes:
         - IndexName: "LastNameIndex"
           KeySchema:
-            - AttributeName: "lastName"
+            - AttributeName: "searchPartition"
               KeyType: "HASH"
+            - AttributeName: "lastName"
+              KeyType: "RANGE"
           Projection:
             ProjectionType: "ALL"
       Tags:
@@ -46,6 +50,8 @@ Resources:
           AttributeType: "S"
         - AttributeName: "title"
           AttributeType: "S"
+        - AttributeName: "searchPartition"
+          AttributeType: "S"
       KeySchema:
         - AttributeName: "correspondenceId"
           KeyType: "HASH"
@@ -59,8 +65,10 @@ Resources:
             ProjectionType: "ALL"
         - IndexName: "TitleIndex"
           KeySchema:
-            - AttributeName: "title"
+            - AttributeName: "searchPartition"
               KeyType: "HASH"
+            - AttributeName: "title"
+              KeyType: "RANGE"
           Projection:
             ProjectionType: "ALL"
       Tags:
@@ -78,6 +86,8 @@ Resources:
         - AttributeName: "letterId"
           AttributeType: "S"
         - AttributeName: "title"
+          AttributeType: "S"
+        - AttributeName: "searchPartition"
           AttributeType: "S"
       KeySchema:
         - AttributeName: "correspondenceId"
@@ -100,8 +110,10 @@ Resources:
             ProjectionType: "ALL"
         - IndexName: "TitleIndex"
           KeySchema:
-            - AttributeName: "title"
+            - AttributeName: "searchPartition"
               KeyType: "HASH"
+            - AttributeName: "title"
+              KeyType: "RANGE"
           Projection:
             ProjectionType: "ALL"
 

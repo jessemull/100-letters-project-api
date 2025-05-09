@@ -26,7 +26,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         recipientId: recipientId,
       },
     };
-
+    logger.error(recipientId, recipientTableName, params);
     const command = new GetCommand(params);
     const result = await dynamoClient.send(command);
 
