@@ -1,6 +1,6 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { DatabaseError } from '../../common/errors';
-import { ScanCommand } from '@aws-sdk/lib-dynamodb';
+import { ScanCommand, ScanCommandInput } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
 import { dynamoClient, getHeaders, logger } from '../../common/util';
 
@@ -9,6 +9,7 @@ const { letterTableName } = config;
 export const handler: APIGatewayProxyHandler = async (event) => {
   const queryParameters = event.queryStringParameters || {};
   const limit = parseInt(queryParameters.limit || '50', 10);
+  const search = queryParameters.search;
 
   const headers = getHeaders(event);
 
@@ -17,19 +18,35 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     : undefined;
 
   try {
-    const params = {
+    const params: ScanCommandInput = {
       TableName: letterTableName,
       Limit: limit,
       ExclusiveStartKey: lastEvaluatedKey,
     };
 
+    if (search) {
+      params.FilterExpression = 'contains(#t, :search)';
+      params.ExpressionAttributeNames = {
+        '#t': 'title',
+      };
+      params.ExpressionAttributeValues = {
+        ':search': search,
+      };
+    }
+
     const command = new ScanCommand(params);
     const response = await dynamoClient.send(command);
+
+    const sortedItems = (response.Items || []).sort((a, b) => {
+      const titleA = a.title?.toLowerCase() || '';
+      const titleB = b.title?.toLowerCase() || '';
+      return titleA.localeCompare(titleB);
+    });
 
     return {
       statusCode: 200,
       body: JSON.stringify({
-        data: response.Items || [],
+        data: sortedItems,
         lastEvaluatedKey: response.LastEvaluatedKey
           ? encodeURIComponent(JSON.stringify(response.LastEvaluatedKey))
           : null,
