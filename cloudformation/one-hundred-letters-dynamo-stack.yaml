@@ -17,15 +17,29 @@ Resources:
       AttributeDefinitions:
         - AttributeName: "recipientId"
           AttributeType: "S"
+        - AttributeName: "lastName"
+          AttributeType: "S"
+        - AttributeName: "firstName"
+          AttributeType: "S"
       KeySchema:
         - AttributeName: "recipientId"
           KeyType: "HASH"
       BillingMode: PAY_PER_REQUEST
+      GlobalSecondaryIndexes:
+        - IndexName: "LastNameFirstNameIndex"
+          KeySchema:
+            - AttributeName: "lastName"
+              KeyType: "HASH"
+            - AttributeName: "firstName"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: "ALL"
       Tags:
         - Key: "Name"
           Value: !Sub "one-hundred-letters-recipient-table-${Environment}"
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
+
   CorrespondenceTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -59,6 +73,7 @@ Resources:
           Value: !Sub "one-hundred-letters-correspondence-table-${Environment}"
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
+
   LetterTable:
     Type: AWS::DynamoDB::Table
     Properties:
