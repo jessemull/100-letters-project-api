@@ -10,8 +10,13 @@ const letterTableName = 'one-hundred-letters-letter-table-dev';
 
 const numCorrespondences = 60;
 
-function generateRecipientData(id) {
+function generateRecipientData(id, firstName, lastName) {
   return {
+    PK: { S: `recipient#${id}` },
+    SK: { S: `LASTNAME#${lastName.toLowerCase()}#${id}` },
+    recipientId: { S: id },
+    firstName: { S: firstName },
+    lastName: { S: lastName },
     address: {
       M: {
         city: { S: faker.location.city() },
@@ -22,13 +27,10 @@ function generateRecipientData(id) {
       }
     },
     createdAt: { S: faker.date.past().toISOString() },
+    updatedAt: { S: faker.date.recent().toISOString() },
     description: { S: faker.lorem.sentence() },
-    firstName: { S: faker.person.firstName() },
-    lastName: { S: faker.person.lastName() },
     occupation: { S: faker.person.jobTitle() },
-    organization: { S: faker.company.name() },
-    recipientId: { S: id },
-    updatedAt: { S: faker.date.recent().toISOString() }
+    organization: { S: faker.company.name() }
   };
 }
 
@@ -103,9 +105,11 @@ async function seedData() {
   try {
     for (let i = 0; i < numCorrespondences; i++) {
       const recipientId = uuidv4();
+      const firstName = faker.person.firstName();
+      const lastName = faker.person.lastName();
       const correspondenceId = uuidv4();
 
-      const recipient = generateRecipientData(recipientId);
+      const recipient = generateRecipientData(recipientId, firstName, lastName);
       await dynamoDBClient.send(new PutItemCommand({ TableName: recipientTableName, Item: recipient }));
       console.log(`Inserted recipient: ${recipientId}`);
 

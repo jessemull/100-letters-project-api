@@ -25,11 +25,14 @@ async function deleteTableItems(tableName) {
   for (let i = 0; i < data.Items.length; i++) {
     let key;
     if (tableName === 'one-hundred-letters-recipient-table-dev') {
-      key = { recipientId: data.Items[i].recipientId };
+      // Delete recipient items using the composite key (PK and SK)
+      key = { PK: data.Items[i].PK, SK: data.Items[i].SK };
     } else if (tableName === 'one-hundred-letters-correspondence-table-dev') {
-      key = { correspondenceId: data.Items[i].correspondenceId };
+      // Assuming correspondence table also uses a composite key
+      key = { PK: data.Items[i].PK, SK: data.Items[i].SK };
     } else if (tableName === 'one-hundred-letters-letter-table-dev') {
-      key = { correspondenceId: data.Items[i].correspondenceId, letterId: data.Items[i].letterId };
+      // Assuming letter table uses a composite key as well
+      key = { PK: data.Items[i].PK, SK: data.Items[i].SK };
     }
 
     const deleteParams = {

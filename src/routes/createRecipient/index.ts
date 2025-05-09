@@ -31,23 +31,28 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     const recipientId = uuidv4();
 
-    const recipientData: Recipient = {
-      address,
+    const PK = `recipient#${recipientId}`;
+    const SK = `LASTNAME#${lastName.toLowerCase()}#${recipientId}`;
+
+    const recipientData: Recipient & { PK: string; SK: string } = {
+      PK,
+      SK,
+      recipientId,
       firstName,
       lastName,
-      recipientId,
+      address,
     };
 
     if (description) {
-      recipientData.description = body.description;
+      recipientData.description = description;
     }
 
     if (occupation) {
-      recipientData.occupation = body.occupation;
+      recipientData.occupation = occupation;
     }
 
     if (organization) {
-      recipientData.organization = body.organization;
+      recipientData.organization = organization;
     }
 
     const params = {

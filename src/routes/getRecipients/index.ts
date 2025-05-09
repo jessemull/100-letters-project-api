@@ -1,6 +1,6 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { DatabaseError } from '../../common/errors';
-import { ScanCommand, ScanCommandInput } from '@aws-sdk/lib-dynamodb';
+import { QueryCommand, QueryCommandInput } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
 import { dynamoClient, getHeaders, logger } from '../../common/util';
 
@@ -18,35 +18,32 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     : undefined;
 
   try {
-    const params: ScanCommandInput = {
+    const params: QueryCommandInput = {
       TableName: recipientTableName,
+      KeyConditionExpression: 'PK = :pk',
+      ExpressionAttributeValues: {
+        ':pk': 'recipient#',
+      },
       Limit: limit,
       ExclusiveStartKey: lastEvaluatedKey,
+      ScanIndexForward: true,
     };
 
     if (search) {
-      params.FilterExpression = 'contains(#ln, :search)';
-      params.ExpressionAttributeNames = {
-        '#ln': 'lastName',
-      };
+      params.KeyConditionExpression += ' AND begins_with(SK, :skPrefix)';
       params.ExpressionAttributeValues = {
-        ':search': search,
+        ...params.ExpressionAttributeValues,
+        ':skPrefix': `LASTNAME#${search.toLowerCase()}`,
       };
     }
 
-    const command = new ScanCommand(params);
+    const command = new QueryCommand(params);
     const result = await dynamoClient.send(command);
-
-    const sortedItems = (result.Items || []).sort((a, b) => {
-      const lastNameA = a.lastName?.toLowerCase() || '';
-      const lastNameB = b.lastName?.toLowerCase() || '';
-      return lastNameA.localeCompare(lastNameB);
-    });
 
     return {
       statusCode: 200,
       body: JSON.stringify({
-        data: sortedItems,
+        data: result.Items,
         lastEvaluatedKey: result.LastEvaluatedKey
           ? encodeURIComponent(JSON.stringify(result.LastEvaluatedKey))
           : null,
@@ -55,7 +52,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       headers,
     };
   } catch (error) {
-    logger.error('Error scanning from DynamoDB: ', error);
+    logger.error('Error querying from DynamoDB: ', error);
     return new DatabaseError('Internal Server Error').build(headers);
   }
 };

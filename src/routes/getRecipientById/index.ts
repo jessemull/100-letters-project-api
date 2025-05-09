@@ -4,7 +4,7 @@ import {
   DatabaseError,
   NotFoundError,
 } from '../../common/errors';
-import { GetCommand } from '@aws-sdk/lib-dynamodb';
+import { QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
 import { dynamoClient, getHeaders, logger } from '../../common/util';
 
@@ -20,17 +20,19 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       return new BadRequestError('Recipient ID is required!').build(headers);
     }
 
-    const params = {
-      TableName: recipientTableName,
-      Key: {
-        recipientId: recipientId,
-      },
-    };
+    const PK = `recipient#${recipientId}`;
 
-    const command = new GetCommand(params);
+    const command = new QueryCommand({
+      TableName: recipientTableName,
+      KeyConditionExpression: 'PK = :pk',
+      ExpressionAttributeValues: {
+        ':pk': PK,
+      },
+    });
+
     const result = await dynamoClient.send(command);
 
-    if (!result.Item) {
+    if (!result.Items || result.Items.length === 0) {
       return new NotFoundError(
         `Recipient with ID ${recipientId} not found!`,
       ).build(headers);
@@ -39,7 +41,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     return {
       statusCode: 200,
       body: JSON.stringify({
-        data: result.Item,
+        data: result.Items[0],
         message: 'Recipient fetched successfully!',
       }),
       headers,

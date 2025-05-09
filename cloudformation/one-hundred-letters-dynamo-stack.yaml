@@ -15,11 +15,15 @@ Resources:
     Properties:
       TableName: !Sub "one-hundred-letters-recipient-table-${Environment}"
       AttributeDefinitions:
-        - AttributeName: "recipientId"
+        - AttributeName: "PK"
+          AttributeType: "S"
+        - AttributeName: "SK"
           AttributeType: "S"
       KeySchema:
-        - AttributeName: "recipientId"
+        - AttributeName: "PK"
           KeyType: "HASH"
+        - AttributeName: "SK"
+          KeyType: "RANGE"
       BillingMode: PAY_PER_REQUEST
       Tags:
         - Key: "Name"

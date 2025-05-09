@@ -38,10 +38,14 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       organization,
     } = body;
 
+    const PK = `recipient#${recipientId}`;
+    const SK = `LASTNAME#${lastName.toLowerCase()}#${recipientId}`;
+
     const updateParams: UpdateParams = {
       TableName: recipientTableName as string,
       Key: {
-        recipientId,
+        PK,
+        SK,
       },
       UpdateExpression:
         'SET #address = :address, #firstName = :firstName, #lastName = :lastName',
