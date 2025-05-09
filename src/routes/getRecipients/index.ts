@@ -20,9 +20,9 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   try {
     const params: QueryCommandInput = {
       TableName: recipientTableName,
-      KeyConditionExpression: 'PK = :pk',
+      KeyConditionExpression: 'PK begins_with :pkPrefix',
       ExpressionAttributeValues: {
-        ':pk': 'recipient#',
+        ':pkPrefix': 'recipient#',
       },
       Limit: limit,
       ExclusiveStartKey: lastEvaluatedKey,
@@ -43,7 +43,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     return {
       statusCode: 200,
       body: JSON.stringify({
-        data: result.Items,
+        data: result.Items || [],
         lastEvaluatedKey: result.LastEvaluatedKey
           ? encodeURIComponent(JSON.stringify(result.LastEvaluatedKey))
           : null,

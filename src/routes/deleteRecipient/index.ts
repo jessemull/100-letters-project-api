@@ -33,14 +33,15 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       ).build(headers);
     }
 
-    const deleteParams = {
+    const getRecipientParams = {
       TableName: recipientTableName,
       Key: {
-        recipientId,
+        PK: `recipient#${recipientId}`,
+        SK: `LASTNAME#${recipientId.toLowerCase()}#${recipientId}`,
       },
     };
 
-    await dynamoClient.send(new DeleteCommand(deleteParams));
+    await dynamoClient.send(new DeleteCommand(getRecipientParams));
 
     return {
       statusCode: 200,
