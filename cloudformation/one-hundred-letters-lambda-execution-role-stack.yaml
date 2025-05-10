@@ -57,9 +57,12 @@ Resources:
                   - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/one-hundred-letters-recipient-table-${Environment}/index/LastNameIndex
                   - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/one-hundred-letters-correspondence-table-${Environment}
                   - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/one-hundred-letters-correspondence-table-${Environment}/index/RecipientIndex
+                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/one-hundred-letters-correspondence-table-${Environment}/index/TitleIndex
                   - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/one-hundred-letters-letter-table-${Environment}
                   - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/one-hundred-letters-letter-table-${Environment}/index/CorrespondenceIndex
                   - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/one-hundred-letters-letter-table-${Environment}/index/LetterIndex
+                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/one-hundred-letters-letter-table-${Environment}/index/TitleIndex
+
               - Effect: Allow
                 Action:
                   - ses:SendEmail
