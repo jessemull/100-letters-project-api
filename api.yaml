@@ -830,6 +830,23 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/LetterImage'
+      # example:
+      #   - id: "img1"
+      #     caption: "Letter front"
+      #     dateUploaded: "2025-04-28T12:00:00Z"
+      #     mimeType: "image/jpeg"
+      #     sizeInBytes: 123456
+      #     uploadedBy: "user123"
+      #     url: "https://example.com/letter-image1.jpg"
+      #     view: "LETTER_FRONT"
+      #   - id: "img2"
+      #     caption: "Envelope back"
+      #     dateUploaded: "2025-04-28T12:05:00Z"
+      #     mimeType: "image/png"
+      #     sizeInBytes: 654321
+      #     uploadedBy: "user123"
+      #     url: "https://example.com/letter-image2.png"
+      #     view: "ENVELOPE_BACK"
     Impact:
       type: "string"
       enum:

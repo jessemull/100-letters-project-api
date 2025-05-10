@@ -1,7 +1,7 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { DatabaseError } from '../../common/errors';
 import { Letter } from '../../types';
-import { ScanCommand, GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
+import { GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
 import { dynamoClient, getHeaders, logger } from '../../common/util';
 
@@ -9,22 +9,35 @@ const { correspondenceTableName, letterTableName, recipientTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const headers = getHeaders(event);
-
   const queryParameters = event.queryStringParameters || {};
   const limit = parseInt(queryParameters.limit || '50', 10);
+  const search = queryParameters.search?.trim();
 
   const lastEvaluatedKey = queryParameters.lastEvaluatedKey
     ? JSON.parse(decodeURIComponent(queryParameters.lastEvaluatedKey))
     : undefined;
 
   try {
-    const correspondenceParams = {
-      TableName: correspondenceTableName,
-      Limit: limit,
-      ExclusiveStartKey: lastEvaluatedKey,
+    const expressionAttributeValues: Record<string, unknown> = {
+      ':partition': 'CORRESPONDENCE',
     };
 
-    const correspondenceCommand = new ScanCommand(correspondenceParams);
+    let keyConditionExpression = 'searchPartition = :partition';
+
+    if (search) {
+      keyConditionExpression += ' AND begins_with(title, :prefix)';
+      expressionAttributeValues[':prefix'] = search;
+    }
+
+    const correspondenceCommand = new QueryCommand({
+      TableName: correspondenceTableName,
+      IndexName: 'TitleIndex',
+      KeyConditionExpression: keyConditionExpression,
+      ExpressionAttributeValues: expressionAttributeValues,
+      Limit: limit,
+      ExclusiveStartKey: lastEvaluatedKey,
+    });
+
     const correspondenceResult = await dynamoClient.send(correspondenceCommand);
     const correspondences = correspondenceResult.Items || [];
 
@@ -80,11 +93,14 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       statusCode: 200,
       body: JSON.stringify({
         data: results,
-        lastEvaluatedKey: correspondenceResult.LastEvaluatedKey
-          ? encodeURIComponent(
-              JSON.stringify(correspondenceResult.LastEvaluatedKey),
-            )
-          : null,
+        lastEvaluatedKey:
+          (correspondenceResult.Items || []).length < limit
+            ? null
+            : correspondenceResult.LastEvaluatedKey
+              ? encodeURIComponent(
+                  JSON.stringify(correspondenceResult.LastEvaluatedKey),
+                )
+              : null,
         message: 'Correspondences fetched successfully!',
       }),
       headers,

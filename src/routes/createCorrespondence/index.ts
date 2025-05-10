@@ -31,6 +31,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       correspondenceId,
       recipientId,
       reason,
+      searchPartition: 'CORRESPONDENCE',
       status,
       title,
     };
