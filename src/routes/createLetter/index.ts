@@ -69,9 +69,11 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       sentAt,
       status,
       text,
-      title,
+      title: title.trim(),
       type,
     };
+
+    logger.error(letterData);
 
     const params = {
       TableName: letterTableName,
