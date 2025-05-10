@@ -54,7 +54,7 @@ describe('Get Correspondences Handler', () => {
       pathParameters: null,
       queryStringParameters: {
         lastEvaluatedKey: JSON.stringify('lastEvaluatedKey'),
-        limit: '25',
+        limit: '1',
       },
       stageVariables: null,
       requestContext: {} as APIGatewayProxyEvent['requestContext'],
@@ -298,5 +298,109 @@ describe('Get Correspondences Handler', () => {
         letters: [],
       },
     ]);
+  });
+
+  it('should filter correspondences based on the search query', async () => {
+    const mockCorrespondences = [
+      { correspondenceId: '1', recipientId: '123', title: 'Alpha Letter' },
+    ];
+    const mockRecipient = { recipientId: '123', name: 'Alpha Tester' };
+    const mockLetters = [{ correspondenceId: '1', text: 'Alpha content' }];
+
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Items: mockCorrespondences,
+    });
+
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Item: mockRecipient,
+    });
+
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Items: mockLetters,
+    });
+
+    const context: Context = {} as Context;
+    const event: APIGatewayProxyEvent = {
+      body: null,
+      headers: {},
+      httpMethod: 'GET',
+      isBase64Encoded: false,
+      path: '',
+      pathParameters: null,
+      queryStringParameters: {
+        search: 'Alpha',
+        limit: '5',
+      },
+      stageVariables: null,
+      requestContext: {} as APIGatewayProxyEvent['requestContext'],
+      resource: '',
+    } as unknown as APIGatewayProxyEvent;
+
+    const result = (await handler(
+      event,
+      context,
+      () => {},
+    )) as APIGatewayProxyResult;
+
+    const parsed = JSON.parse(result.body || '');
+    expect(result.statusCode).toBe(200);
+    expect(parsed.data).toHaveLength(1);
+    expect(parsed.data[0].title).toBe('Alpha Letter');
+    expect(parsed.data[0].recipient).toEqual(mockRecipient);
+  });
+
+  it('should handle undefined correspondenceResult and return lastEvaluatedKey as null', async () => {
+    const mockCorrespondences = [
+      { correspondenceId: '1', recipientId: '123', title: 'Alpha Letter' },
+      { correspondenceId: '2', recipientId: '456', title: 'Alpha Letter 2' },
+    ];
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Items: mockCorrespondences,
+      LastEvaluatedKey: '',
+    });
+    (dynamoClient.send as jest.Mock).mockResolvedValue(undefined);
+
+    const context: Context = {} as Context;
+    const event: APIGatewayProxyEvent = {
+      body: null,
+      headers: {},
+      httpMethod: 'GET',
+      isBase64Encoded: false,
+      path: '',
+      pathParameters: null,
+      queryStringParameters: {
+        limit: '1',
+      },
+      stageVariables: null,
+      requestContext: {} as APIGatewayProxyEvent['requestContext'],
+      resource: '',
+    } as unknown as APIGatewayProxyEvent;
+
+    const result = (await handler(
+      event,
+      context,
+      () => {},
+    )) as APIGatewayProxyResult;
+
+    const responseBody = JSON.parse(result.body || '');
+
+    expect(result.statusCode).toBe(200);
+    expect(responseBody.data).toEqual([
+      {
+        correspondenceId: '1',
+        letters: [],
+        recipient: null,
+        recipientId: '123',
+        title: 'Alpha Letter',
+      },
+      {
+        correspondenceId: '2',
+        letters: [],
+        recipient: null,
+        recipientId: '456',
+        title: 'Alpha Letter 2',
+      },
+    ]);
+    expect(responseBody.lastEvaluatedKey).toBeNull();
   });
 });

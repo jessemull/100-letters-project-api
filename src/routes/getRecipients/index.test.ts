@@ -28,6 +28,8 @@ describe('Get Recipients Handler', () => {
       { id: '2' },
       { id: '3', lastName: 'Adams' },
       { id: '4' },
+      { id: '5' },
+      { id: '6' },
     ];
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
       Items: mockData,
@@ -43,7 +45,7 @@ describe('Get Recipients Handler', () => {
       pathParameters: null,
       queryStringParameters: {
         lastEvaluatedKey: JSON.stringify('lastEvaluatedKey'),
-        limit: '25',
+        limit: '5',
       },
       stageVariables: null,
       requestContext: {} as APIGatewayProxyEvent['requestContext'],
@@ -113,8 +115,89 @@ describe('Get Recipients Handler', () => {
     expect(responseBody.error).toBe('DatabaseError');
     expect(responseBody.message).toBe('Internal Server Error');
     expect(logger.error).toHaveBeenCalledWith(
-      'Error scanning from DynamoDB: ',
+      'Error querying recipients: ',
       expect.any(Error),
     );
+  });
+
+  it('should query recipients with search prefix', async () => {
+    const mockData = [{ id: '1', lastName: 'Smith' }];
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Items: mockData,
+    });
+
+    const context: Context = {} as Context;
+    const event: APIGatewayProxyEvent = {
+      body: null,
+      headers: {},
+      httpMethod: 'GET',
+      isBase64Encoded: false,
+      path: '',
+      pathParameters: null,
+      queryStringParameters: {
+        search: 'Sm',
+      },
+      stageVariables: null,
+      requestContext: {} as APIGatewayProxyEvent['requestContext'],
+      resource: '',
+    } as unknown as APIGatewayProxyEvent;
+
+    const result = (await handler(
+      event,
+      context,
+      () => {},
+    )) as APIGatewayProxyResult;
+
+    expect(result.statusCode).toBe(200);
+    const body = JSON.parse(result.body || '');
+    expect(body.data).toEqual(mockData);
+
+    const callArgs = (dynamoClient.send as jest.Mock).mock.calls[0][0].input;
+    expect(callArgs.KeyConditionExpression).toContain(
+      'begins_with(lastName, :prefix)',
+    );
+    expect(callArgs.ExpressionAttributeValues[':prefix']).toBe('Sm');
+  });
+
+  it('should return null for lastEvaluatedKey when item count equals limit but no LastEvaluatedKey is present', async () => {
+    const mockData = [
+      { id: '1' },
+      { id: '2' },
+      { id: '3' },
+      { id: '4' },
+      { id: '5' },
+    ];
+
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Items: mockData,
+      // No LastEvaluatedKey
+    });
+
+    const context: Context = {} as Context;
+    const event: APIGatewayProxyEvent = {
+      body: null,
+      headers: {},
+      httpMethod: 'GET',
+      isBase64Encoded: false,
+      path: '',
+      pathParameters: null,
+      queryStringParameters: {
+        limit: '5',
+      },
+      stageVariables: null,
+      requestContext: {} as APIGatewayProxyEvent['requestContext'],
+      resource: '',
+    } as unknown as APIGatewayProxyEvent;
+
+    const result = (await handler(
+      event,
+      context,
+      () => {},
+    )) as APIGatewayProxyResult;
+    const body = JSON.parse(result.body || '');
+
+    expect(result.statusCode).toBe(200);
+    expect(body.data).toEqual(mockData);
+    expect(body.lastEvaluatedKey).toBeNull();
   });
 });

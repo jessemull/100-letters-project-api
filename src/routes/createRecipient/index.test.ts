@@ -48,6 +48,7 @@ describe('Create Recipient Handler', () => {
       path: '/recipient',
       pathParameters: null,
       queryStringParameters: null,
+      searchPartition: 'RECIPIENT',
       stageVariables: null,
       requestContext: {} as APIGatewayProxyEvent['requestContext'],
       resource: '',
@@ -70,6 +71,7 @@ describe('Create Recipient Handler', () => {
       description: 'A description',
       occupation: 'Engineer',
       organization: 'Toyota',
+      searchPartition: 'RECIPIENT',
     });
   });
 
