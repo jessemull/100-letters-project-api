@@ -45,6 +45,7 @@ function generateCorrespondenceData(recipientId, correspondenceId) {
         impact: { S: faker.helpers.arrayElement(['LOW', 'MEDIUM', 'HIGH']) }
       }
     },
+    searchPartition: { S: 'CORRESPONDENCE' },
     status: { S: faker.helpers.arrayElement(['PENDING', 'RESPONDED', 'UNSENT', 'COMPLETED']) },
     title: { S: faker.lorem.words() },
     updatedAt: { S: faker.date.recent().toISOString() }
