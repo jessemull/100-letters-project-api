@@ -15,6 +15,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/LimitParameter"
         - $ref: "#/components/parameters/LastEvaluatedKeyParameter"
+        - $ref: "#/components/parameters/SearchParameter"
       responses:
         200:
           description: "Get All Letters Success"
@@ -218,6 +219,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/LimitParameter"
         - $ref: "#/components/parameters/LastEvaluatedKeyParameter"
+        - $ref: "#/components/parameters/SearchParameter"
       responses:
         200:
           description: "Get All Recipients Success"
@@ -415,6 +417,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/LimitParameter"
         - $ref: "#/components/parameters/LastEvaluatedKeyParameter"
+        - $ref: "#/components/parameters/SearchParameter"
       responses:
         200:
           description: "Get All Correspondences Success"
@@ -727,6 +730,14 @@ components:
       schema:
         type: "string"
         example: "8f5d8f0d-8697-4124-a4c8-7d3af09fc102"
+    SearchParameter:
+      name: "search"
+      in: "query"
+      description: "The search terms to match on"
+      required: false
+      schema:
+        type: "string"
+        example: "Search terms"
   schemas:
     Address:
       type: "object"
