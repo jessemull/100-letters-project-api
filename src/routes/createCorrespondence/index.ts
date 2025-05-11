@@ -25,7 +25,11 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const recipientId = uuidv4();
     const correspondenceId = uuidv4();
 
-    const recipientItem = { recipientId, ...recipient };
+    const recipientItem = {
+      recipientId,
+      searchPartition: 'RECIPIENT',
+      ...recipient,
+    };
 
     const correspondenceItem = {
       correspondenceId,
@@ -38,8 +42,9 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     const letterItems: Letter[] = letters.map((letter: LetterCreateInput) => ({
       ...letter,
-      letterId: uuidv4(),
       correspondenceId,
+      letterId: uuidv4(),
+      searchPartition: 'LETTER',
     }));
 
     const transactItems = [

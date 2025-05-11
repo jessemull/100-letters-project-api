@@ -109,11 +109,13 @@ describe('Create Correspondence Handler', () => {
       },
       recipient: {
         recipientId: 'mock-uuid',
+        searchPartition: 'RECIPIENT',
       },
       letters: [
         {
           letterId: 'mock-uuid',
           correspondenceId: 'mock-uuid',
+          searchPartition: 'LETTER',
         },
       ],
     };
