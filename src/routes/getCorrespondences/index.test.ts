@@ -5,7 +5,6 @@ import {
 } from 'aws-lambda';
 import { dynamoClient, logger } from '../../common/util';
 import { handler } from './index';
-import { Correspondence } from '../../types';
 
 jest.mock('../../common/util', () => ({
   dynamoClient: {
@@ -55,7 +54,7 @@ describe('Get Correspondences Handler', () => {
       pathParameters: null,
       queryStringParameters: {
         lastEvaluatedKey: JSON.stringify('lastEvaluatedKey'),
-        limit: '25',
+        limit: '1',
       },
       stageVariables: null,
       requestContext: {} as APIGatewayProxyEvent['requestContext'],
@@ -301,14 +300,12 @@ describe('Get Correspondences Handler', () => {
     ]);
   });
 
-  it('should apply search filter when search query parameter is provided', async () => {
+  it('should filter correspondences based on the search query', async () => {
     const mockCorrespondences = [
-      { correspondenceId: '1', recipientId: '123', title: 'Test Title' },
+      { correspondenceId: '1', recipientId: '123', title: 'Alpha Letter' },
     ];
-    const mockRecipient = { recipientId: '123', name: 'Jane Doe' };
-    const mockLetters = [
-      { correspondenceId: '1', text: 'Search result letter' },
-    ];
+    const mockRecipient = { recipientId: '123', name: 'Alpha Tester' };
+    const mockLetters = [{ correspondenceId: '1', text: 'Alpha content' }];
 
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
       Items: mockCorrespondences,
@@ -331,7 +328,8 @@ describe('Get Correspondences Handler', () => {
       path: '',
       pathParameters: null,
       queryStringParameters: {
-        search: 'Test',
+        search: 'Alpha',
+        limit: '5',
       },
       stageVariables: null,
       requestContext: {} as APIGatewayProxyEvent['requestContext'],
@@ -344,84 +342,23 @@ describe('Get Correspondences Handler', () => {
       () => {},
     )) as APIGatewayProxyResult;
 
-    const response = JSON.parse(result.body || '');
-
+    const parsed = JSON.parse(result.body || '');
     expect(result.statusCode).toBe(200);
-    expect(response.data).toEqual([
-      {
-        correspondenceId: '1',
-        recipientId: '123',
-        title: 'Test Title',
-        recipient: mockRecipient,
-        letters: mockLetters,
-      },
-    ]);
-
-    expect(
-      (dynamoClient.send as jest.Mock).mock.calls[0][0].input,
-    ).toMatchObject({
-      FilterExpression: 'contains(#t, :search)',
-      ExpressionAttributeNames: { '#t': 'title' },
-      ExpressionAttributeValues: { ':search': 'Test' },
-    });
+    expect(parsed.data).toHaveLength(1);
+    expect(parsed.data[0].title).toBe('Alpha Letter');
+    expect(parsed.data[0].recipient).toEqual(mockRecipient);
   });
 
-  it('should sort correspondences by title in ascending order', async () => {
+  it('should handle undefined correspondenceResult and return lastEvaluatedKey as null', async () => {
     const mockCorrespondences = [
-      { correspondenceId: '1', recipientId: 'a', title: 'zebra' },
-      { correspondenceId: '2', recipientId: 'b', title: 'Alpha' },
-      { correspondenceId: '3', recipientId: 'c', title: 'mango' },
+      { correspondenceId: '1', recipientId: '123', title: 'Alpha Letter' },
+      { correspondenceId: '2', recipientId: '456', title: 'Alpha Letter 2' },
     ];
-
-    const mockLetters = [{ correspondenceId: 'dummy', text: 'Letter text' }];
-    const mockRecipient = { name: 'John Doe' };
-
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
       Items: mockCorrespondences,
+      LastEvaluatedKey: '',
     });
-
-    (dynamoClient.send as jest.Mock)
-      .mockResolvedValueOnce({ Item: mockRecipient })
-      .mockResolvedValueOnce({ Item: mockRecipient })
-      .mockResolvedValueOnce({ Item: mockRecipient });
-
-    (dynamoClient.send as jest.Mock)
-      .mockResolvedValueOnce({ Items: mockLetters })
-      .mockResolvedValueOnce({ Items: mockLetters })
-      .mockResolvedValueOnce({ Items: mockLetters });
-
-    const context: Context = {} as Context;
-
-    const event: APIGatewayProxyEvent = {
-      body: null,
-      headers: {},
-      httpMethod: 'GET',
-      isBase64Encoded: false,
-      path: '',
-      pathParameters: null,
-      queryStringParameters: null,
-      stageVariables: null,
-      requestContext: {} as APIGatewayProxyEvent['requestContext'],
-      resource: '',
-    } as APIGatewayProxyEvent;
-
-    const result = (await handler(
-      event,
-      context,
-      () => {},
-    )) as APIGatewayProxyResult;
-
-    const sortedTitles = JSON.parse(result.body).data.map(
-      (item: Correspondence) => item.title,
-    );
-
-    expect(sortedTitles).toEqual(['Alpha', 'mango', 'zebra']);
-  });
-
-  it('should default to an empty array and not throw when correspondence items are undefined', async () => {
-    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      // No Items key at all to simulate undefined
-    });
+    (dynamoClient.send as jest.Mock).mockResolvedValue(undefined);
 
     const context: Context = {} as Context;
     const event: APIGatewayProxyEvent = {
@@ -431,11 +368,13 @@ describe('Get Correspondences Handler', () => {
       isBase64Encoded: false,
       path: '',
       pathParameters: null,
-      queryStringParameters: null,
+      queryStringParameters: {
+        limit: '1',
+      },
       stageVariables: null,
       requestContext: {} as APIGatewayProxyEvent['requestContext'],
       resource: '',
-    } as APIGatewayProxyEvent;
+    } as unknown as APIGatewayProxyEvent;
 
     const result = (await handler(
       event,
@@ -444,7 +383,24 @@ describe('Get Correspondences Handler', () => {
     )) as APIGatewayProxyResult;
 
     const responseBody = JSON.parse(result.body || '');
+
     expect(result.statusCode).toBe(200);
-    expect(responseBody.data).toEqual([]);
+    expect(responseBody.data).toEqual([
+      {
+        correspondenceId: '1',
+        letters: [],
+        recipient: null,
+        recipientId: '123',
+        title: 'Alpha Letter',
+      },
+      {
+        correspondenceId: '2',
+        letters: [],
+        recipient: null,
+        recipientId: '456',
+        title: 'Alpha Letter 2',
+      },
+    ]);
+    expect(responseBody.lastEvaluatedKey).toBeNull();
   });
 });

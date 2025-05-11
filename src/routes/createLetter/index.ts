@@ -59,27 +59,21 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const letterId = uuidv4();
 
     const letterData: Letter = {
+      description,
       letterId,
       correspondenceId,
       imageURLs,
       method,
+      receivedAt,
+      searchPartition: 'LETTER',
+      sentAt,
       status,
       text,
-      title,
+      title: title.trim(),
       type,
     };
 
-    if (description) {
-      letterData.description = description;
-    }
-
-    if (receivedAt) {
-      letterData.receivedAt = receivedAt;
-    }
-
-    if (sentAt) {
-      letterData.sentAt = sentAt;
-    }
+    logger.error(letterData);
 
     const params = {
       TableName: letterTableName,

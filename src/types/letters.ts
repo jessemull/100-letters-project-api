@@ -54,6 +54,7 @@ export interface Letter {
   letterId: string;
   method: LetterMethod;
   receivedAt?: string;
+  searchPartition: string;
   sentAt?: string;
   status: LetterStatus;
   text: string;

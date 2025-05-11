@@ -33,22 +33,14 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     const recipientData: Recipient = {
       address,
+      description,
       firstName,
       lastName,
+      occupation,
+      organization,
       recipientId,
+      searchPartition: 'RECIPIENT',
     };
-
-    if (description) {
-      recipientData.description = body.description;
-    }
-
-    if (occupation) {
-      recipientData.occupation = body.occupation;
-    }
-
-    if (organization) {
-      recipientData.organization = body.organization;
-    }
 
     const params = {
       TableName: recipientTableName,

@@ -1,6 +1,6 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
+import { QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { DatabaseError } from '../../common/errors';
-import { ScanCommand, ScanCommandInput } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
 import { dynamoClient, getHeaders, logger } from '../../common/util';
 
@@ -9,8 +9,7 @@ const { recipientTableName } = config;
 export const handler: APIGatewayProxyHandler = async (event) => {
   const queryParameters = event.queryStringParameters || {};
   const limit = parseInt(queryParameters.limit || '50', 10);
-  const search = queryParameters.search;
-
+  const search = queryParameters.search?.trim();
   const headers = getHeaders(event);
 
   const lastEvaluatedKey = queryParameters.lastEvaluatedKey
@@ -18,44 +17,44 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     : undefined;
 
   try {
-    const params: ScanCommandInput = {
-      TableName: recipientTableName,
-      Limit: limit,
-      ExclusiveStartKey: lastEvaluatedKey,
+    const expressionAttributeValues: Record<string, unknown> = {
+      ':partition': 'RECIPIENT',
     };
 
+    let keyConditionExpression = 'searchPartition = :partition';
+
     if (search) {
-      params.FilterExpression = 'contains(#ln, :search)';
-      params.ExpressionAttributeNames = {
-        '#ln': 'lastName',
-      };
-      params.ExpressionAttributeValues = {
-        ':search': search,
-      };
+      keyConditionExpression += ' AND begins_with(lastName, :prefix)';
+      expressionAttributeValues[':prefix'] = search;
     }
 
-    const command = new ScanCommand(params);
-    const result = await dynamoClient.send(command);
-
-    const sortedItems = (result.Items || []).sort((a, b) => {
-      const lastNameA = a.lastName?.toLowerCase() || '';
-      const lastNameB = b.lastName?.toLowerCase() || '';
-      return lastNameA.localeCompare(lastNameB);
+    const command = new QueryCommand({
+      TableName: recipientTableName,
+      IndexName: 'LastNameIndex',
+      KeyConditionExpression: keyConditionExpression,
+      ExpressionAttributeValues: expressionAttributeValues,
+      Limit: limit,
+      ExclusiveStartKey: lastEvaluatedKey,
     });
+
+    const result = await dynamoClient.send(command);
 
     return {
       statusCode: 200,
       body: JSON.stringify({
-        data: sortedItems,
-        lastEvaluatedKey: result.LastEvaluatedKey
-          ? encodeURIComponent(JSON.stringify(result.LastEvaluatedKey))
-          : null,
+        data: result.Items || [],
+        lastEvaluatedKey:
+          (result.Items || []).length < limit
+            ? null
+            : result.LastEvaluatedKey
+              ? encodeURIComponent(JSON.stringify(result.LastEvaluatedKey))
+              : null,
         message: 'Recipients fetched successfully!',
       }),
       headers,
     };
   } catch (error) {
-    logger.error('Error scanning from DynamoDB: ', error);
+    logger.error('Error querying recipients: ', error);
     return new DatabaseError('Internal Server Error').build(headers);
   }
 };

@@ -1,12 +1,7 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { DatabaseError } from '../../common/errors';
-import { Correspondence, Letter } from '../../types';
-import {
-  ScanCommand,
-  GetCommand,
-  QueryCommand,
-  ScanCommandInput,
-} from '@aws-sdk/lib-dynamodb';
+import { Letter } from '../../types';
+import { GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
 import { dynamoClient, getHeaders, logger } from '../../common/util';
 
@@ -14,35 +9,37 @@ const { correspondenceTableName, letterTableName, recipientTableName } = config;
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const headers = getHeaders(event);
-
   const queryParameters = event.queryStringParameters || {};
   const limit = parseInt(queryParameters.limit || '50', 10);
-  const search = queryParameters.search;
+  const search = queryParameters.search?.trim();
+
   const lastEvaluatedKey = queryParameters.lastEvaluatedKey
     ? JSON.parse(decodeURIComponent(queryParameters.lastEvaluatedKey))
     : undefined;
 
   try {
-    const correspondenceParams: ScanCommandInput = {
-      TableName: correspondenceTableName,
-      Limit: limit,
-      ExclusiveStartKey: lastEvaluatedKey,
+    const expressionAttributeValues: Record<string, unknown> = {
+      ':partition': 'CORRESPONDENCE',
     };
 
+    let keyConditionExpression = 'searchPartition = :partition';
+
     if (search) {
-      correspondenceParams.FilterExpression = 'contains(#t, :search)';
-      correspondenceParams.ExpressionAttributeNames = {
-        '#t': 'title',
-      };
-      correspondenceParams.ExpressionAttributeValues = {
-        ':search': search,
-      };
+      keyConditionExpression += ' AND begins_with(title, :prefix)';
+      expressionAttributeValues[':prefix'] = search;
     }
 
-    const correspondenceCommand = new ScanCommand(correspondenceParams);
+    const correspondenceCommand = new QueryCommand({
+      TableName: correspondenceTableName,
+      IndexName: 'TitleIndex',
+      KeyConditionExpression: keyConditionExpression,
+      ExpressionAttributeValues: expressionAttributeValues,
+      Limit: limit,
+      ExclusiveStartKey: lastEvaluatedKey,
+    });
+
     const correspondenceResult = await dynamoClient.send(correspondenceCommand);
-    const correspondences =
-      (correspondenceResult.Items as Correspondence[]) || [];
+    const correspondences = correspondenceResult.Items || [];
 
     const results = await Promise.all(
       correspondences.map(async (correspondence) => {
@@ -92,21 +89,18 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       }),
     );
 
-    const sortedItems = results.sort((a, b) => {
-      const titleA = a.title?.toLowerCase() || '';
-      const titleB = b.title?.toLowerCase() || '';
-      return titleA.localeCompare(titleB);
-    });
-
     return {
       statusCode: 200,
       body: JSON.stringify({
-        data: sortedItems,
-        lastEvaluatedKey: correspondenceResult.LastEvaluatedKey
-          ? encodeURIComponent(
-              JSON.stringify(correspondenceResult.LastEvaluatedKey),
-            )
-          : null,
+        data: results,
+        lastEvaluatedKey:
+          (correspondenceResult.Items || []).length < limit
+            ? null
+            : correspondenceResult.LastEvaluatedKey
+              ? encodeURIComponent(
+                  JSON.stringify(correspondenceResult.LastEvaluatedKey),
+                )
+              : null,
         message: 'Correspondences fetched successfully!',
       }),
       headers,

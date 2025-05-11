@@ -12,6 +12,7 @@ const numCorrespondences = 60;
 
 function generateRecipientData(id) {
   return {
+    searchPartition: { S: 'RECIPIENT' },
     address: {
       M: {
         city: { S: faker.location.city() },
@@ -44,6 +45,7 @@ function generateCorrespondenceData(recipientId, correspondenceId) {
         impact: { S: faker.helpers.arrayElement(['LOW', 'MEDIUM', 'HIGH']) }
       }
     },
+    searchPartition: { S: 'CORRESPONDENCE' },
     status: { S: faker.helpers.arrayElement(['PENDING', 'RESPONDED', 'UNSENT', 'COMPLETED']) },
     title: { S: faker.lorem.words() },
     updatedAt: { S: faker.date.recent().toISOString() }
@@ -84,6 +86,7 @@ function generateLetterData(correspondenceId, letterId) {
     imageURLs: { L: [generateImageURLData(), generateImageURLData()] },
     letterId: { S: letterId },
     method: { S: faker.helpers.arrayElement(['TYPED', 'HANDWRITTEN', 'PRINTED', 'DIGITAL', 'OTHER']) },
+    searchPartition: { S: 'LETTER' },
     status: { S: faker.helpers.arrayElement(['PENDING', 'SENT', 'RECEIVED', 'RESPONDED']) },
     text: { S: faker.lorem.paragraph() },
     title: { S: faker.lorem.words() },

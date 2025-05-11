@@ -17,10 +17,23 @@ Resources:
       AttributeDefinitions:
         - AttributeName: "recipientId"
           AttributeType: "S"
+        - AttributeName: "lastName"
+          AttributeType: "S"
+        - AttributeName: "searchPartition"
+          AttributeType: "S"
       KeySchema:
         - AttributeName: "recipientId"
           KeyType: "HASH"
       BillingMode: PAY_PER_REQUEST
+      GlobalSecondaryIndexes:
+        - IndexName: "LastNameIndex"
+          KeySchema:
+            - AttributeName: "searchPartition"
+              KeyType: "HASH"
+            - AttributeName: "lastName"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: "ALL"
       Tags:
         - Key: "Name"
           Value: !Sub "one-hundred-letters-recipient-table-${Environment}"
@@ -37,6 +50,8 @@ Resources:
           AttributeType: "S"
         - AttributeName: "title"
           AttributeType: "S"
+        - AttributeName: "searchPartition"
+          AttributeType: "S"
       KeySchema:
         - AttributeName: "correspondenceId"
           KeyType: "HASH"
@@ -50,8 +65,10 @@ Resources:
             ProjectionType: "ALL"
         - IndexName: "TitleIndex"
           KeySchema:
-            - AttributeName: "title"
+            - AttributeName: "searchPartition"
               KeyType: "HASH"
+            - AttributeName: "title"
+              KeyType: "RANGE"
           Projection:
             ProjectionType: "ALL"
       Tags:
@@ -67,6 +84,10 @@ Resources:
         - AttributeName: "correspondenceId"
           AttributeType: "S"
         - AttributeName: "letterId"
+          AttributeType: "S"
+        - AttributeName: "title"
+          AttributeType: "S"
+        - AttributeName: "searchPartition"
           AttributeType: "S"
       KeySchema:
         - AttributeName: "correspondenceId"
@@ -85,6 +106,14 @@ Resources:
           KeySchema:
             - AttributeName: "letterId"
               KeyType: "HASH"
+          Projection:
+            ProjectionType: "ALL"
+        - IndexName: "TitleIndex"
+          KeySchema:
+            - AttributeName: "searchPartition"
+              KeyType: "HASH"
+            - AttributeName: "title"
+              KeyType: "RANGE"
           Projection:
             ProjectionType: "ALL"
 

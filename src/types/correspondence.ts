@@ -25,6 +25,7 @@ export type Correspondence = {
   createdAt: string;
   recipientId: string;
   reason: Reason;
+  searchPartition: string;
   status: Status;
   title: string;
   updatedAt: string;

@@ -103,6 +103,7 @@ describe('Create Correspondence Handler', () => {
         correspondenceId: 'mock-uuid',
         recipientId: 'mock-uuid',
         reason: { description: 'Test', domain: 'Test Domain', impact: 'HIGH' },
+        searchPartition: 'CORRESPONDENCE',
         status: 'COMPLETE',
         title: 'Test Correspondence',
       },
