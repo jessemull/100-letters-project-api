@@ -22,8 +22,8 @@ async function authenticateUser() {
   try {
     const command = new InitiateAuthCommand(params);
     const response = await client.send(command);
-    console.log("ID Token:");
-    console.log(response.AuthenticationResult.IdToken)
+    console.log("Access Token:");
+    console.log(response.AuthenticationResult.AccessToken)
   } catch (error) {
     console.error("Error authenticating user:", error);
   }

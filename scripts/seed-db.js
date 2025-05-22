@@ -52,17 +52,24 @@ function generateCorrespondenceData(recipientId, correspondenceId) {
   };
 }
 
-function generateImageURLData() {
-  const mimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+function generateImageURLData(correspondenceId, letterId) {
+  const mimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
   const views = ['ENVELOPE_FRONT', 'ENVELOPE_BACK', 'LETTER_FRONT', 'LETTER_BACK'];
+
+  const uuid = uuidv4();
+  const view = faker.helpers.arrayElement(views);
+
+  const baseKey = `images/${correspondenceId}/${letterId}/${view}/${uuid}`;
+  const url = `https://picsum.photos/seed/${uuid}/800/600`;
+  const urlThumbnail = `https://picsum.photos/seed/${uuid}/300/200`;
 
   return {
     M: {
-      id: { S: uuidv4() },
-      fileKey: { S: `letters/${uuidv4()}` },
-      url: { S: faker.image.url() },
-      urlThumbnail: { S: faker.image.url() + '?thumb=true' },
-      view: { S: faker.helpers.arrayElement(views) },
+      id: { S: uuid },
+      fileKey: { S: `${baseKey}_large.jpg` },
+      url: { S: url },
+      urlThumbnail: { S: urlThumbnail },
+      view: { S: view },
       caption: { S: faker.lorem.sentence() },
       dateUploaded: { S: faker.date.recent().toISOString() },
       mimeType: { S: faker.helpers.arrayElement(mimeTypes) },
