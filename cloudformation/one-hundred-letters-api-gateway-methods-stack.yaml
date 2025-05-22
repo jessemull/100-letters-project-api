@@ -21,7 +21,7 @@ Resources:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-correspondence-resource-${Environment}"
       HttpMethod: GET
-      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizationType: CUSTOM
       AuthorizerId:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-authorizer-${Environment}"
@@ -124,7 +124,7 @@ Resources:
       ResourceId: 
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-correspondence-resource-${Environment}"
-      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizationType: CUSTOM
       AuthorizerId:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-authorizer-${Environment}"
@@ -170,7 +170,7 @@ Resources:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-correspondence-by-id-resource-${Environment}"
       HttpMethod: GET
-      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizationType: CUSTOM
       AuthorizerId:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-authorizer-${Environment}"
@@ -217,7 +217,7 @@ Resources:
       ResourceId: 
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-correspondence-by-id-resource-${Environment}"
-      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizationType: CUSTOM
       AuthorizerId:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-authorizer-${Environment}"
@@ -269,7 +269,7 @@ Resources:
       ResourceId: 
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-correspondence-by-id-resource-${Environment}"
-      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizationType: CUSTOM
       AuthorizerId:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-authorizer-${Environment}"
@@ -315,7 +315,7 @@ Resources:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-recipients-resource-${Environment}"
       HttpMethod: GET
-      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizationType: CUSTOM
       AuthorizerId:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-authorizer-${Environment}"
@@ -418,7 +418,7 @@ Resources:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-recipient-by-id-resource-${Environment}"
       HttpMethod: GET
-      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizationType: CUSTOM
       AuthorizerId:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-authorizer-${Environment}"
@@ -466,7 +466,7 @@ Resources:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-recipients-resource-${Environment}"
       HttpMethod: POST
-      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizationType: CUSTOM
       AuthorizerId:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-authorizer-${Environment}"
@@ -511,7 +511,7 @@ Resources:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-recipient-by-id-resource-${Environment}"
       HttpMethod: PUT
-      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizationType: CUSTOM
       AuthorizerId:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-authorizer-${Environment}"
@@ -563,7 +563,7 @@ Resources:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-recipient-by-id-resource-${Environment}"
       HttpMethod: DELETE
-      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizationType: CUSTOM
       AuthorizerId:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-authorizer-${Environment}"
@@ -608,9 +608,9 @@ Resources:
         Fn::ImportValue:
           !Sub "one-hundred-letters-api-letters-resource-${Environment}"
       HttpMethod: GET
-      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizationType: CUSTOM
       AuthorizerId:
-        Fn::ImportValue:
+        Fn::ImportValue: 
           !Sub "one-hundred-letters-api-authorizer-${Environment}"
       RequestValidatorId:
         Fn::ImportValue:
@@ -712,7 +712,7 @@ Resources:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-letter-by-id-resource-${Environment}"
       HttpMethod: GET
-      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizationType: CUSTOM
       AuthorizerId:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-authorizer-${Environment}"
@@ -760,7 +760,7 @@ Resources:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-letters-resource-${Environment}"
       HttpMethod: POST
-      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizationType: CUSTOM
       AuthorizerId:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-authorizer-${Environment}"
@@ -805,7 +805,7 @@ Resources:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-letter-by-id-resource-${Environment}"
       HttpMethod: PUT
-      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizationType: CUSTOM
       AuthorizerId:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-authorizer-${Environment}"
@@ -857,7 +857,7 @@ Resources:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-letter-by-id-resource-${Environment}"
       HttpMethod: DELETE
-      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizationType: CUSTOM
       AuthorizerId:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-authorizer-${Environment}"
@@ -979,7 +979,7 @@ Resources:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-uploads-resource-${Environment}"
       HttpMethod: POST
-      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizationType: CUSTOM
       AuthorizerId:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-authorizer-${Environment}"
@@ -1027,9 +1027,9 @@ Resources:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-api-uploads-resource-${Environment}"
       HttpMethod: DELETE
-      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizationType: CUSTOM
       AuthorizerId:
-        Fn::ImportValue:
+        Fn::ImportValue: 
           !Sub "one-hundred-letters-api-authorizer-${Environment}"
       RequestParameters:
         method.request.querystring.fileKey: true

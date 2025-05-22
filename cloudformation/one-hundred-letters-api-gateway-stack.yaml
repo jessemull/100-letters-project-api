@@ -38,15 +38,19 @@ Resources:
     Type: AWS::ApiGateway::Authorizer
     Properties:
       Name: !Sub "one-hundred-letters-api-authorizer-${Environment}"
-      Type: COGNITO_USER_POOLS
+      Type: TOKEN
       RestApiId: !Ref OneHundredLettersApi
       IdentitySource: method.request.header.Authorization
-      ProviderARNs:
-        - !Sub "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}"
+      AuthorizerUri:
+        Fn::Sub:
+          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+          - LambdaArn:
+              Fn::ImportValue: !Sub "OneHundredLettersAuthorizerFunctionArn-${Environment}"
+      AuthorizerResultTtlInSeconds: 0
 
   # Custom Domain Setup
   
-  ApiGatewayCustomDomain:
+  ApiGatewayCustomDomain: 
     Type: AWS::ApiGateway::DomainName
     Properties:
       DomainName: !Ref DomainName
@@ -173,7 +177,7 @@ Resources:
       RestApiId: !Ref OneHundredLettersApi
       ParentId: !GetAtt OneHundredLettersApi.RootResourceId
       PathPart: "uploads"
-
+      
 Outputs:
   ApiGatewayUrl:
     Value: !Sub "https://${OneHundredLettersApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}"
