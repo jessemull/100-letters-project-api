@@ -52,27 +52,20 @@ function generateCorrespondenceData(recipientId, correspondenceId) {
   };
 }
 
-function generateImageURLData(correspondenceId, letterId) {
-  const mimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
-  const views = ['ENVELOPE_FRONT', 'ENVELOPE_BACK', 'LETTER_FRONT', 'LETTER_BACK'];
-
+function generateImageURLData(correspondenceId, letterId, imageNumber, view) {
   const uuid = uuidv4();
-  const view = faker.helpers.arrayElement(views);
-
-  const baseKey = `images/${correspondenceId}/${letterId}/${view}/${uuid}`;
-  const url = `https://picsum.photos/seed/${uuid}/800/600`;
-  const urlThumbnail = `https://picsum.photos/seed/${uuid}/300/200`;
+  const baseUrl = `https://dev.onehundredletters.com/images/mockCorrespondenceId/mockLetterId/mockView`;
 
   return {
     M: {
       id: { S: uuid },
-      fileKey: { S: `${baseKey}_large.jpg` },
-      url: { S: url },
-      urlThumbnail: { S: urlThumbnail },
+      fileKey: { S: `images/${correspondenceId}/${letterId}/${view}/${uuid}_large_${imageNumber}.jpg` },
+      url: { S: `${baseUrl}/mock_image_large_${imageNumber}.jpg` },
+      urlThumbnail: { S: `${baseUrl}/mock_image_thumb_${imageNumber}.jpg` },
       view: { S: view },
       caption: { S: faker.lorem.sentence() },
       dateUploaded: { S: faker.date.recent().toISOString() },
-      mimeType: { S: faker.helpers.arrayElement(mimeTypes) },
+      mimeType: { S: faker.helpers.arrayElement(['image/jpeg', 'image/png', 'image/webp']) },
       sizeInBytes: { N: faker.number.int({ min: 10000, max: 5000000 }).toString() },
       uploadedBy: { S: faker.internet.email() }
     }
@@ -86,11 +79,17 @@ function maybeDateField() {
 }
 
 function generateLetterData(correspondenceId, letterId) {
+  const imageCount = faker.number.int({ min: 1, max: 10 });
+  const imageNumbers = faker.helpers.shuffle([...Array(10).keys()]).slice(0, imageCount);
+
+  const view = faker.helpers.arrayElement(['ENVELOPE_FRONT', 'ENVELOPE_BACK', 'LETTER_FRONT', 'LETTER_BACK']);
+  const imageURLs = imageNumbers.map((num) => generateImageURLData(correspondenceId, letterId, num, view));
+
   const letter = {
     correspondenceId: { S: correspondenceId },
     createdAt: { S: faker.date.past().toISOString() },
     description: { S: faker.lorem.sentence() },
-    imageURLs: { L: [generateImageURLData(), generateImageURLData()] },
+    imageURLs: { L: imageURLs },
     letterId: { S: letterId },
     method: { S: faker.helpers.arrayElement(['TYPED', 'HANDWRITTEN', 'PRINTED', 'DIGITAL', 'OTHER']) },
     searchPartition: { S: 'LETTER' },
@@ -103,6 +102,7 @@ function generateLetterData(correspondenceId, letterId) {
 
   const sentAt = maybeDateField();
   const receivedAt = maybeDateField();
+
   if (sentAt) letter.sentAt = sentAt;
   if (receivedAt) letter.receivedAt = receivedAt;
 
