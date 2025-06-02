@@ -51,7 +51,10 @@ describe('Update Correspondence Handler', () => {
       body: JSON.stringify({
         recipient: { name: 'John Doe' },
         correspondence: {
-          reason: { description: 'Test', domain: 'Test', impact: 'HIGH' },
+          reason: {
+            category: 'Technology',
+            description: 'Test',
+          },
         },
         letters: [{ letterId: 'letter123', content: 'Hello' }],
       }),
@@ -76,9 +79,8 @@ describe('Update Correspondence Handler', () => {
         recipient: { recipientId: 'mock-recipient-id' },
         correspondence: {
           reason: {
+            category: 'Technology',
             description: 'Test',
-            domain: 'Test Domain',
-            impact: 'HIGH',
           },
         },
         letters: [{ letterId: 'mock-letter-id', content: 'Hello' }],
@@ -111,9 +113,8 @@ describe('Update Correspondence Handler', () => {
         },
         correspondence: {
           reason: {
+            category: 'Technology',
             description: 'Test',
-            domain: 'Test Domain',
-            impact: 'HIGH',
           },
         },
         letters: [
@@ -165,9 +166,8 @@ describe('Update Correspondence Handler', () => {
         recipient: { recipientId: 'mock-recipient-id' },
         correspondence: {
           reason: {
+            category: 'Technology',
             description: 'Test',
-            domain: 'Test Domain',
-            impact: 'HIGH',
           },
         },
         letters: [{ letterId: 'mock-letter-id', content: 'Hello' }],
@@ -203,9 +203,8 @@ describe('Update Correspondence Handler', () => {
         },
         correspondence: {
           reason: {
+            category: 'Technology',
             description: 'Test',
-            domain: 'Test Domain',
-            impact: 'HIGH',
           },
         },
         letters: [
@@ -266,9 +265,8 @@ describe('Update Correspondence Handler', () => {
         },
         correspondence: {
           reason: {
+            category: 'Technology',
             description: 'Test',
-            domain: 'Test Domain',
-            impact: 'HIGH',
           },
         },
         letters: [
@@ -330,7 +328,10 @@ describe('Update Correspondence Handler', () => {
       body: JSON.stringify({
         recipient: { name: 'John Doe' },
         correspondence: {
-          reason: { description: 'Test', domain: 'Test', impact: 'HIGH' },
+          reason: {
+            category: 'Technology',
+            description: 'Test',
+          },
         },
         letters: [{ letterId: 'letter123', content: 'Hello' }],
       }),

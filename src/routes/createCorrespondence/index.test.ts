@@ -52,9 +52,8 @@ describe('Create Correspondence Handler', () => {
         recipient: { name: 'John Doe' },
         correspondence: {
           reason: {
+            category: 'Technology',
             description: 'Test',
-            domain: 'Test Domain',
-            impact: 'HIGH',
           },
           status: 'COMPLETED',
           title: 'Test Correspondence',
@@ -83,9 +82,8 @@ describe('Create Correspondence Handler', () => {
         recipient: { recipientId: 'mock-uuid' },
         correspondence: {
           reason: {
+            category: 'Technology',
             description: 'Test',
-            domain: 'Test Domain',
-            impact: 'HIGH',
           },
           status: 'COMPLETE',
           title: 'Test Correspondence',
@@ -102,7 +100,10 @@ describe('Create Correspondence Handler', () => {
       correspondence: {
         correspondenceId: 'mock-uuid',
         recipientId: 'mock-uuid',
-        reason: { description: 'Test', domain: 'Test Domain', impact: 'HIGH' },
+        reason: {
+          category: 'Technology',
+          description: 'Test',
+        },
         searchPartition: 'CORRESPONDENCE',
         status: 'COMPLETE',
         title: 'Test Correspondence',
@@ -139,9 +140,8 @@ describe('Create Correspondence Handler', () => {
         recipient: { name: 'John Doe' },
         correspondence: {
           reason: {
+            category: 'Technology',
             description: 'Test',
-            domain: 'Test Domain',
-            impact: 'HIGH',
           },
           status: 'COMPLETED',
           title: 'Test Correspondence',

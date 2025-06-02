@@ -42,12 +42,10 @@ Resources:
                 properties:
                   description:
                     type: "string"
-                  domain:
+                  category:
                     type: "string"
-                  impact:
-                    type: "string"
-                    enum: ["HIGH", "MEDIUM", "LOW"]
-                required: ["description", "domain", "impact"]
+                    enum: ["COMEDY", "ENTERTAINMENT", "FAMILY", "FOOD", "FRIENDS", "JOURNALISM", "LITERATURE", "MENTORS", "MUSIC", "SCIENCE", "SPORTS", "TECHNOLOGY"]
+                required: ["description", "category"]
               status:
                 type: "string"
                 enum: ["COMPLETED", "PENDING", "RESPONDED", "UNSENT"]
@@ -176,12 +174,10 @@ Resources:
                     properties:
                       description:
                         type: "string"
-                      domain:
+                      category:
                         type: "string"
-                      impact:
-                        type: "string"
-                        enum: ["HIGH", "MEDIUM", "LOW"]
-                    required: ["description", "domain", "impact"]
+                        enum: ["COMEDY", "ENTERTAINMENT", "FAMILY", "FOOD", "FRIENDS", "JOURNALISM", "LITERATURE", "MENTORS", "MUSIC", "SCIENCE", "SPORTS", "TECHNOLOGY"]
+                    required: ["description", "category"]
                   status:
                     type: "string"
                     enum: ["COMPLETED", "PENDING", "RESPONDED", "UNSENT"]
@@ -330,12 +326,10 @@ Resources:
                 properties:
                   description:
                     type: "string"
-                  domain:
+                  category:
                     type: "string"
-                  impact:
-                    type: "string"
-                    enum: ["HIGH", "MEDIUM", "LOW"]
-                required: ["description", "domain", "impact"]
+                    enum: ["COMEDY", "ENTERTAINMENT", "FAMILY", "FOOD", "FRIENDS", "JOURNALISM", "LITERATURE", "MENTORS", "MUSIC", "SCIENCE", "SPORTS", "TECHNOLOGY"]
+                required: ["description", "category"]
               status:
                 type: "string"
                 enum: ["COMPLETED", "PENDING", "RESPONDED", "UNSENT"]
@@ -470,12 +464,10 @@ Resources:
                     properties:
                       description:
                         type: "string"
-                      domain:
+                      category:
                         type: "string"
-                      impact:
-                        type: "string"
-                        enum: ["HIGH", "MEDIUM", "LOW"]
-                    required: ["description", "domain", "impact"]
+                        enum: ["COMEDY", "ENTERTAINMENT", "FAMILY", "FOOD", "FRIENDS", "JOURNALISM", "LITERATURE", "MENTORS", "MUSIC", "SCIENCE", "SPORTS", "TECHNOLOGY"]
+                    required: ["description", "category"]
                   status:
                     type: "string"
                     enum: ["COMPLETED", "PENDING", "RESPONDED", "UNSENT"]
@@ -632,12 +624,10 @@ Resources:
                       properties:
                         description:
                           type: "string"
-                        domain:
+                        category:
                           type: "string"
-                        impact:
-                          type: "string"
-                          enum: ["HIGH", "MEDIUM", "LOW"]
-                      required: ["description", "domain", "impact"]
+                          enum: ["COMEDY", "ENTERTAINMENT", "FAMILY", "FOOD", "FRIENDS", "JOURNALISM", "LITERATURE", "MENTORS", "MUSIC", "SCIENCE", "SPORTS", "TECHNOLOGY"]
+                      required: ["description", "category"]
                     status:
                       type: "string"
                       enum: ["COMPLETED", "PENDING", "RESPONDED", "UNSENT"]
@@ -794,12 +784,10 @@ Resources:
                     properties:
                       description:
                         type: "string"
-                      domain:
+                      category:
                         type: "string"
-                      impact:
-                        type: "string"
-                        enum: ["HIGH", "MEDIUM", "LOW"]
-                    required: ["description", "domain", "impact"]
+                        enum: ["COMEDY", "ENTERTAINMENT", "FAMILY", "FOOD", "FRIENDS", "JOURNALISM", "LITERATURE", "MENTORS", "MUSIC", "SCIENCE", "SPORTS", "TECHNOLOGY"]
+                    required: ["description", "category"]
                   status:
                     type: "string"
                     enum: ["COMPLETED", "PENDING", "RESPONDED", "UNSENT"]
