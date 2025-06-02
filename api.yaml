@@ -764,6 +764,22 @@ components:
         state: "CA"
         postalCode: "90047"
         country: "USA"
+    Category:
+      type: "string"
+      enum:
+        - COMEDY
+        - ENTERTAINMENT
+        - FAMILY
+        - FOOD
+        - FRIENDS
+        - JOURNALISM
+        - LITERATURE
+        - MENTORS
+        - MUSIC
+        - SCIENCE
+        - SPORTS
+        - TECHNOLOGY
+      example: "Technology"
     City:
       type: "string"
       example: "Los Angeles"
@@ -785,9 +801,6 @@ components:
       type: "string"
       format: "date-time"
       example: "2025-03-07T14:30:00Z"
-    Domain:
-      type: "string"
-      example: "Biology"
     Email:
       type: "string"
       format: "email"
@@ -841,29 +854,17 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/LetterImage'
-      # example:
-      #   - id: "img1"
-      #     caption: "Letter front"
-      #     dateUploaded: "2025-04-28T12:00:00Z"
-      #     mimeType: "image/jpeg"
-      #     sizeInBytes: 123456
-      #     uploadedBy: "user123"
-      #     url: "https://example.com/letter-image1.jpg"
-      #     view: "LETTER_FRONT"
-      #   - id: "img2"
-      #     caption: "Envelope back"
-      #     dateUploaded: "2025-04-28T12:05:00Z"
-      #     mimeType: "image/png"
-      #     sizeInBytes: 654321
-      #     uploadedBy: "user123"
-      #     url: "https://example.com/letter-image2.png"
-      #     view: "ENVELOPE_BACK"
-    Impact:
-      type: "string"
-      enum:
-        - "LOW"
-        - "MEDIUM"
-        - "HIGH"
+      example:
+        - caption: "The front of the handwritten letter"
+          dateUploaded: "2025-06-01T14:32:00Z"
+          fileKey: "letters/abc123/letter_front.jpg"
+          id: "9d2e3a1c-4f77-4c19-b1f0-2c0b9c713e2d"
+          mimeType: "image/jpeg"
+          sizeInBytes: 203845
+          uploadedBy: "user_123"
+          url: "https://cdn.example.com/letters/abc123/letter_front.jpg"
+          urlThumbnail: "https://cdn.example.com/letters/abc123/thumb_letter_front.jpg"
+          view: "LETTER_FRONT"
     LastEvaluatedKey:
       type: "string"
       description: "The last evaluated key to be used for pagination"
@@ -912,16 +913,13 @@ components:
     Reason:
       required:
         - 'description'
-        - 'domain'
-        - 'impact'
+        - 'category'
       type: "object"
       properties:
+        category:
+          $ref: "#/components/schemas/Category"
         description:
           $ref: "#/components/schemas/ReasonDescription"
-        domain:
-          $ref: "#/components/schemas/Domain"
-        impact:
-          $ref: "#/components/schemas/Impact"
     ReasonDescription:
       type: "string"
       example: "Contributions to high throughput sequencing and resurrecting wooly mammoths."
