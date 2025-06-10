@@ -41,8 +41,7 @@ function generateCorrespondenceData(recipientId, correspondenceId) {
     reason: {
       M: {
         description: { S: faker.lorem.sentence() },
-        domain: { S: faker.person.jobArea() },
-        impact: { S: faker.helpers.arrayElement(['LOW', 'MEDIUM', 'HIGH']) }
+        category: { S: faker.helpers.arrayElement(['COMEDY', 'ENTERTAINMENT', 'FAMILY', 'FOOD', 'FRIENDS', 'JOURNALISM', 'LITERATURE', 'MENTORS', 'MUSIC', 'SCIENCE', 'SPORTS', 'TECHNOLOGY']) },
       }
     },
     searchPartition: { S: 'CORRESPONDENCE' },
