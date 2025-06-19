@@ -169,6 +169,15 @@ Resources:
       ParentId: !GetAtt OneHundredLettersApi.RootResourceId
       PathPart: "contact"
 
+  # Chat Resources
+
+  ChatResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ParentId: !GetAtt OneHundredLettersApi.RootResourceId
+      PathPart: "chat"
+
   # Uploads Resources
 
   UploadsResource:
@@ -225,6 +234,10 @@ Outputs:
     Value: !Ref ContactResource
     Export:
       Name: !Sub "one-hundred-letters-api-contact-resource-${Environment}"
+  ChatResourceOutput:
+    Value: !Ref ChatResource
+    Export:
+      Name: !Sub "one-hundred-letters-api-chat-resource-${Environment}"
   UploadsResourceOutput:
     Value: !Ref UploadsResource
     Export:

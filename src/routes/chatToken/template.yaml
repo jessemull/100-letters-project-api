@@ -1,0 +1,48 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Parameters:
+  Environment:
+    Type: String
+    Description: "The environment for the deployment (dev or prod)"
+    AllowedValues:
+      - dev
+      - prod
+    Default: dev
+    ConstraintDescription: "Must be either 'dev' or 'prod'."
+  S3Key:
+    Type: String
+    Description: The S3 key for the lambda function zip file.
+
+Resources:
+  MyLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "chatToken-${Environment}"
+      Runtime: nodejs20.x
+      Role:
+        Fn::ImportValue: 
+            !Sub "one-hundred-letters-lambda-role-${Environment}"
+      Handler: routes/chatToken/index.handler
+      Code:
+        S3Bucket:
+          Fn::ImportValue: 
+            !Sub "100-letters-project-api-${Environment}"
+        S3Key: !Ref S3Key
+      Timeout: 10
+      MemorySize: 128
+      Environment:
+        Variables:
+          ACCESS_CONTROL_ALLOW_ORIGIN: !Sub "{{resolve:secretsmanager:one-hundred-letters-api-${Environment}:SecretString:accessControlAllowOrigin}}"
+          CORRESPONDENCE_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:correspondenceTableName}}"
+          ENVIRONMENT: !Ref Environment
+          LETTER_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:letterTableName}}"
+          RECIPIENT_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:recipientTableName}}"
+
+  LambdaInvokePermissionGetRecipientById:
+    Type: AWS::Lambda::Permission
+    DependsOn: MyLambdaFunction
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:chatToken-${Environment}"
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/GET/*"
