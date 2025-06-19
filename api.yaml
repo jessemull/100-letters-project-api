@@ -712,6 +712,28 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InternalServerError"
+  /chat:
+    get:
+      summary: "Get HMAC Chat Token"
+      responses:
+        200:
+          description: "Get HMAC Chat Token Success"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ChatTokenResponse"
+                  message:
+                    type: "string"
+                    example: "Chat token fetched successfully!"
+        500:
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
 components:
   parameters:
     LimitParameter:
@@ -1251,6 +1273,14 @@ components:
           $ref: "#/components/schemas/UUID"
         view:
           $ref: "#/components/schemas/View"
+    ChatTokenResponse:
+      type: "object"
+      properties:
+        token:
+          type: string
+          description: Time-limited HMAC token for authenticating chat requests.
+          format: hmac
+          example: "expires=1729427180&sig=2b0f3e62d24f418a6f7cb79eb254cf1c7f54e0dfd2f9c8344d56f7307a3d90f1"
     BadRequestError:
       type: "object"
       properties:
