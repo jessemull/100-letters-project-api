@@ -32,11 +32,8 @@ Resources:
       MemorySize: 128
       Environment:
         Variables:
-          ACCESS_CONTROL_ALLOW_ORIGIN: !Sub "{{resolve:secretsmanager:one-hundred-letters-api-${Environment}:SecretString:accessControlAllowOrigin}}"
-          CORRESPONDENCE_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:correspondenceTableName}}"
           ENVIRONMENT: !Ref Environment
-          LETTER_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:letterTableName}}"
-          RECIPIENT_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:recipientTableName}}"
+          CHAT_SECRET: !Sub "{{resolve:secretsmanager:one-hundred-letters-chat-${Environment}:SecretString:chatSecret}}"
 
   LambdaInvokePermissionGetRecipientById:
     Type: AWS::Lambda::Permission
