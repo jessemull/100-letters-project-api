@@ -44,7 +44,7 @@ Resources:
                     type: "string"
                   category:
                     type: "string"
-                    enum: ["COMEDY", "ENTERTAINMENT", "FAMILY", "FOOD", "FRIENDS", "JOURNALISM", "LITERATURE", "MENTORS", "MUSIC", "SCIENCE", "SPORTS", "TECHNOLOGY"]
+                    enum: ["ARTS", "ENTERTAINMENT", "FAMILY", "FOOD", "FRIENDS", "GOVERNMENT", "LITERATURE", "MENTORS", "MUSIC", "SCIENCE", "SPORTS", "TECHNOLOGY"]
                 required: ["description", "category"]
               status:
                 type: "string"
@@ -176,7 +176,7 @@ Resources:
                         type: "string"
                       category:
                         type: "string"
-                        enum: ["COMEDY", "ENTERTAINMENT", "FAMILY", "FOOD", "FRIENDS", "JOURNALISM", "LITERATURE", "MENTORS", "MUSIC", "SCIENCE", "SPORTS", "TECHNOLOGY"]
+                        enum: ["ARTS", "ENTERTAINMENT", "FAMILY", "FOOD", "FRIENDS", "GOVERNMENT", "LITERATURE", "MENTORS", "MUSIC", "SCIENCE", "SPORTS", "TECHNOLOGY"]
                     required: ["description", "category"]
                   status:
                     type: "string"
@@ -328,7 +328,7 @@ Resources:
                     type: "string"
                   category:
                     type: "string"
-                    enum: ["COMEDY", "ENTERTAINMENT", "FAMILY", "FOOD", "FRIENDS", "JOURNALISM", "LITERATURE", "MENTORS", "MUSIC", "SCIENCE", "SPORTS", "TECHNOLOGY"]
+                    enum: ["ARTS", "ENTERTAINMENT", "FAMILY", "FOOD", "FRIENDS", "GOVERNMENT", "LITERATURE", "MENTORS", "MUSIC", "SCIENCE", "SPORTS", "TECHNOLOGY"]
                 required: ["description", "category"]
               status:
                 type: "string"
@@ -466,7 +466,7 @@ Resources:
                         type: "string"
                       category:
                         type: "string"
-                        enum: ["COMEDY", "ENTERTAINMENT", "FAMILY", "FOOD", "FRIENDS", "JOURNALISM", "LITERATURE", "MENTORS", "MUSIC", "SCIENCE", "SPORTS", "TECHNOLOGY"]
+                        enum: ["ARTS", "ENTERTAINMENT", "FAMILY", "FOOD", "FRIENDS", "GOVERNMENT", "LITERATURE", "MENTORS", "MUSIC", "SCIENCE", "SPORTS", "TECHNOLOGY"]
                     required: ["description", "category"]
                   status:
                     type: "string"
@@ -626,7 +626,7 @@ Resources:
                           type: "string"
                         category:
                           type: "string"
-                          enum: ["COMEDY", "ENTERTAINMENT", "FAMILY", "FOOD", "FRIENDS", "JOURNALISM", "LITERATURE", "MENTORS", "MUSIC", "SCIENCE", "SPORTS", "TECHNOLOGY"]
+                          enum: ["ARTS", "ENTERTAINMENT", "FAMILY", "FOOD", "FRIENDS", "GOVERNMENT", "LITERATURE", "MENTORS", "MUSIC", "SCIENCE", "SPORTS", "TECHNOLOGY"]
                       required: ["description", "category"]
                     status:
                       type: "string"
@@ -786,7 +786,7 @@ Resources:
                         type: "string"
                       category:
                         type: "string"
-                        enum: ["COMEDY", "ENTERTAINMENT", "FAMILY", "FOOD", "FRIENDS", "JOURNALISM", "LITERATURE", "MENTORS", "MUSIC", "SCIENCE", "SPORTS", "TECHNOLOGY"]
+                        enum: ["ARTS", "ENTERTAINMENT", "FAMILY", "FOOD", "FRIENDS", "GOVERNMENT", "LITERATURE", "MENTORS", "MUSIC", "SCIENCE", "SPORTS", "TECHNOLOGY"]
                     required: ["description", "category"]
                   status:
                     type: "string"

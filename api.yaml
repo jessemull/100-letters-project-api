@@ -767,12 +767,12 @@ components:
     Category:
       type: "string"
       enum:
-        - COMEDY
+        - ARTS
         - ENTERTAINMENT
         - FAMILY
         - FOOD
         - FRIENDS
-        - JOURNALISM
+        - GOVERNMENT
         - LITERATURE
         - MENTORS
         - MUSIC
