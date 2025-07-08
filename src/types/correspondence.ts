@@ -2,12 +2,12 @@ import { LetterCreateInput, LetterUpdateInput } from './letters';
 import { RecipientCreateInput, RecipientUpdateInput } from './recipients';
 
 export enum Category {
-  COMEDY = 'COMEDY',
+  ARTS = 'ARTS',
   ENTERTAINMENT = 'ENTERTAINMENT',
   FAMILY = 'FAMILY',
   FOOD = 'FOOD',
   FRIENDS = 'FRIENDS',
-  JOURNALISM = 'JOURNALISM',
+  GOVERNMENT = 'GOVERNMENT',
   LITERATURE = 'LITERATURE',
   MENTORS = 'MENTORS',
   MUSIC = 'MUSIC',
