@@ -969,6 +969,71 @@ Resources:
             method.response.header.Access-Control-Allow-Methods: true
             method.response.header.Access-Control-Allow-Headers: true
 
+  ChatGetMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-${Environment}"
+      ResourceId: 
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-chat-resource-${Environment}"
+      HttpMethod: GET
+      AuthorizationType: NONE
+      RequestValidatorId:
+        Fn::ImportValue: 
+          !Sub "one-hundred-letters-api-validator-${Environment}"
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          !Sub 
+            - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:chatToken-${Env}/invocations"
+            - { Env: !Ref Environment }
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "chat-response-model-${Environment}"
+        - StatusCode: 500
+          ResponseModels:
+            "application/json":
+              Fn::ImportValue: 
+                !Sub "internal-server-error-${Environment}"
+  
+  ChatOptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId:
+        Fn::ImportValue:
+          !Sub "one-hundred-letters-api-${Environment}"
+      ResourceId:
+        Fn::ImportValue:
+          !Sub "one-hundred-letters-api-chat-resource-${Environment}"
+      HttpMethod: OPTIONS
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: OPTIONS
+        Type: MOCK
+        RequestParameters: {}
+        RequestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Allow-Methods: "'GET'"
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type, Authorization, x-amz-date, x-api-key, g-recaptcha-response, G-Recaptcha-Response'"
+            ResponseTemplates:
+              application/json: "{}"
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Origin: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Headers: true
+
   UploadsMethod:
     Type: AWS::ApiGateway::Method
     Properties:
