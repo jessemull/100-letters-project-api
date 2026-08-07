@@ -18,11 +18,11 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Sub "{{routeName}}-${Environment}"
-      Runtime: nodejs20.x
+      Runtime: nodejs24.x
       Role:
         Fn::ImportValue: 
             !Sub "one-hundred-letters-lambda-role-${Environment}"
-      Handler: routes/{{routeName}}/index.handler
+      Handler: index.handler
       Code:
         S3Bucket:
           Fn::ImportValue: 
@@ -38,7 +38,7 @@ Resources:
           LETTER_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:letterTableName}}"
           RECIPIENT_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:recipientTableName}}"
 
-  LambdaInvokePermissionGetRecipientById:
+  LambdaInvokePermission:
     Type: AWS::Lambda::Permission
     DependsOn: MyLambdaFunction
     Properties:

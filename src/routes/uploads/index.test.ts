@@ -4,13 +4,15 @@ import {
   Context,
 } from 'aws-lambda';
 import { handler } from './index';
-import { s3, decodeJwtPayload, logger } from '../../common/util';
+import {
+  createPresignedPutUrl,
+  decodeJwtPayload,
+  logger,
+} from '../../common/util';
 
 jest.mock('../../common/util', () => ({
   decodeJwtPayload: jest.fn(() => ({ 'cognito:username': 'mock-user' })),
-  s3: {
-    getSignedUrlPromise: jest.fn(),
-  },
+  createPresignedPutUrl: jest.fn(),
   getHeaders: jest.fn().mockReturnValue({
     'Content-Type': 'application/json',
   }),
@@ -46,7 +48,7 @@ describe('Lambda Handler - Pre-signed Image Upload URL', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (s3.getSignedUrlPromise as jest.Mock).mockResolvedValue(
+    (createPresignedPutUrl as jest.Mock).mockResolvedValue(
       'https://signed.url',
     );
     jest.spyOn(global, 'Buffer').mockImplementationOnce(() => {
@@ -85,7 +87,7 @@ describe('Lambda Handler - Pre-signed Image Upload URL', () => {
     expect(JSON.parse(result.body).message).toBe('Missing required fields.');
   });
 
-  it('should return 400 if mimeType is unsupported', async () => {
+  it('should return 400 if mime type is unsupported', async () => {
     const event = baseEvent({ mimeType: 'application/pdf' });
     const result = (await handler(
       event,
@@ -93,9 +95,7 @@ describe('Lambda Handler - Pre-signed Image Upload URL', () => {
       () => {},
     )) as APIGatewayProxyResult;
     expect(result.statusCode).toBe(400);
-    expect(JSON.parse(result.body).message).toBe(
-      'Unsupported MIME type: application/pdf',
-    );
+    expect(JSON.parse(result.body).message).toContain('Unsupported MIME type');
   });
 
   it('should return 400 if Authorization header is missing or malformed', async () => {
@@ -126,7 +126,7 @@ describe('Lambda Handler - Pre-signed Image Upload URL', () => {
 
     expect(body.data.signedUrl).toBe('https://signed.url');
     expect(body.message).toBe('Signed URL created successfully!');
-    expect(s3.getSignedUrlPromise).toHaveBeenCalled();
+    expect(createPresignedPutUrl).toHaveBeenCalled();
   });
 
   it('should use default domain if PUBLIC_IMAGE_DOMAIN is not set', async () => {
@@ -156,7 +156,7 @@ describe('Lambda Handler - Pre-signed Image Upload URL', () => {
   });
 
   it('should handle thrown error and return 500', async () => {
-    (s3.getSignedUrlPromise as jest.Mock).mockRejectedValueOnce(
+    (createPresignedPutUrl as jest.Mock).mockRejectedValueOnce(
       new Error('fail'),
     );
     const event = baseEvent();

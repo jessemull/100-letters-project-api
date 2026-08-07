@@ -10,16 +10,20 @@ global.fetch = jest.fn().mockResolvedValue({
   json: async () => ({ success: true }),
 });
 
-jest.mock('../../common/util', () => ({
-  sesClient: {
-    sendEmail: jest.fn(),
-  },
-  getHeaders: jest.fn(),
-  logger: {
-    error: jest.fn(),
-    info: jest.fn(),
-  },
-}));
+jest.mock('../../common/util', () => {
+  const actualSes = jest.requireActual('@aws-sdk/client-ses');
+  return {
+    SendEmailCommand: actualSes.SendEmailCommand,
+    sesClient: {
+      send: jest.fn(),
+    },
+    getHeaders: jest.fn(),
+    logger: {
+      error: jest.fn(),
+      info: jest.fn(),
+    },
+  };
+});
 
 describe('Contact Form Handler', () => {
   afterEach(() => {
@@ -27,10 +31,7 @@ describe('Contact Form Handler', () => {
   });
 
   it('should return a 200 response when the email is sent successfully', async () => {
-    const mockSendEmailPromise = jest.fn().mockResolvedValueOnce({});
-    (sesClient.sendEmail as jest.Mock).mockReturnValueOnce({
-      promise: mockSendEmailPromise,
-    });
+    (sesClient.send as jest.Mock).mockResolvedValueOnce({});
 
     const event: APIGatewayProxyEvent = {
       body: JSON.stringify({
@@ -64,7 +65,7 @@ describe('Contact Form Handler', () => {
     expect(JSON.parse(result.body || '').message).toBe(
       'Email sent successfully.',
     );
-    expect(sesClient.sendEmail).toHaveBeenCalled();
+    expect(sesClient.send).toHaveBeenCalled();
   });
 
   it('should return a 400 response if the required fields are missing', async () => {
@@ -132,13 +133,9 @@ describe('Contact Form Handler', () => {
   });
 
   it('should return a 500 response if there is an internal server error', async () => {
-    const errorMessage = 'SES error occurred';
-    const mockSendEmailPromise = jest
-      .fn()
-      .mockRejectedValueOnce(new Error(errorMessage));
-    (sesClient.sendEmail as jest.Mock).mockReturnValueOnce({
-      promise: mockSendEmailPromise,
-    });
+    (sesClient.send as jest.Mock).mockRejectedValueOnce(
+      new Error('SES error occurred'),
+    );
 
     const event: APIGatewayProxyEvent = {
       body: JSON.stringify({

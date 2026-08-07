@@ -8,7 +8,7 @@ import { PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
 import { dynamoClient, getHeaders, logger } from '../../common/util';
 import { Letter } from '../../types';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 
 const { correspondenceTableName, letterTableName } = config;
 
@@ -56,7 +56,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       return new NotFoundError('Correspondence ID not found.').build(headers);
     }
 
-    const letterId = uuidv4();
+    const letterId = randomUUID();
 
     const letterData: Letter = {
       description,

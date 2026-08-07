@@ -6,6 +6,10 @@ The **100 Letters Project** website showcases these exchanges, offering a digita
 
 The **100 Letters Project API** provides the backend services for the **100 Letters Project** website, managing the data required for the website including the creation, retrieval, update, and deletion of letters, recipients, and correspondences.
 
+## Agent / Contributor Governance
+
+AI agents and contributors should start at **[`CONTEXT.md`](CONTEXT.md)** (mandatory reading order, precedence, non-negotiables, quality gates). Coding rules live in [`AGENTS.md`](AGENTS.md); deeper policy is under [`docs/`](docs/). Run `make preflight` (or `npm run preflight`) before considering work complete.
+
 This repository is part of the **100 Letters Project** which includes the following repositories:
 
 - **[100 Letters Project API](https://github.com/jessemull/100-letters-project-api)**: The **100 Letters Project** API.
@@ -336,7 +340,7 @@ The Pull Request Pipeline is triggered when a pull request is opened against the
 2. **Testing:** Runs unit tests.
 3. **Code Coverage:** Checks code coverage remains above 80%.
 
-This pipeline is defined in the `.github/workflows/lint-and-test.yml` file.
+This pipeline is defined in the `.github/workflows/pull-request.yml` file.
 
 ### Deploy Lambda
 
@@ -357,7 +361,7 @@ The pipeline performs the following steps:
 11. **Monitor CloudFormation Stack Status:** Monitors the status of the CloudFormation stack during the deployment process.
 12. **Prune Backups:** Prunes older bundle versions.
 
-This pipeline is defined in the `.github/workflows/deploy-lambda.yml` file.
+This pipeline is defined in the `.github/workflows/manual.yml` file.
 
 ### Deploy All Lambdas
 
@@ -369,7 +373,7 @@ The pipeline performs the following steps:
 2. **Get Lambda Names:** Scans the `src/routes/` for function discovery.
 3. **Deploy All Lambdas:** Dispatches the **Deploy Lambda** pipeline for each function.
 
-This pipeline is defined in the `.github/workflows/deploy-all-lambdas.yml` file.
+This pipeline is defined in the `.github/workflows/manual-all.yml` file.
 
 ### Deploy On Merge
 
@@ -383,7 +387,7 @@ The pipeline performs the following steps:
 4. **Check Modified Files:** Identifies modified functions.
 5. **Deploy Lambdas:** Dispatches the **Deploy Lambda** pipeline for each modified function.
 
-This pipeline is defined in the `.github/workflows/deploy-lambdas-on-merge.yml` file.
+This pipeline is defined in the `.github/workflows/merge.yml` file.
 
 ### Rollback Lambda
 
@@ -399,7 +403,7 @@ The pipeline performs the following steps:
 6. **Execute CloudFormation Change Set:** Executes the change set and deploys the function to AWS.
 7. **Monitor CloudFormation Stack Status:** Monitors the status of the CloudFormation stack during the deployment process.
 
-This pipeline is defined in the `.github/workflows/rollback-lambda.yml` file.
+This pipeline is defined in the `.github/workflows/rollback.yml` file.
 
 ## Seeding & Reseting DynamoDB Tables
 

@@ -6,17 +6,21 @@ import {
 import { handler } from './index';
 import { logger, s3 } from '../../common/util';
 
-jest.mock('../../common/util', () => ({
-  s3: {
-    deleteObject: jest.fn().mockReturnValue({ promise: jest.fn() }),
-  },
-  getHeaders: jest.fn().mockReturnValue({
-    'Content-Type': 'application/json',
-  }),
-  logger: {
-    error: jest.fn(),
-  },
-}));
+jest.mock('../../common/util', () => {
+  const actualS3 = jest.requireActual('@aws-sdk/client-s3');
+  return {
+    DeleteObjectCommand: actualS3.DeleteObjectCommand,
+    s3: {
+      send: jest.fn(),
+    },
+    getHeaders: jest.fn().mockReturnValue({
+      'Content-Type': 'application/json',
+    }),
+    logger: {
+      error: jest.fn(),
+    },
+  };
+});
 
 describe('Delete Upload Handler', () => {
   const context = {} as Context;
@@ -61,8 +65,7 @@ describe('Delete Upload Handler', () => {
   });
 
   it('should delete original, thumbnail, and large keys successfully', async () => {
-    const mockPromise = jest.fn().mockResolvedValue({});
-    (s3.deleteObject as jest.Mock).mockReturnValue({ promise: mockPromise });
+    (s3.send as jest.Mock).mockResolvedValue({});
 
     process.env.IMAGE_S3_BUCKET_NAME = 'mock-bucket';
 
@@ -77,13 +80,11 @@ describe('Delete Upload Handler', () => {
     expect(JSON.parse(result.body).message).toBe(
       'Image and variants deleted successfully!',
     );
-    expect(s3.deleteObject).toHaveBeenCalledTimes(3);
-    expect(mockPromise).toHaveBeenCalledTimes(3);
+    expect(s3.send).toHaveBeenCalledTimes(3);
   });
 
   it('should return 500 and log error on failure', async () => {
-    const mockPromise = jest.fn().mockRejectedValue(new Error('s3 fail'));
-    (s3.deleteObject as jest.Mock).mockReturnValue({ promise: mockPromise });
+    (s3.send as jest.Mock).mockRejectedValue(new Error('s3 fail'));
 
     const event = baseEvent();
     const result = (await handler(
@@ -100,10 +101,10 @@ describe('Delete Upload Handler', () => {
     );
   });
 
-  it('should return 400 if queryStringParameters is undefined', async () => {
+  it('should return 400 if queryStringParameters is null', async () => {
     const event = {
+      queryStringParameters: null,
       headers: {},
-      queryStringParameters: undefined,
     } as unknown as APIGatewayProxyEvent;
 
     const result = (await handler(

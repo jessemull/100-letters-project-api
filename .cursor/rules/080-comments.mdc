@@ -1,0 +1,11 @@
+---
+description: "Comment policy and spacing conventions."
+globs: ["src/**/*.{ts,js}"]
+alwaysApply: false
+---
+
+# Comments
+
+- Why, not what; prefer clear names
+- Blank lines around standalone comments
+- See `docs/COMMENTS.md`

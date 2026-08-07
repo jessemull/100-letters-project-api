@@ -4,7 +4,7 @@ import { LetterCreateInput, Letter } from '../../types';
 import { TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
 import { dynamoClient, getHeaders, logger } from '../../common/util';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 
 const { correspondenceTableName, letterTableName, recipientTableName } = config;
 
@@ -22,8 +22,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     const { reason, status, title } = correspondence;
 
-    const recipientId = uuidv4();
-    const correspondenceId = uuidv4();
+    const recipientId = randomUUID();
+    const correspondenceId = randomUUID();
 
     const recipientItem = {
       recipientId,
@@ -43,7 +43,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const letterItems: Letter[] = letters.map((letter: LetterCreateInput) => ({
       ...letter,
       correspondenceId,
-      letterId: uuidv4(),
+      letterId: randomUUID(),
       searchPartition: 'LETTER',
     }));
 

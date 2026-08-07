@@ -17,10 +17,6 @@ jest.mock('../../common/util', () => ({
   },
 }));
 
-jest.mock('uuid', () => ({
-  v4: jest.fn(),
-}));
-
 describe('Update Correspondence Handler', () => {
   const mockContext: Context = {} as Context;
   const mockCallback: Callback = jest.fn();

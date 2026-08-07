@@ -1,0 +1,13 @@
+---
+description: "Secrets, authorizer boundaries, and Lambda artifact safety."
+globs: ["src/**/*.ts", "scripts/**/*", "cloudformation/**/*"]
+alwaysApply: false
+---
+
+# Security
+
+- No secrets in source, webpack bundles, or deployment zips
+- Do not log Authorization headers or tokens
+- CFN TOKEN authorizer + CUSTOM methods are runtime truth
+- Never `npm audit fix --force`
+- See `docs/SECURITY.md`

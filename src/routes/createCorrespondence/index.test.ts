@@ -6,7 +6,7 @@ import {
 } from 'aws-lambda';
 import { handler } from './index';
 import { dynamoClient } from '../../common/util';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 
 jest.mock('../../common/util', () => ({
   dynamoClient: {
@@ -18,8 +18,9 @@ jest.mock('../../common/util', () => ({
   },
 }));
 
-jest.mock('uuid', () => ({
-  v4: jest.fn(),
+jest.mock('crypto', () => ({
+  ...jest.requireActual('crypto'),
+  randomUUID: jest.fn(),
 }));
 
 describe('Create Correspondence Handler', () => {
@@ -92,7 +93,7 @@ describe('Create Correspondence Handler', () => {
       }),
     } as unknown as APIGatewayProxyEvent;
 
-    (uuidv4 as jest.Mock).mockReturnValue('mock-uuid');
+    (randomUUID as jest.Mock).mockReturnValue('mock-uuid');
 
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({});
 

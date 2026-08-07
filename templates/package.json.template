@@ -1,20 +1,19 @@
 {
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.758.0",
-    "@aws-sdk/lib-dynamodb": "^3.758.0",
-    "bunyan": "^1.8.15",
-    "bunyan-cloudwatch": "^2.2.0"
+    "@aws-sdk/client-dynamodb": "^3.1105.0",
+    "@aws-sdk/lib-dynamodb": "^3.1105.0",
+    "bunyan": "^1.8.15"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.147",
+    "@types/aws-lambda": "^8.10.162",
     "@types/bunyan": "^1.8.11",
-    "@types/node": "^22.13.9",
-    "dotenv": "^16.4.7",
-    "terser-webpack-plugin": "^5.3.14",
-    "ts-loader": "^9.5.2",
-    "typescript": "^5.8.2",
-    "webpack": "^5.98.0",
-    "webpack-cli": "^6.0.1"
+    "@types/node": "^24.13.3",
+    "dotenv": "^17.4.2",
+    "terser-webpack-plugin": "^5.6.1",
+    "ts-loader": "^9.6.2",
+    "typescript": "^6.0.3",
+    "webpack": "^5.109.2",
+    "webpack-cli": "^7.2.2"
   },
   "main": "dist/index.js",
   "name": "{{routeName}}",

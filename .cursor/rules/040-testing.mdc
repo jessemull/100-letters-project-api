@@ -1,0 +1,12 @@
+---
+description: "Jest coverage and testing expectations for the API."
+globs: ["**/*.{test,spec}.ts", "jest.config.js"]
+alwaysApply: false
+---
+
+# Testing
+
+- ≥80% statement coverage via `npm run test:all` / `make test`
+- Prefer handler and shared-util behavior tests
+- Do not delete tests only to pass coverage
+- See `docs/TESTING.md`

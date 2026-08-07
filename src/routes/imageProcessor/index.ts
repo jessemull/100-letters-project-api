@@ -1,8 +1,12 @@
 import path from 'path';
 import { Jimp } from 'jimp';
 import { S3Handler } from 'aws-lambda';
-import { logger, s3 } from '../../common/util';
-import { WithImplicitCoercion } from 'buffer';
+import {
+  GetObjectCommand,
+  PutObjectCommand,
+  logger,
+  s3,
+} from '../../common/util';
 
 export const handler: S3Handler = async (event) => {
   try {
@@ -32,18 +36,22 @@ export const handler: S3Handler = async (event) => {
       const largeKey = `${destinationBase}_large.jpg`;
       const thumbnailKey = `${destinationBase}_thumb.jpg`;
 
-      const s3Object = await s3
-        .getObject({
+      const s3Object = await s3.send(
+        new GetObjectCommand({
           Bucket: bucketName,
           Key: fileKey,
-        })
-        .promise();
+        }),
+      );
 
       logger.info('Image data fetched from S3', s3Object);
 
-      const imageBuffer = Buffer.isBuffer(s3Object.Body)
-        ? s3Object.Body
-        : Buffer.from(s3Object.Body as WithImplicitCoercion<ArrayLike<number>>);
+      if (!s3Object.Body) {
+        throw new Error(`Empty S3 object body for key: ${fileKey}`);
+      }
+
+      const imageBuffer = Buffer.from(
+        await s3Object.Body.transformToByteArray(),
+      );
 
       logger.info(`Buffer length: ${imageBuffer.length}`);
 
@@ -63,24 +71,26 @@ export const handler: S3Handler = async (event) => {
 
       await Promise.all([
         s3
-          .putObject({
-            Bucket: bucketName,
-            Key: largeKey,
-            Body: largeBuffer,
-            ContentType: 'image/jpeg',
-          })
-          .promise()
+          .send(
+            new PutObjectCommand({
+              Bucket: bucketName,
+              Key: largeKey,
+              Body: largeBuffer,
+              ContentType: 'image/jpeg',
+            }),
+          )
           .then(() => logger.info(`Successfully uploaded: ${largeKey}`))
           .catch((err) => logger.error(`Error uploading ${largeKey}`, err)),
 
         s3
-          .putObject({
-            Bucket: bucketName,
-            Key: thumbnailKey,
-            Body: thumbnailBuffer,
-            ContentType: 'image/jpeg',
-          })
-          .promise()
+          .send(
+            new PutObjectCommand({
+              Bucket: bucketName,
+              Key: thumbnailKey,
+              Body: thumbnailBuffer,
+              ContentType: 'image/jpeg',
+            }),
+          )
           .then(() => logger.info(`Successfully uploaded: ${thumbnailKey}`))
           .catch((err) => logger.error(`Error uploading ${thumbnailKey}`, err)),
       ]);

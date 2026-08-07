@@ -1,22 +1,25 @@
 import { Context, S3Event } from 'aws-lambda';
 import { Jimp } from 'jimp';
-import { WithImplicitCoercion } from 'buffer';
 import { handler } from './index';
 import { logger, s3 } from '../../common/util';
 
 jest.mock('jimp');
 
-jest.mock('../../common/util', () => ({
-  s3: {
-    getObject: jest.fn(),
-    putObject: jest.fn(),
-  },
-  logger: {
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-  },
-}));
+jest.mock('../../common/util', () => {
+  const actualS3 = jest.requireActual('@aws-sdk/client-s3');
+  return {
+    GetObjectCommand: actualS3.GetObjectCommand,
+    PutObjectCommand: actualS3.PutObjectCommand,
+    s3: {
+      send: jest.fn(),
+    },
+    logger: {
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+    },
+  };
+});
 
 describe('Image Processor Lambda', () => {
   const context = {} as Context;
@@ -39,6 +42,10 @@ describe('Image Processor Lambda', () => {
       ],
     }) as unknown as S3Event;
 
+  const mockBody = (bytes: Buffer) => ({
+    transformToByteArray: jest.fn().mockResolvedValue(Uint8Array.from(bytes)),
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
     (Jimp.read as jest.Mock).mockResolvedValue(mockImage);
@@ -47,14 +54,12 @@ describe('Image Processor Lambda', () => {
       .mockResolvedValueOnce(Buffer.from('large'))
       .mockResolvedValueOnce(Buffer.from('thumb'));
 
-    (s3.getObject as jest.Mock).mockReturnValue({
-      promise: jest.fn().mockResolvedValue({
-        Body: Buffer.from('mockImageData'),
-      }),
-    });
-
-    (s3.putObject as jest.Mock).mockReturnValue({
-      promise: jest.fn().mockResolvedValue({}),
+    (s3.send as jest.Mock).mockImplementation(async (command) => {
+      const name = command.constructor.name;
+      if (name === 'GetObjectCommand') {
+        return { Body: mockBody(Buffer.from('mockImageData')) };
+      }
+      return {};
     });
   });
 
@@ -62,30 +67,21 @@ describe('Image Processor Lambda', () => {
     const key = 'unprocessed/abc___def___front___uuid.jpeg';
     await handler(mockS3Event(key), context, callback);
 
-    expect(s3.getObject).toHaveBeenCalledWith({
-      Bucket: 'test-bucket',
-      Key: key,
-    });
-
+    expect(s3.send).toHaveBeenCalled();
     expect(Jimp.read).toHaveBeenCalledWith(Buffer.from('mockImageData'));
 
     expect(mockImage.clone).toHaveBeenCalledTimes(2);
     expect(mockImage.resize).toHaveBeenCalledTimes(2);
     expect(mockImage.getBuffer).toHaveBeenCalledTimes(2);
 
-    expect(s3.putObject).toHaveBeenCalledTimes(2);
-    expect(s3.putObject).toHaveBeenCalledWith(
-      expect.objectContaining({
-        Key: expect.stringMatching(/_large\.jpg$/),
-        Body: Buffer.from('large'),
-      }),
+    const putCalls = (s3.send as jest.Mock).mock.calls.filter(
+      ([command]) => command.constructor.name === 'PutObjectCommand',
     );
-    expect(s3.putObject).toHaveBeenCalledWith(
-      expect.objectContaining({
-        Key: expect.stringMatching(/_thumb\.jpg$/),
-        Body: Buffer.from('thumb'),
-      }),
-    );
+    expect(putCalls).toHaveLength(2);
+    expect(putCalls[0][0].input.Key).toMatch(/_large\.jpg$/);
+    expect(putCalls[0][0].input.Body).toEqual(Buffer.from('large'));
+    expect(putCalls[1][0].input.Key).toMatch(/_thumb\.jpg$/);
+    expect(putCalls[1][0].input.Body).toEqual(Buffer.from('thumb'));
   });
 
   it('should skip file if key is not under unprocessed/', async () => {
@@ -95,7 +91,7 @@ describe('Image Processor Lambda', () => {
     expect(logger.warn).toHaveBeenCalledWith(
       'Skipping non-unprocessed image: processed/abc___def___front___uuid.jpeg',
     );
-    expect(s3.getObject).not.toHaveBeenCalled();
+    expect(s3.send).not.toHaveBeenCalled();
   });
 
   it('should skip file if filename format is invalid', async () => {
@@ -105,13 +101,11 @@ describe('Image Processor Lambda', () => {
     expect(logger.error).toHaveBeenCalledWith(
       'Invalid file name format: unprocessed/abc___def___badname.jpeg',
     );
-    expect(s3.getObject).not.toHaveBeenCalled();
+    expect(s3.send).not.toHaveBeenCalled();
   });
 
   it('should log and rethrow on unexpected error', async () => {
-    (s3.getObject as jest.Mock).mockReturnValue({
-      promise: jest.fn().mockRejectedValue(new Error('S3 failure')),
-    });
+    (s3.send as jest.Mock).mockRejectedValue(new Error('S3 failure'));
 
     const key = 'unprocessed/abc___def___front___uuid.jpeg';
 
@@ -126,16 +120,18 @@ describe('Image Processor Lambda', () => {
 
   it('should log an error if uploading the large image fails', async () => {
     const key = 'unprocessed/abc___def___front___uuid.jpeg';
+    let putCount = 0;
 
-    (s3.putObject as jest.Mock)
-      .mockImplementationOnce(() => ({
-        promise: jest
-          .fn()
-          .mockRejectedValueOnce(new Error('Large upload failed')),
-      }))
-      .mockImplementationOnce(() => ({
-        promise: jest.fn().mockResolvedValueOnce({}),
-      }));
+    (s3.send as jest.Mock).mockImplementation(async (command) => {
+      if (command.constructor.name === 'GetObjectCommand') {
+        return { Body: mockBody(Buffer.from('mockImageData')) };
+      }
+      putCount += 1;
+      if (putCount === 1) {
+        throw new Error('Large upload failed');
+      }
+      return {};
+    });
 
     await handler(mockS3Event(key), context, callback);
 
@@ -147,16 +143,18 @@ describe('Image Processor Lambda', () => {
 
   it('should log an error if uploading the thumbnail image fails', async () => {
     const key = 'unprocessed/abc___def___front___uuid.jpeg';
+    let putCount = 0;
 
-    (s3.putObject as jest.Mock)
-      .mockImplementationOnce(() => ({
-        promise: jest.fn().mockResolvedValueOnce({}),
-      }))
-      .mockImplementationOnce(() => ({
-        promise: jest
-          .fn()
-          .mockRejectedValueOnce(new Error('Thumbnail upload failed')),
-      }));
+    (s3.send as jest.Mock).mockImplementation(async (command) => {
+      if (command.constructor.name === 'GetObjectCommand') {
+        return { Body: mockBody(Buffer.from('mockImageData')) };
+      }
+      putCount += 1;
+      if (putCount === 2) {
+        throw new Error('Thumbnail upload failed');
+      }
+      return {};
+    });
 
     await handler(mockS3Event(key), context, callback);
 
@@ -166,23 +164,13 @@ describe('Image Processor Lambda', () => {
     );
   });
 
-  it('should convert non-buffer S3 body to buffer', async () => {
+  it('should throw if S3 body is empty', async () => {
     const key = 'unprocessed/abc___def___front___uuid.jpeg';
 
-    const bodyString = 'mockImageDataString';
-    (s3.getObject as jest.Mock).mockReturnValueOnce({
-      promise: jest.fn().mockResolvedValue({
-        Body: bodyString,
-      }),
-    });
+    (s3.send as jest.Mock).mockResolvedValueOnce({ Body: undefined });
 
-    await handler(mockS3Event(key), context, callback);
-
-    expect(Buffer.isBuffer(bodyString)).toBe(false);
-    expect(Jimp.read).toHaveBeenCalledWith(
-      Buffer.from(
-        bodyString as unknown as WithImplicitCoercion<ArrayLike<number>>,
-      ),
+    await expect(handler(mockS3Event(key), context, callback)).rejects.toThrow(
+      'Empty S3 object body',
     );
   });
 });

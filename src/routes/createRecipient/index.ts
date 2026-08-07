@@ -4,7 +4,7 @@ import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import { Recipient } from '../../types';
 import { config } from '../../common/config';
 import { dynamoClient, getHeaders, logger } from '../../common/util';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 
 const { recipientTableName } = config;
 
@@ -29,7 +29,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       organization,
     } = body;
 
-    const recipientId = uuidv4();
+    const recipientId = randomUUID();
 
     const recipientData: Recipient = {
       address,

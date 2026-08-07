@@ -9,11 +9,16 @@ import {
   TransactWriteCommand,
   QueryCommand,
   GetCommand,
+  type TransactWriteCommandInput,
 } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
 import { dynamoClient, getHeaders, logger } from '../../common/util';
 
 const { correspondenceTableName, letterTableName, recipientTableName } = config;
+
+type TransactWriteItem = NonNullable<
+  TransactWriteCommandInput['TransactItems']
+>[number];
 
 export const handler: APIGatewayProxyHandler = async (
   event,
@@ -44,17 +49,12 @@ export const handler: APIGatewayProxyHandler = async (
 
     // Step 2: Delete correspondence.
 
-    const deleteCorrespondenceParams = {
-      TableName: correspondenceTableName as string,
-      Key: { correspondenceId },
-    };
-
-    const transactItems: {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      Delete: { TableName: string; Key: Record<string, any> | undefined };
-    }[] = [
+    const transactItems: TransactWriteItem[] = [
       {
-        Delete: deleteCorrespondenceParams,
+        Delete: {
+          TableName: correspondenceTableName as string,
+          Key: { correspondenceId },
+        },
       },
     ];
 
@@ -78,27 +78,30 @@ export const handler: APIGatewayProxyHandler = async (
 
       letters.forEach((letter) => {
         letterIds.push(letter.letterId);
-        const deleteLetterParams = {
-          TableName: letterTableName as string,
-          Key: {
-            correspondenceId: letter.correspondenceId,
-            letterId: letter.letterId,
+        transactItems.push({
+          Delete: {
+            TableName: letterTableName as string,
+            Key: {
+              correspondenceId: letter.correspondenceId,
+              letterId: letter.letterId,
+            },
           },
-        };
-        transactItems.push({ Delete: deleteLetterParams });
+        });
       });
     }
 
     // Step 4: Get and delete the recipient associated with the correspondence.
 
-    const recipientId = correspondenceData.Item.recipientId;
+    const recipientId = correspondenceData.Item.recipientId as
+      string | undefined;
 
     if (recipientId) {
-      const deleteRecipientParams = {
-        TableName: recipientTableName as string,
-        Key: { recipientId },
-      };
-      transactItems.push({ Delete: deleteRecipientParams });
+      transactItems.push({
+        Delete: {
+          TableName: recipientTableName as string,
+          Key: { recipientId },
+        },
+      });
     }
 
     // Step 5: Perform the transaction.

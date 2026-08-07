@@ -1,5 +1,5 @@
-import { SES } from 'aws-sdk';
+import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 
-const sesClient = new SES({ region: 'us-west-2' });
+const sesClient = new SESClient({ region: 'us-west-2' });
 
-export { sesClient };
+export { SESClient, SendEmailCommand, sesClient };

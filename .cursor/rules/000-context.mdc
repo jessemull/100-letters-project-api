@@ -1,0 +1,31 @@
+---
+description: "Mandatory governance context loading and non-negotiable constraints before any repository changes."
+alwaysApply: true
+---
+
+# Repository Context Loading
+
+Context loading is **not optional** — first step before any work.
+
+## Before ANY Changes
+
+1. `CONTEXT.md`
+2. `AGENTS.md`
+3. Mandatory docs: GOVERNANCE, ARCHITECTURE, TESTING, COMMENTS, SECURITY, DEPENDENCIES, RELEASES, CI_CD
+
+## MUST / MUST NOT
+
+- Read CONTEXT first, AGENTS second, mandatory docs (no “unrelated” skip)
+- Must not skip / selectively read / begin before load complete
+
+## Precedence
+
+CONTEXT > GOVERNANCE > ARCHITECTURE > domain docs > inline comments
+
+## Non-negotiables (summary)
+
+- Lambda Node 24 (`nodejs24.x`) aligned with CI; TypeScript strict; ≥80% Jest statements; Conventional Commits + Husky
+- No hardcoded secrets; no secrets in zips/logs
+- No Express/Fastify; preserve per-route packages and webpack packaging
+- Prefer latest deps/Actions/runtimes unless peers truly block (see `docs/DEPENDENCIES.md`)
+- Quality gate: `make preflight`

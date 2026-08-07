@@ -18,11 +18,11 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Sub "getRecipientById-${Environment}"
-      Runtime: nodejs20.x
+      Runtime: nodejs24.x
       Role:
         Fn::ImportValue: 
             !Sub "one-hundred-letters-lambda-role-${Environment}"
-      Handler: routes/getRecipientById/index.handler
+      Handler: index.handler
       Code:
         S3Bucket:
           Fn::ImportValue: 

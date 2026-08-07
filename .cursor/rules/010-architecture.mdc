@@ -1,0 +1,14 @@
+---
+description: "Architecture boundaries for the Lambda-per-route API mono-repo."
+globs: ["src/**/*.ts"]
+alwaysApply: false
+---
+
+# Architecture
+
+- Layers: `src/routes/<name>` → `src/common` → `src/types`
+- One Lambda handler package per route; do not invent Express/Fastify
+- Shared Dynamo/S3/SES/logger/errors live in `src/common/`
+- Webpack zip + CFN Handler paths are load-bearing
+- Authorizer is a sibling TOKEN Lambda; Cognito issues tokens
+- See `docs/ARCHITECTURE.md`, `docs/API_CONTRACT.md`, `docs/INFRA.md`
