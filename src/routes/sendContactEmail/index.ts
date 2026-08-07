@@ -1,6 +1,11 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { BadRequestError, InternalServerError } from '../../common/errors';
-import { getHeaders, logger, sesClient } from '../../common/util';
+import {
+  SendEmailCommand,
+  getHeaders,
+  logger,
+  sesClient,
+} from '../../common/util';
 
 const captchaSecret = process.env.RECAPTCHA_SECRET_KEY as string;
 const contact = process.env.SES_CONTACT as string;
@@ -78,7 +83,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   };
 
   try {
-    await sesClient.sendEmail(params).promise();
+    await sesClient.send(new SendEmailCommand(params));
     return {
       statusCode: 200,
       body: JSON.stringify({

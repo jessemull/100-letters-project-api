@@ -5,7 +5,7 @@ import {
 } from 'aws-lambda';
 import { dynamoClient, logger } from '../../common/util';
 import { handler } from './index';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 
 jest.mock('../../common/util', () => ({
   dynamoClient: {
@@ -18,8 +18,9 @@ jest.mock('../../common/util', () => ({
   },
 }));
 
-jest.mock('uuid', () => ({
-  v4: jest.fn(),
+jest.mock('crypto', () => ({
+  ...jest.requireActual('crypto'),
+  randomUUID: jest.fn(),
 }));
 
 describe('Create Letter Handler', () => {
@@ -28,7 +29,7 @@ describe('Create Letter Handler', () => {
   });
 
   it('should successfully create a letter', async () => {
-    (uuidv4 as jest.Mock).mockReturnValueOnce('mock-letter-uuid');
+    (randomUUID as jest.Mock).mockReturnValueOnce('mock-letter-uuid');
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
       Items: [{ correspondenceId: 'mock-correspondence-id' }],
     });
@@ -151,7 +152,7 @@ describe('Create Letter Handler', () => {
   });
 
   it('should successfully create a letter with optional properties if provided', async () => {
-    (uuidv4 as jest.Mock).mockReturnValueOnce('mock-letter-uuid');
+    (randomUUID as jest.Mock).mockReturnValueOnce('mock-letter-uuid');
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
       Items: [{ correspondenceId: 'mock-correspondence-id' }],
     });

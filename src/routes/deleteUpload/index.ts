@@ -1,7 +1,7 @@
 import path from 'path';
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { BadRequestError, DatabaseError } from '../../common/errors';
-import { getHeaders, logger, s3 } from '../../common/util';
+import { DeleteObjectCommand, getHeaders, logger, s3 } from '../../common/util';
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const headers = getHeaders(event);
@@ -30,25 +30,26 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const thumbnailKey = `${basePath}_thumb.webp`;
     const largeKey = `${basePath}_large.webp`;
 
+    const bucket = process.env.IMAGE_S3_BUCKET_NAME!;
     await Promise.all([
-      s3
-        .deleteObject({
-          Bucket: process.env.IMAGE_S3_BUCKET_NAME!,
+      s3.send(
+        new DeleteObjectCommand({
+          Bucket: bucket,
           Key: originalKey,
-        })
-        .promise(),
-      s3
-        .deleteObject({
-          Bucket: process.env.IMAGE_S3_BUCKET_NAME!,
+        }),
+      ),
+      s3.send(
+        new DeleteObjectCommand({
+          Bucket: bucket,
           Key: thumbnailKey,
-        })
-        .promise(),
-      s3
-        .deleteObject({
-          Bucket: process.env.IMAGE_S3_BUCKET_NAME!,
+        }),
+      ),
+      s3.send(
+        new DeleteObjectCommand({
+          Bucket: bucket,
           Key: largeKey,
-        })
-        .promise(),
+        }),
+      ),
     ]);
 
     return {

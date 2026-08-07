@@ -5,7 +5,7 @@ import {
 } from 'aws-lambda';
 import { dynamoClient, logger } from '../../common/util';
 import { handler } from './index';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 
 jest.mock('../../common/util', () => ({
   dynamoClient: {
@@ -18,8 +18,9 @@ jest.mock('../../common/util', () => ({
   },
 }));
 
-jest.mock('uuid', () => ({
-  v4: jest.fn(),
+jest.mock('crypto', () => ({
+  ...jest.requireActual('crypto'),
+  randomUUID: jest.fn(),
 }));
 
 describe('Create Recipient Handler', () => {
@@ -28,7 +29,7 @@ describe('Create Recipient Handler', () => {
   });
 
   it('should successfully create a recipient', async () => {
-    (uuidv4 as jest.Mock).mockReturnValueOnce('mock-uuid');
+    (randomUUID as jest.Mock).mockReturnValueOnce('mock-uuid');
 
     const body = {
       firstName: 'John',

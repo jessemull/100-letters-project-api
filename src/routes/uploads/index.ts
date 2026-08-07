@@ -1,6 +1,11 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { BadRequestError, DatabaseError } from '../../common/errors';
-import { decodeJwtPayload, getHeaders, logger, s3 } from '../../common/util';
+import {
+  createPresignedPutUrl,
+  decodeJwtPayload,
+  getHeaders,
+  logger,
+} from '../../common/util';
 import { randomUUID } from 'crypto';
 
 const extensionMap: { [key: string]: string } = {
@@ -53,14 +58,12 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const imageURL = `https://${process.env.PUBLIC_IMAGE_DOMAIN || 'dev.onehundredletters.com'}/${basePath}_large.jpg`;
     const thumbnailURL = `https://${process.env.PUBLIC_IMAGE_DOMAIN || 'dev.onehundredletters.com'}/${basePath}_thumb.jpg`;
 
-    const params = {
+    const signedUrl = await createPresignedPutUrl({
       Bucket: process.env.IMAGE_S3_BUCKET_NAME!,
       ContentType: mimeType,
-      Expires: 60,
       Key: fileKey,
-    };
-
-    const signedUrl = await s3.getSignedUrlPromise('putObject', params);
+      expiresIn: 60,
+    });
 
     return {
       statusCode: 200,

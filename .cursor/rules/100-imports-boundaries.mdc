@@ -1,0 +1,13 @@
+---
+description: "Import boundaries for routes, common, and types."
+globs: ["src/**/*.ts"]
+alwaysApply: false
+---
+
+# Imports & boundaries
+
+- Routes may import `src/common` and `src/types`
+- `src/common` must not import `src/routes/*`
+- Prefer shared utilities over copy-paste across routes
+- Declare runtime dependencies in the package that uses them (root and/or route)
+- See `AGENTS.md`

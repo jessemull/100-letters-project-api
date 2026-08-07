@@ -22,7 +22,7 @@ Resources:
       Role:
         Fn::ImportValue: 
             !Sub "one-hundred-letters-lambda-role-${Environment}"
-      Handler: routes/createCorrespondence/index.handler
+      Handler: index.handler
       Code:
         S3Bucket:
           Fn::ImportValue: 
