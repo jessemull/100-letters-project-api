@@ -6,7 +6,7 @@ Severity: `docs/REVIEW.md`
 
 ## Scope
 
-Governance docs, Cursor tooling, multi-package dependency upgrades, AWS SDK v3 S3/SES migration, `crypto.randomUUID` replacing undeclared `uuid`, stdout-only bunyan (no `bunyan-cloudwatch`), OpenAPI/CI/docs alignment, preflight/Makefile.
+Governance docs, Cursor tooling, multi-package dependency upgrades, AWS SDK v3 S3/SES migration, stdout-only bunyan, OpenAPI/CI/docs alignment, PII log cleanup, webpack require cleanup.
 
 ## Architecture
 
@@ -19,28 +19,25 @@ Lambda-per-route TypeScript mono-repo; shared `src/common/`; CFN split; sibling 
 - Security / secrets
 - Multi-package maintainability
 - CI drift
-- Coverage
+- Coverage / docs drift
 
 ## MUST
 
-- `(resolved)` `src/routes/*/template.yaml` + `templates/template.yaml.template` — Handler set to `index.handler` to match zip root `index.js`.
+- `(resolved)` Handler `index.handler` + `nodejs24.x` on all route templates.
 
 ## SHOULD
 
-- `(resolved)` Logger — removed `bunyan-cloudwatch` / transitive `aws-sdk` v2 from webpack bundles; bunyan logs to stdout (Lambda → CloudWatch).
-- `(resolved)` `api.yaml` — global `security: [CognitoAuthorizer]`; public `/contact` uses `security: []`; scheme documents custom TOKEN authorizer.
-- `(resolved)` CI — Jest `coverageThreshold` is the coverage gate; HTML scrape retired; `npm run typecheck` added to PR and merge lint jobs.
-- `(resolved)` `scripts/seed-db.js` — uses `crypto.randomUUID` (no undeclared `uuid`).
-- `(resolved)` `deleteCorrespondence` — `TransactWriteItem` typed via `TransactWriteCommandInput` (no `any`).
+- `(resolved)` Logger stdout-only; no `bunyan-cloudwatch` / aws-sdk v2 zip bloat.
+- `(resolved)` OpenAPI global security + public `/contact`; docs match custom TOKEN scheme.
+- `(resolved)` CI typecheck + Jest `coverageThreshold` only (no HTML scrape); TESTING/AGENTS wording aligned.
+- `(resolved)` `scripts/seed-db.js` uses `crypto.randomUUID`.
+- `(resolved)` `deleteCorrespondence` typed without `any`.
+- `(resolved)` Removed success-path `logger.error(letterData)` in `createLetter` (PII).
 
 ## NICE TO HAVE
 
-- `(resolved)` Per-route `LambdaInvokePermission{Route}` logical IDs (scaffold uses `LambdaInvokePermission`).
-- `(resolved)` Category example `TECHNOLOGY` in OpenAPI.
-- `(resolved)` Dropped unused SAM `Transform` from `imageProcessor` template.
-- `(resolved)` Documented that `scripts/post-build.js` is optional / not on the default package path.
-- `(resolved)` Removed unused `dotenv` `DefinePlugin` from route webpack configs.
-- Test teardown — Fix Jest “worker failed to exit gracefully” (likely open handles from AWS clients) — still optional.
+- `(resolved)` Per-route invoke permission names; Category example; imageProcessor Transform; post-build docs; webpack `dotenv` DefinePlugin; unused `webpack` requires.
+- `(resolved)` Util tests import leaf modules and destroy Dynamo client to reduce open-handle risk.
 
 ## OUT OF SCOPE
 
@@ -52,21 +49,21 @@ Lambda-per-route TypeScript mono-repo; shared `src/common/`; CFN split; sibling 
 
 - Live authorizer vs OpenAPI wording in deployed stages
 - CFN stack deploy order for greenfield accounts
-- Confirm redeploy picks up `index.handler` and smaller zips without `aws-sdk` v2 JSON
-- Confirm CFN rename of invoke permission logical IDs is a no-op or accepted replacement on next stack update
+- Confirm redeploy picks up `index.handler` and slim zips without `aws-sdk` v2
+- Confirm CFN rename of invoke permission logical IDs on next stack update
 
 ## Coverage
 
 - Jest `coverageThreshold.global.statements: 80` is the sole coverage gate.
-- Coverage HTML uploaded as a CI artifact only (not scraped).
+- Coverage HTML uploaded as a CI artifact only.
 
 ## Strengths
 
-- Governance spine (`CONTEXT.md` → docs → Cursor) is API-shaped and accurate
-- `make preflight` green (lint, typecheck, test, representative build)
-- S3/SES on AWS SDK v3; undeclared `uuid` removed; logging path free of `aws-sdk` v2
-- Route lockfiles + `templates/` synced via `install:all`
+- Governance spine matches Lambda-per-route reality
+- Packaging contract consistent end-to-end
+- Auth OpenAPI/CFN story coherent
+- Multi-package lockfiles + templates synced
 
 ## Verdict
 
-**Ship** — prior MUST/SHOULD/NICE review items addressed; remaining NICE is optional Jest open-handle teardown.
+**Ship** — prior MUST/SHOULD/NICE review items addressed.

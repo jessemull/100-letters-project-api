@@ -9,9 +9,9 @@
 - **Deployed API Gateway** uses a **custom TOKEN** authorizer (sibling `100-letters-project-authorizer`). Identity source: `Authorization` header. TTL may be `0` (see gateway stack).
 - Protected methods: `AuthorizationType: CUSTOM`.
 - **Cognito User Pool** (this repo’s `one-hundred-letters-cognito-pool-stack.yaml`) issues tokens; the authorizer validates them.
-- OpenAPI may still say Cognito user-pool authorizer — treat **CFN as runtime source of truth**.
+- OpenAPI documents the same custom TOKEN scheme (`CognitoAuthorizer` name is historical). Treat **CFN as runtime source of truth** if annotations and methods ever diverge.
 
-Do not log bearer tokens or full JWT payloads.
+Do not log bearer tokens, full JWT payloads, or full letter/recipient request bodies.
 
 ---
 

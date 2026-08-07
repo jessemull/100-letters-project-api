@@ -38,9 +38,7 @@ When changing a payload:
 
 ## Auth annotations vs CFN
 
-OpenAPI `securitySchemes` may describe `CognitoAuthorizer` with `x-amazon-apigateway-authtype: cognito_user_pools`.
-
-**Deployed reality:** custom TOKEN authorizer + `AuthorizationType: CUSTOM` on protected methods. OpenAPI applies global `security: [CognitoAuthorizer]` and sets `security: []` on public `/contact`. Scheme uses `x-amazon-apigateway-authtype: custom`. Prefer CFN methods stack if annotations and CFN ever diverge.
+**Deployed reality:** custom TOKEN authorizer + `AuthorizationType: CUSTOM` on protected methods. OpenAPI applies global `security: [CognitoAuthorizer]` and sets `security: []` on public `/contact`. Scheme name is historical (`CognitoAuthorizer`); `x-amazon-apigateway-authtype` is `custom`. Prefer CFN methods stack if annotations and CFN ever diverge.
 
 ---
 

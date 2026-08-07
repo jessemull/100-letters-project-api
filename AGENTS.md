@@ -140,7 +140,7 @@ Follow `docs/COMMENTS.md`. Prefer self-documenting names; comments explain **why
 ## Testing Rules
 
 - Root Jest covers `src/**/*` (excluding types/config as configured).
-- Coverage gate: **80% statements** (CI scrape + Jest `coverageThreshold` when configured).
+- Coverage gate: **80% statements** (Jest `coverageThreshold` in root `jest.config.js`).
 - Prefer behavior and error-path tests for handlers and shared utils.
 - Do not remove tests solely to raise coverage percentage.
 

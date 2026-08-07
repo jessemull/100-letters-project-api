@@ -18,7 +18,7 @@
 | ----- | ---- | ----- |
 | Unit / handler | Jest 29+ + ts-jest | Root `npm run test:all` collects coverage from `src/**/*` |
 | Per-route | `npm run test:pkg -- <name>` | Route-local jest config where present |
-| Coverage gate | **80% statements** | CI scrapes `coverage/lcov-report/index.html`; Jest `coverageThreshold` should match |
+| Coverage gate | **80% statements** | Enforced by Jest `coverageThreshold` in `jest.config.js`; coverage HTML is an artifact only |
 
 Root `jest.config.js` excludes `src/types/**` and `src/common/config/**` from coverage collection.
 
