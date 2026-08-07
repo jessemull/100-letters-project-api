@@ -52,7 +52,7 @@ These constraints apply to **every change**. No exceptions without explicit huma
 
 ### Platform & packaging
 
-- **AWS Lambda `nodejs20.x`** — keep CI Node and all route `template.yaml` runtimes aligned. Do not bump runtime across templates/workflows without explicit approval.
+- **AWS Lambda `nodejs24.x`** — keep CI Node and all route `template.yaml` runtimes aligned when bumping. Prefer updating templates/workflows to the latest Lambda Node runtime over freezing an older one.
 - **Not Express/Fastify** — each route is a Lambda handler packaged with webpack. Do not invent an HTTP server framework.
 - Webpack zip layout is load-bearing — CFN `Handler` is `index.handler` (zip root `index.js`) and packaging scripts must keep working. Do not “simplify” packaging without verifying a package still deploys.
 - **Multi-package lockfiles** — each `src/routes/<name>/` has its own `package.json` / lockfile. Do not skip route lockfiles after dependency changes. Update `templates/` when scaffolding deps change.
@@ -98,7 +98,7 @@ Before considering work complete, agents MUST ensure:
 | ----------------- | ---------------------------------------------------------------------------------------------- |
 | **Project**       | 100 Letters Project API                                                                        |
 | **Stack**         | TypeScript AWS Lambda + API Gateway (multi-package mono-repo)                                  |
-| **Runtime**       | Node.js 20 / `nodejs20.x`                                                                      |
+| **Runtime**       | Node.js 24 / `nodejs24.x`                                                                      |
 | **Contract**      | `api.yaml` (OpenAPI 3)                                                                         |
 | **Data**          | DynamoDB (letters, recipients, correspondences), S3 images, SES contact email                  |
 | **Auth**          | Custom TOKEN authorizer (sibling repo) + Cognito tokens; CFN `AuthorizationType: CUSTOM`       |

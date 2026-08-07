@@ -20,7 +20,7 @@
 - [ ] `make preflight` green
 - [ ] API contract unchanged or documented (`api.yaml` + models)
 - [ ] No secrets in zips or committed files
-- [ ] Runtime still `nodejs20.x` unless approved bump
+- [ ] Runtime still `nodejs24.x` unless approved bump
 - [ ] Route lockfiles updated if deps changed
 - [ ] For gateway/model/auth changes: plan `deploy-api-gateway.yml`
 

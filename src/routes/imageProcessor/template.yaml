@@ -19,7 +19,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Sub "imageProcessor-${Environment}"
-      Runtime: nodejs20.x
+      Runtime: nodejs24.x
       Role:
         Fn::ImportValue: 
           !Sub "one-hundred-letters-lambda-role-${Environment}"

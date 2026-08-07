@@ -2,11 +2,13 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "ignoreDeprecations": "6.0",
     "module": "commonjs",
     "outDir": "./dist",
     "skipLibCheck": true,
     "strict": true,
-    "target": "ES6"
+    "target": "ES2024",
+    "types": ["jest", "node"]
   },
   "include": [
     "src/**/*.ts"

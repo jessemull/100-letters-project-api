@@ -37,10 +37,11 @@ See `README.md` for Cognito token, bastion, and seed/reset details.
 
 ## Code style
 
-- ESLint 9 + Prettier
+- ESLint 10 + Prettier
 - TypeScript `strict: true`
 - Shared logic in `src/common/`; one Lambda per `src/routes/<name>/`
 - Tests for behavior changes; keep ≥80% statement coverage
+- Prefer latest supported deps/Actions/Lambda runtimes (`docs/DEPENDENCIES.md`)
 
 ---
 

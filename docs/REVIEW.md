@@ -15,7 +15,7 @@
 - Architecture violations (Express/HTTP server, wrong layering, collapsing packages without approval)
 - Type-safety abuse (`any` sprawl without justification)
 - Broken API/data contracts (`api.yaml`, gateway models, Dynamo shapes) without documentation
-- Weakening `strict` or Node 20 alignment without approval
+- Weakening `strict` or Node 24 alignment without approval
 
 ### SHOULD (significant)
 

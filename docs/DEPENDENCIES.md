@@ -8,21 +8,22 @@
 
 - Prefer packages already in the tree.
 - New runtime dependencies need a PR problem statement and human review when they touch auth, networking, crypto, or large native binaries.
-- Stay current within **supported** majors; document intentional holds.
+- **Stay on the latest versions that peer ranges allow.** Do not invent holds from CloudFormation/CI alone — update templates and workflows when bumping runtimes.
 - **Never** `npm audit fix --force`.
 - After upgrades: update **root + all route lockfiles + `templates/`** so new routes do not scaffold stale deps.
 - Use `npm run install:all` / existing scripts — there are **no npm workspaces**.
+- Also keep **GitHub Actions** (`actions/*`, `aws-actions/*`, etc.) on current majors.
 
 ---
 
 ## Upgrade process
 
-1. Audit root, `src/routes/*/package.json`, and `templates/package.json.template` vs latest.
-2. Upgrade in groups (tooling → eslint/typescript → jest → AWS SDK → webpack → logging).
+1. Audit root, `src/routes/*/package.json`, `templates/package.json.template`, `.github/workflows/`, and Lambda `Runtime` in all `template.yaml` files vs latest.
+2. Upgrade in groups (Node/runtime + Actions → tooling → eslint/typescript → jest → AWS SDK → webpack → logging).
 3. After each risky group: `npm run install:all`, `npm run test:all`, packaging smoke (`build-pkg` / `package:pkg` on at least one route).
-4. Fix undeclared runtime imports (`uuid`, `aws-sdk`, etc.) as part of making upgrades safe.
-5. Record holds in the table below.
-6. Prefer migrating S3/SES to AWS SDK v3 (`@aws-sdk/client-s3`, `@aws-sdk/client-ses`, presigner). If deferred, **declare** `aws-sdk` v2 explicitly — do not rely on `bunyan-cloudwatch`’s transitive copy.
+4. Fix undeclared runtime imports as part of making upgrades safe.
+5. Record **only true peer/interop holds** in the table below.
+6. Application AWS clients use SDK v3 (`@aws-sdk/*`). Do not reintroduce `aws-sdk` v2 imports.
 
 ---
 
@@ -40,23 +41,27 @@
 
 ## Intentional version holds
 
+Only list packages that **cannot** move to latest because of peer/tooling constraints (not convenience).
+
 | Package / area | Held at | Latest blocked | Why |
 | -------------- | ------- | -------------- | --- |
-| Lambda Node / CI | **20** / `nodejs20.x` | 22+ | Runtime bump requires all `template.yaml` + workflows + human approval |
-| ESLint | **9.x** (currently ^9.39.5) | 10.x | Stay on 9 until ecosystem peers allow 10 |
-| TypeScript | **5.x** (currently ^5.9.3) | 6+/7 | typescript-eslint peers (`typescript: >=4.3 <7`) |
-| `lint-staged` | **15.x** | 17.x | Avoid unrelated major churn with Husky/commitlint until validated |
-| `bunyan` / `bunyan-cloudwatch` | **1.8.15** / **2.2.0** | n/a (latest) | Still current; CloudWatch logging must keep working |
-| `aws-sdk` v2 | **removed from app code** | — | S3/SES migrated to `@aws-sdk/client-s3` / `client-ses` + presigner; v2 may remain transitive via `bunyan-cloudwatch` only — webpack still packs large `aws-sdk` API JSON into route zips (SHOULD: externalize or replace logger) |
+| TypeScript | **6.0.x** (^6.0.3) | 7.x | `@typescript-eslint/*` peers: `typescript: >=4.8.4 <6.1.0`; `ts-jest` peers: `typescript: >=4.3 <7`. Root tsconfig sets `ignoreDeprecations: "6.0"` for route `baseUrl` until paths are migrated. |
+| `bunyan` / `bunyan-cloudwatch` | **1.8.15** / **2.2.0** | n/a (already latest) | CloudWatch logging stack; transitive `aws-sdk` v2 still pulled into webpack bundles (SHOULD: externalize or replace logger) |
 
-### Resolved in latest upgrade
+### Not holds (current targets)
 
-- Undeclared `uuid` usage replaced with Node `crypto.randomUUID` (Node 20).
-- S3/SES no longer rely on undeclared transitive `aws-sdk` v2 for application code.
-- `@aws-sdk/*` aligned to ^3.1105.0 across root and routes.
-- Jest **30** + ts-jest **29.4** (peers allow Jest 29/30); coverageThreshold statements **80** remains.
+| Area | Current |
+| ---- | ------- |
+| Lambda runtime | `nodejs24.x` (all route `template.yaml` + scaffold) |
+| CI Node | `24` (`setup-node`) |
+| `engines.node` | `>=22 <25` (local/CI may use 22+; Lambda runtime **nodejs24.x**) |
+| ESLint | **10.x** |
+| Jest / ts-jest | **30** / **29.4** |
+| `@aws-sdk/*` | **^3.1105.0** |
+| webpack / webpack-cli | **5.109** / **7.x** |
+| GitHub Actions | `checkout@v7`, `setup-node@v7`, `upload-artifact@v7`, `configure-aws-credentials@v6`, `changed-files@v47` |
 
-Re-validate peers on each upgrade cycle; do not cargo-cult holds from other repos.
+Re-validate peers on each upgrade cycle. Prefer updating CFN/workflows/docs when a newer runtime exists over freezing an old runtime “because templates say so.”
 
 ---
 
@@ -72,4 +77,4 @@ Re-validate peers on each upgrade cycle; do not cargo-cult holds from other repo
 ## Automation
 
 - Prefer Dependabot / manual grouped PRs with `make preflight` green.
-- Breaking majors: one concern per PR when feasible; always sync route lockfiles.
+- Breaking majors: one concern per PR when feasible; always sync route lockfiles and Action pins.

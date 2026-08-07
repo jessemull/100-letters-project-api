@@ -33,7 +33,7 @@ Lambda-per-route TypeScript mono-repo; shared `src/common/`; CFN split; sibling 
 
 ## NICE TO HAVE
 
-- `(resolved)` Root `package.json` — `"engines": { "node": ">=20 <21" }` added.
+- `(resolved)` Root `package.json` — `"engines": { "node": ">=24 <25" }` added.
 - Test teardown — Fix Jest “worker failed to exit gracefully” (likely open handles from AWS/logging clients).
 
 ## OUT OF SCOPE

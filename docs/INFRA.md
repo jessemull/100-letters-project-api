@@ -27,7 +27,7 @@
 Each `src/routes/<name>/template.yaml` defines:
 
 - `AWS::Lambda::Function` (`<name>-${Environment}`)
-- Runtime `nodejs20.x`, Handler `index.handler`
+- Runtime `nodejs24.x`, Handler `index.handler`
 - Code from imported artifact bucket + `S3Key` parameter
 - Env vars via `{{resolve:secretsmanager:…}}`
 - API Gateway invoke permission

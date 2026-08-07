@@ -20,7 +20,7 @@ When OpenAPI (`api.yaml`) and CloudFormation disagree on **deployed** auth or me
 
 ## Non-negotiable constraints
 
-Summarized from `CONTEXT.md`: Lambda Node 20, strict TypeScript, ≥80% statement coverage, Conventional Commits, no secrets in source/zips/logs, no Express, preserve multi-package packaging, no `npm audit fix --force`.
+Summarized from `CONTEXT.md`: Lambda Node 24, strict TypeScript, ≥80% statement coverage, Conventional Commits, no secrets in source/zips/logs, no Express, preserve multi-package packaging, no `npm audit fix --force`.
 
 ---
 

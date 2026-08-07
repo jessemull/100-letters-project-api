@@ -70,7 +70,7 @@ routes/<name>/index.ts  →  src/common/*  →  src/types/*
 4. CI uploads the zip to the Lambda artifact S3 bucket and applies the route `template.yaml` via CloudFormation change set.
 5. `Handler` in templates is **`index.handler`**, matching webpack zip contents (`index.js` at the zip root). Do not change Handler or packaging independently without verifying the pair.
 
-Runtime: **`nodejs20.x`** on all route templates; CI uses Node 20.
+Runtime: **`nodejs24.x`** on all route templates; CI uses Node 24.
 
 ---
 

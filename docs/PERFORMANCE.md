@@ -21,7 +21,7 @@
 
 ## Cold start
 
-- Keep Node 20; avoid huge sync work at module load when possible.
+- Keep Node 24; avoid huge sync work at module load when possible.
 - Reuse SDK clients at module scope (existing pattern in `src/common/util/`).
 - Be careful with native addons and dynamic imports that inflate init time.
 

@@ -21,7 +21,7 @@
 
 ## Quality jobs
 
-- Node **20**
+- Node **24**
 - `npm ci` / install as defined in the workflow
 - ESLint (`lint:all`)
 - Jest with coverage; HTML scrape for **Statements** ≥ 80%

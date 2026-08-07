@@ -11,7 +11,7 @@
 | --------------------- | --------------------------------------------------------------------- |
 | **Project**           | 100 Letters Project API                                               |
 | **Architecture**      | Lambda-per-route TypeScript mono-repo + shared `src/common/`          |
-| **Platform**          | AWS Lambda (`nodejs20.x`) + API Gateway                               |
+| **Platform**          | AWS Lambda (`nodejs24.x`) + API Gateway                               |
 | **Core Technologies** | TypeScript, Jest, ESLint 9, webpack, AWS SDK, bunyan                  |
 | **CI/CD**             | GitHub Actions → S3 zip artifacts → CloudFormation change sets        |
 | **Git Hooks**         | Husky + lint-staged + Conventional Commits (commitlint)               |
@@ -122,7 +122,7 @@ Follow `docs/COMMENTS.md`. Prefer self-documenting names; comments explain **why
 
 - Webpack emits `dist/index.js` (`commonjs2`); `npm run package` zips `dist/`.
 - CFN `Handler` is `index.handler` (zip root) — treat packaging and Handler as a verified pair (see `docs/ARCHITECTURE.md` and `lambda-packaging` skill).
-- Runtime stays `nodejs20.x` unless human-approved across all templates + CI.
+- Runtime stays `nodejs24.x` aligned with CI; when AWS adds a newer Node runtime, bump templates + workflows together.
 
 ### Auth & siblings
 
