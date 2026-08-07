@@ -56,5 +56,5 @@ Do not log bearer tokens or full JWT payloads.
 
 ## Observability
 
-- Bunyan + CloudWatch via `bunyan-cloudwatch`.
+- Bunyan logs to stdout; Lambda ships stdout/stderr to CloudWatch Logs automatically (no `bunyan-cloudwatch` / `aws-sdk` v2 in bundles).
 - Log enough to debug; do not log secrets, Authorization headers, or unnecessary PII (letter body contents, email bodies beyond what ops already require).

@@ -8,6 +8,8 @@ servers:
     description: Production API
   - url: https://api-dev.onehundredletters.com
     description: Development API
+security:
+  - CognitoAuthorizer: []
 paths:
   /letter:
     get:
@@ -78,8 +80,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InternalServerError"
-      security:
-        - CognitoAuthorizer: []
   /letter/{id}:
     get:
       summary: "Get Letter By ID"
@@ -276,8 +276,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InternalServerError"
-      security:
-        - CognitoAuthorizer: []
   /recipient/{id}:
     get:
       summary: "Get Recipient By ID"
@@ -474,8 +472,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InternalServerError"
-      security:
-        - CognitoAuthorizer: []
   /correspondence/{id}:
     get:
       summary: "Get Correspondence By ID"
@@ -618,6 +614,7 @@ paths:
   /contact:
     post:
       summary: "Send Contact E-Mail"
+      security: []
       requestBody:
         content:
           application/json:
@@ -779,7 +776,7 @@ components:
         - SCIENCE
         - SPORTS
         - TECHNOLOGY
-      example: "Technology"
+      example: "TECHNOLOGY"
     City:
       type: "string"
       example: "Los Angeles"

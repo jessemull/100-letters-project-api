@@ -35,7 +35,7 @@
 | S3 | `@aws-sdk/client-s3` + `@aws-sdk/s3-request-presigner` (v3) via `src/common/util/s3.ts` |
 | SES | `@aws-sdk/client-ses` (v3) via `src/common/util/ses.ts` |
 | Cognito token script | `@aws-sdk/client-cognito-identity-provider` (devDependency) |
-| `aws-sdk` v2 | Do **not** import in application code; may remain transitive via `bunyan-cloudwatch` only |
+| `aws-sdk` v2 | Do **not** import in application code; removed from the logging path (stdout-only bunyan) |
 
 ---
 
@@ -46,7 +46,7 @@ Only list packages that **cannot** move to latest because of peer/tooling constr
 | Package / area | Held at | Latest blocked | Why |
 | -------------- | ------- | -------------- | --- |
 | TypeScript | **6.0.x** (^6.0.3) | 7.x | `@typescript-eslint/*` peers: `typescript: >=4.8.4 <6.1.0`; `ts-jest` peers: `typescript: >=4.3 <7`. Root tsconfig sets `ignoreDeprecations: "6.0"` for route `baseUrl` until paths are migrated. |
-| `bunyan` / `bunyan-cloudwatch` | **1.8.15** / **2.2.0** | n/a (already latest) | CloudWatch logging stack; transitive `aws-sdk` v2 still pulled into webpack bundles (SHOULD: externalize or replace logger) |
+| `bunyan` | **1.8.15** | n/a (already latest) | Structured stdout logging; Lambda captures to CloudWatch |
 
 ### Not holds (current targets)
 

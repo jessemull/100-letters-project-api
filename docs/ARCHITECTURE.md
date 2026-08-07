@@ -65,8 +65,8 @@ routes/<name>/index.ts  →  src/common/*  →  src/types/*
 ## Packaging
 
 1. Webpack builds each route to `src/routes/<name>/dist/index.js` (`libraryTarget: commonjs2`, `target: node`).
-2. Post-build may install production deps into `dist/` (see route `prebuild` / `scripts/post-build.js`).
-3. `npm run package` zips `dist/` contents to `dist/<name>.zip`.
+2. `npm run package` zips `dist/` contents to `dist/<name>.zip` (webpack bundle only; production deps are bundled, not installed into `dist/`).
+3. Optional helper [`scripts/post-build.js`](../scripts/post-build.js) can copy `package.json` into `dist/` and `npm install --omit=dev` there if a future packaging strategy uses webpack `externals` for heavy deps — it is **not** wired into the default build/package scripts today.
 4. CI uploads the zip to the Lambda artifact S3 bucket and applies the route `template.yaml` via CloudFormation change set.
 5. `Handler` in templates is **`index.handler`**, matching webpack zip contents (`index.js` at the zip root). Do not change Handler or packaging independently without verifying the pair.
 

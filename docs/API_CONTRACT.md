@@ -40,7 +40,7 @@ When changing a payload:
 
 OpenAPI `securitySchemes` may describe `CognitoAuthorizer` with `x-amazon-apigateway-authtype: cognito_user_pools`.
 
-**Deployed reality:** custom TOKEN authorizer + `AuthorizationType: CUSTOM` on protected methods. OpenAPI `securitySchemes.CognitoAuthorizer` uses `x-amazon-apigateway-authtype: custom` and documents that Cognito issues tokens while the sibling authorizer validates them. Prefer CFN methods stack as the complete list of CUSTOM vs NONE methods — OpenAPI `security:` annotations may under-list protected routes.
+**Deployed reality:** custom TOKEN authorizer + `AuthorizationType: CUSTOM` on protected methods. OpenAPI applies global `security: [CognitoAuthorizer]` and sets `security: []` on public `/contact`. Scheme uses `x-amazon-apigateway-authtype: custom`. Prefer CFN methods stack if annotations and CFN ever diverge.
 
 ---
 

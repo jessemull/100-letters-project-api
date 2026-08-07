@@ -41,7 +41,7 @@ Resources:
           SES_SOURCE: !Sub "{{resolve:secretsmanager:one-hundred-letters-ses-${Environment}:SecretString:sesSource}}"
           SES_CONTACT: !Sub "{{resolve:secretsmanager:one-hundred-letters-ses-${Environment}:SecretString:sesContact}}"
 
-  LambdaInvokePermissionGetRecipientById:
+  LambdaInvokePermissionSendContactEmail:
     Type: AWS::Lambda::Permission
     DependsOn: MyLambdaFunction
     Properties:

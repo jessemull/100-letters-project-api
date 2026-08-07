@@ -1,6 +1,6 @@
 const { DynamoDBClient, PutItemCommand } = require('@aws-sdk/client-dynamodb');
 const { faker } = require('@faker-js/faker');
-const { v4: uuidv4 } = require('uuid');
+const { randomUUID } = require('crypto');
 
 const dynamoDBClient = new DynamoDBClient({ region: 'us-west-2' });
 
@@ -52,7 +52,7 @@ function generateCorrespondenceData(recipientId, correspondenceId) {
 }
 
 function generateImageURLData(correspondenceId, letterId, imageNumber, view) {
-  const uuid = uuidv4();
+  const uuid = randomUUID();
   const baseUrl = `https://dev.onehundredletters.com/images/mockCorrespondenceId/mockLetterId/mockView`;
 
   return {
@@ -111,8 +111,8 @@ function generateLetterData(correspondenceId, letterId) {
 async function seedData() {
   try {
     for (let i = 0; i < numCorrespondences; i++) {
-      const recipientId = uuidv4();
-      const correspondenceId = uuidv4();
+      const recipientId = randomUUID();
+      const correspondenceId = randomUUID();
 
       const recipient = generateRecipientData(recipientId);
       await dynamoDBClient.send(new PutItemCommand({ TableName: recipientTableName, Item: recipient }));
@@ -124,7 +124,7 @@ async function seedData() {
 
       const letterCount = faker.number.int({ min: 1, max: 3 });
       for (let j = 0; j < letterCount; j++) {
-        const letterId = uuidv4();
+        const letterId = randomUUID();
         const letter = generateLetterData(correspondenceId, letterId);
         await dynamoDBClient.send(new PutItemCommand({ TableName: letterTableName, Item: letter }));
         console.log(`Inserted letter: ${letterId}`);

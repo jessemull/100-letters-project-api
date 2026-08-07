@@ -23,9 +23,10 @@
 
 - Node **24**
 - `npm ci` / install as defined in the workflow
-- ESLint (`lint:all`)
-- Jest with coverage; HTML scrape for **Statements** ≥ 80%
-- No separate typecheck job yet — local `make typecheck` / preflight should still pass
+- ESLint (`lint:all:fix`)
+- Typecheck (`tsc --noEmit`)
+- Jest with coverage; **80% statements** enforced by Jest `coverageThreshold` (no HTML scrape)
+- Coverage report uploaded as a CI artifact
 
 ---
 

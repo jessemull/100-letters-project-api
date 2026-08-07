@@ -40,7 +40,7 @@ Resources:
           PUBLIC_IMAGE_DOMAIN:  !Sub "{{resolve:secretsmanager:one-hundred-letters-images-${Environment}:SecretString:publicImageDomain}}"
           RECIPIENT_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:recipientTableName}}"
   
-  LambdaInvokePermissionGetRecipientById:
+  LambdaInvokePermissionUploads:
     Type: AWS::Lambda::Permission
     DependsOn: MyLambdaFunction
     Properties:
