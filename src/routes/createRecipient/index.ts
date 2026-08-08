@@ -20,7 +20,19 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       return new BadRequestError('Request body is required.').build(headers);
     }
 
-    const body = JSON.parse(event.body);
+    const body = (() => {
+      try {
+        return JSON.parse(event.body);
+      } catch {
+        return null;
+      }
+    })();
+
+    if (!body) {
+      return new BadRequestError('Invalid JSON in request body.').build(
+        headers,
+      );
+    }
 
     const {
       address,
@@ -32,6 +44,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     } = body;
 
     const recipientId = randomUUID();
+    const now = new Date().toISOString();
 
     const recipientData: Recipient = {
       address,
@@ -42,6 +55,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       organization,
       recipientId,
       searchPartition: 'RECIPIENT',
+      createdAt: now,
+      updatedAt: now,
     };
 
     const params = {

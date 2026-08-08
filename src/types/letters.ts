@@ -49,6 +49,7 @@ export type LetterImage = {
 
 export interface Letter {
   correspondenceId: string;
+  createdAt?: string;
   description?: string;
   imageURLs: LetterImage[];
   letterId: string;
@@ -60,6 +61,7 @@ export interface Letter {
   text: string;
   title: string;
   type: LetterType;
+  updatedAt?: string;
 }
 
 export type LetterCreateInput = {

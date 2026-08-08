@@ -88,6 +88,16 @@ describe('Delete Upload Handler', () => {
       'Image and variants deleted successfully!',
     );
     expect(s3.send).toHaveBeenCalledTimes(3);
+    const deletedKeys = (s3.send as jest.Mock).mock.calls.map(
+      ([command]) => command.input.Key,
+    );
+    expect(deletedKeys).toEqual(
+      expect.arrayContaining([
+        'abc123___def456___front___uuid.jpeg',
+        expect.stringMatching(/_thumb\.jpg$/),
+        expect.stringMatching(/_large\.jpg$/),
+      ]),
+    );
   });
 
   it('should return 500 and log error on failure', async () => {

@@ -207,4 +207,20 @@ describe('Get Recipients Handler', () => {
     expect(body.data).toEqual(mockData);
     expect(body.lastEvaluatedKey).toBeNull();
   });
+
+  it('should return 400 for invalid lastEvaluatedKey', async () => {
+    const result = (await handler(
+      {
+        queryStringParameters: { lastEvaluatedKey: '%7Bnot-json' },
+        headers: {},
+      } as unknown as APIGatewayProxyEvent,
+      {} as Context,
+      () => {},
+    )) as APIGatewayProxyResult;
+
+    expect(result.statusCode).toBe(400);
+    expect(JSON.parse(result.body || '').message).toBe(
+      'Invalid lastEvaluatedKey.',
+    );
+  });
 });

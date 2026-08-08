@@ -1,5 +1,5 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { DatabaseError } from '../../common/errors';
+import { BadRequestError, DatabaseError } from '../../common/errors';
 import { Letter } from '../../types';
 import { GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
@@ -15,9 +15,14 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const limit = parseInt(queryParameters.limit || '50', 10);
   const search = queryParameters.search?.trim();
 
-  const lastEvaluatedKey = queryParameters.lastEvaluatedKey
-    ? JSON.parse(decodeURIComponent(queryParameters.lastEvaluatedKey))
-    : undefined;
+  let lastEvaluatedKey;
+  try {
+    lastEvaluatedKey = queryParameters.lastEvaluatedKey
+      ? JSON.parse(decodeURIComponent(queryParameters.lastEvaluatedKey))
+      : undefined;
+  } catch {
+    return new BadRequestError('Invalid lastEvaluatedKey.').build(headers);
+  }
 
   try {
     const expressionAttributeValues: Record<string, unknown> = {
@@ -60,6 +65,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
             `Error fetching recipient with ID ${correspondence.recipientId}: `,
             error,
           );
+          throw error;
         }
 
         const lettersParams = {
@@ -81,6 +87,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
             `Error fetching letters for correspondence ID ${correspondence.correspondenceId}: `,
             error,
           );
+          throw error;
         }
 
         return {

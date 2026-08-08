@@ -71,16 +71,20 @@ describe('Create Recipient Handler', () => {
     expect(result.statusCode).toBe(201);
     const responseBody = JSON.parse(result.body || '');
     expect(responseBody.message).toBe('Recipient created successfully!');
-    expect(responseBody.data).toEqual({
-      recipientId: 'mock-uuid',
-      firstName: 'John',
-      lastName: 'Doe',
-      address: '123 Street',
-      description: 'A description',
-      occupation: 'Engineer',
-      organization: 'Toyota',
-      searchPartition: 'RECIPIENT',
-    });
+    expect(responseBody.data).toEqual(
+      expect.objectContaining({
+        recipientId: 'mock-uuid',
+        firstName: 'John',
+        lastName: 'Doe',
+        address: '123 Street',
+        description: 'A description',
+        occupation: 'Engineer',
+        organization: 'Toyota',
+        searchPartition: 'RECIPIENT',
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+      }),
+    );
   });
 
   it('should return 400 error if body is missing', async () => {

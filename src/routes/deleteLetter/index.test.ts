@@ -60,7 +60,7 @@ describe('Delete Letter Handler', () => {
       mockCallback,
     )) as APIGatewayProxyResult;
 
-    expect(response.statusCode).toBe(400);
+    expect(response.statusCode).toBe(404);
     expect(JSON.parse(response.body).message).toBe('Letter not found.');
   });
 

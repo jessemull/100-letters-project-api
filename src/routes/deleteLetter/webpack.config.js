@@ -35,6 +35,7 @@ module.exports = {
   mode: 'none',
   plugins: [
     new (require('webpack').optimize.LimitChunkCountPlugin)({ maxChunks: 1 }),
+    new (require('webpack').IgnorePlugin)({ resourceRegExp: /^dotenv$/ }),
   ],
   optimization: {
     splitChunks: false,

@@ -8,6 +8,7 @@ export type Address = {
 
 export type Recipient = {
   address: Address;
+  createdAt?: string;
   description?: string;
   firstName: string;
   lastName: string;
@@ -15,6 +16,7 @@ export type Recipient = {
   organization?: string;
   recipientId: string;
   searchPartition: string;
+  updatedAt?: string;
 };
 
 export type RecipientCreateInput = {

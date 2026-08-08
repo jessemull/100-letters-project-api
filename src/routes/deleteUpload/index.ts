@@ -29,8 +29,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     const originalKey = fileKey;
     const basePath = `images/${correspondenceId}/${letterId}/${view}/${uuid}`;
-    const thumbnailKey = `${basePath}_thumb.webp`;
-    const largeKey = `${basePath}_large.webp`;
+    const thumbnailKey = `${basePath}_thumb.jpg`;
+    const largeKey = `${basePath}_large.jpg`;
 
     const bucket = process.env.IMAGE_S3_BUCKET_NAME!;
     await Promise.all([

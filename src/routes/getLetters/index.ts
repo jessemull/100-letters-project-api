@@ -1,6 +1,6 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { QueryCommand } from '@aws-sdk/lib-dynamodb';
-import { DatabaseError } from '../../common/errors';
+import { BadRequestError, DatabaseError } from '../../common/errors';
 import { config } from '../../common/config';
 import { dynamoClient } from '../../common/util/dynamo';
 import { logger } from '../../common/util/logger';
@@ -14,9 +14,14 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const search = queryParameters.search?.trim();
   const headers = getHeaders(event);
 
-  const lastEvaluatedKey = queryParameters.lastEvaluatedKey
-    ? JSON.parse(decodeURIComponent(queryParameters.lastEvaluatedKey))
-    : undefined;
+  let lastEvaluatedKey;
+  try {
+    lastEvaluatedKey = queryParameters.lastEvaluatedKey
+      ? JSON.parse(decodeURIComponent(queryParameters.lastEvaluatedKey))
+      : undefined;
+  } catch {
+    return new BadRequestError('Invalid lastEvaluatedKey.').build(headers);
+  }
 
   try {
     const expressionAttributeValues: Record<string, unknown> = {

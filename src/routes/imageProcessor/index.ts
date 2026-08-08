@@ -7,11 +7,11 @@ import { logger } from '../../common/util/logger';
 export const handler: S3Handler = async (event) => {
   try {
     for (const record of event.Records) {
-      logger.info('Processing record: ', record);
       const bucketName = record.s3.bucket.name;
       const fileKey = decodeURIComponent(
         record.s3.object.key.replace(/\+/g, ' '),
       );
+      logger.info(`Processing record: bucket=${bucketName} key=${fileKey}`);
 
       if (!fileKey || !fileKey.startsWith('unprocessed/')) {
         logger.warn(`Skipping non-unprocessed image: ${fileKey}`);

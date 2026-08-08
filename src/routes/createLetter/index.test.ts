@@ -76,6 +76,7 @@ describe('Create Letter Handler', () => {
     expect(responseBody.message).toBe('Letter created successfully!');
     expect(responseBody.data).toEqual({
       correspondenceId: 'mock-correspondence-id',
+      createdAt: expect.any(String),
       imageURLs: ['http://image.url'],
       letterId: 'mock-letter-uuid',
       method: 'email',
@@ -84,6 +85,7 @@ describe('Create Letter Handler', () => {
       text: 'Hello, this is a letter.',
       title: 'Letter to John',
       type: 'sent',
+      updatedAt: expect.any(String),
     });
   });
 
@@ -202,6 +204,7 @@ describe('Create Letter Handler', () => {
     expect(responseBody.message).toBe('Letter created successfully!');
     expect(responseBody.data).toEqual({
       correspondenceId: 'mock-correspondence-id',
+      createdAt: expect.any(String),
       description: 'This is a description of the letter.',
       imageURLs: ['http://image.url'],
       letterId: 'mock-letter-uuid',
@@ -213,6 +216,7 @@ describe('Create Letter Handler', () => {
       text: 'Hello, this is a letter.',
       title: 'Letter to John',
       type: 'sent',
+      updatedAt: expect.any(String),
     });
   });
 

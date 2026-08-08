@@ -29,7 +29,14 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       return new BadRequestError('Request body is required.').build(headers);
     }
 
-    const body = JSON.parse(event.body);
+    let body;
+    try {
+      body = JSON.parse(event.body);
+    } catch {
+      return new BadRequestError('Invalid JSON in request body.').build(
+        headers,
+      );
+    }
 
     const {
       address,

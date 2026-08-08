@@ -1,5 +1,9 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { BadRequestError, DatabaseError } from '../../common/errors';
+import {
+  BadRequestError,
+  DatabaseError,
+  NotFoundError,
+} from '../../common/errors';
 import { DeleteCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
 import { dynamoClient } from '../../common/util/dynamo';
@@ -30,7 +34,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const { Items } = await dynamoClient.send(new QueryCommand(queryParams));
 
     if (!Items || Items.length === 0) {
-      return new BadRequestError('Letter not found.').build(headers);
+      return new NotFoundError('Letter not found.').build(headers);
     }
 
     const correspondenceId = Items[0].correspondenceId;

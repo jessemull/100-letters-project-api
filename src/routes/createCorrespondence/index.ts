@@ -1,6 +1,10 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { BadRequestError, DatabaseError } from '../../common/errors';
-import { LetterCreateInput, Letter } from '../../types';
+import {
+  LetterCreateInput,
+  Letter,
+  CorrespondenceCreateInput,
+} from '../../types';
 import { TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
 import { dynamoClient } from '../../common/util/dynamo';
@@ -20,16 +24,28 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       return new BadRequestError('Request body is required.').build(headers);
     }
 
-    const { recipient, correspondence, letters } = JSON.parse(event.body);
+    let parsedBody: CorrespondenceCreateInput;
+    try {
+      parsedBody = JSON.parse(event.body);
+    } catch {
+      return new BadRequestError('Invalid JSON in request body.').build(
+        headers,
+      );
+    }
+
+    const { recipient, correspondence, letters } = parsedBody;
 
     const { reason, status, title } = correspondence;
 
+    const now = new Date().toISOString();
     const recipientId = randomUUID();
     const correspondenceId = randomUUID();
 
     const recipientItem = {
       recipientId,
       searchPartition: 'RECIPIENT',
+      createdAt: now,
+      updatedAt: now,
       ...recipient,
     };
 
@@ -40,6 +56,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       searchPartition: 'CORRESPONDENCE',
       status,
       title,
+      createdAt: now,
+      updatedAt: now,
     };
 
     const letterItems: Letter[] = letters.map((letter: LetterCreateInput) => ({
@@ -47,6 +65,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       correspondenceId,
       letterId: randomUUID(),
       searchPartition: 'LETTER',
+      createdAt: now,
+      updatedAt: now,
     }));
 
     const transactItems = [

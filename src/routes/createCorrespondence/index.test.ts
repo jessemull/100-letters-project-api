@@ -114,16 +114,22 @@ describe('Create Correspondence Handler', () => {
         searchPartition: 'CORRESPONDENCE',
         status: 'COMPLETE',
         title: 'Test Correspondence',
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
       },
       recipient: {
         recipientId: 'mock-uuid',
         searchPartition: 'RECIPIENT',
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
       },
       letters: [
         {
           letterId: 'mock-uuid',
           correspondenceId: 'mock-uuid',
           searchPartition: 'LETTER',
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
         },
       ],
     };

@@ -26,7 +26,7 @@ jest.mock('../../common/util/logger', () => ({
 
 describe('Get Correspondences Handler', () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   it('should return all correspondences with recipient and letters', async () => {
@@ -160,8 +160,6 @@ describe('Get Correspondences Handler', () => {
   it('should return an error if fetching recipient data fails', async () => {
     const mockCorrespondences = [{ correspondenceId: '1', recipientId: '123' }];
 
-    const mockLetters = [{ correspondenceId: '1', text: 'Letter 1' }];
-
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
       Items: mockCorrespondences,
     });
@@ -169,9 +167,6 @@ describe('Get Correspondences Handler', () => {
     (dynamoClient.send as jest.Mock).mockRejectedValueOnce(
       new Error('Recipient fetch error'),
     );
-    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Items: mockLetters,
-    });
 
     const context: Context = {} as Context;
     const event: APIGatewayProxyEvent = {
@@ -193,15 +188,7 @@ describe('Get Correspondences Handler', () => {
       () => {},
     )) as APIGatewayProxyResult;
 
-    expect(result.statusCode).toBe(200);
-    expect(JSON.parse(result.body || '').data).toEqual([
-      {
-        correspondenceId: '1',
-        recipientId: '123',
-        recipient: null,
-        letters: mockLetters,
-      },
-    ]);
+    expect(result.statusCode).toBe(500);
     expect(logger.error).toHaveBeenCalledWith(
       'Error fetching recipient with ID 123: ',
       expect.any(Error),
@@ -245,15 +232,7 @@ describe('Get Correspondences Handler', () => {
       () => {},
     )) as APIGatewayProxyResult;
 
-    expect(result.statusCode).toBe(200);
-    expect(JSON.parse(result.body || '').data).toEqual([
-      {
-        correspondenceId: '1',
-        recipientId: '123',
-        recipient: mockRecipient,
-        letters: [],
-      },
-    ]);
+    expect(result.statusCode).toBe(500);
     expect(logger.error).toHaveBeenCalledWith(
       'Error fetching letters for correspondence ID 1: ',
       expect.any(Error),
@@ -365,7 +344,12 @@ describe('Get Correspondences Handler', () => {
       Items: mockCorrespondences,
       LastEvaluatedKey: '',
     });
-    (dynamoClient.send as jest.Mock).mockResolvedValue(undefined);
+    (dynamoClient.send as jest.Mock).mockImplementation(async (command) => {
+      if (command.constructor.name === 'GetCommand') {
+        return { Item: undefined };
+      }
+      return { Items: undefined };
+    });
 
     const context: Context = {} as Context;
     const event: APIGatewayProxyEvent = {
@@ -409,5 +393,21 @@ describe('Get Correspondences Handler', () => {
       },
     ]);
     expect(responseBody.lastEvaluatedKey).toBeNull();
+  });
+
+  it('should return 400 for invalid lastEvaluatedKey', async () => {
+    const result = (await handler(
+      {
+        queryStringParameters: { lastEvaluatedKey: '%7Bnot-json' },
+        headers: {},
+      } as unknown as APIGatewayProxyEvent,
+      {} as Context,
+      () => {},
+    )) as APIGatewayProxyResult;
+
+    expect(result.statusCode).toBe(400);
+    expect(JSON.parse(result.body || '').message).toBe(
+      'Invalid lastEvaluatedKey.',
+    );
   });
 });

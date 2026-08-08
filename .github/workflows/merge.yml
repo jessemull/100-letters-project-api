@@ -48,16 +48,8 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v7
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v6
         with:
-          aws-region: us-west-2
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionsRole
-          role-session-name: GithubLambdaDeployment
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          role-duration-seconds: 3600
+          fetch-depth: 0
 
       - name: Get Changed Files
         id: changed-files

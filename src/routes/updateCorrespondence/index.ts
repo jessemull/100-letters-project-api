@@ -1,6 +1,11 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { BadRequestError, DatabaseError } from '../../common/errors';
-import { LetterUpdateInput, UpdateParams, TransactionItem } from '../../types';
+import {
+  LetterUpdateInput,
+  UpdateParams,
+  TransactionItem,
+  CorrespondenceUpdateInput,
+} from '../../types';
 import {
   TransactWriteCommand,
   GetCommand,
@@ -31,7 +36,16 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       return new BadRequestError('Request body is required.').build(headers);
     }
 
-    const { recipient, correspondence, letters } = JSON.parse(event.body);
+    let parsedBody: CorrespondenceUpdateInput;
+    try {
+      parsedBody = JSON.parse(event.body);
+    } catch {
+      return new BadRequestError('Invalid JSON in request body.').build(
+        headers,
+      );
+    }
+
+    const { recipient, correspondence, letters } = parsedBody;
 
     const { reason, status, title } = correspondence;
 

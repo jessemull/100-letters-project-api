@@ -112,7 +112,7 @@ Resources:
                   - LETTER_FRONT
                   - LETTER_BACK
                   - OTHER
-            required: ["correspondenceId", "imageURL", "letterId", "mimeType", "signedUrl", "uuid", "view"]
+            required: ["correspondenceId", "dateUploaded", "fileKey", "imageURL", "letterId", "mimeType", "signedUrl", "thumbnailUrl", "uploadedBy", "uuid", "view"]
           message:
             type: "string"
         required: ["data", "message"]

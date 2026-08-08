@@ -29,7 +29,7 @@ export interface UpdateParams {
     [key: string]: string;
   };
   ExpressionAttributeValues: {
-    [key: string]: string;
+    [key: string]: unknown;
   };
   ReturnValues: ReturnValue;
 }

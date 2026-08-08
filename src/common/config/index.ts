@@ -1,6 +1,13 @@
-import * as dotenv from 'dotenv';
-
-dotenv.config();
+// Load .env only outside Lambda (local scripts/tests). Webpack IgnorePlugin
+// keeps dotenv out of route bundles.
+if (!process.env.AWS_EXECUTION_ENV && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('dotenv').config();
+  } catch {
+    // optional dependency for local use
+  }
+}
 
 const config = {
   accessControlAllowOrigins: process.env.ACCESS_CONTROL_ALLOW_ORIGIN
