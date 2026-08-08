@@ -58,7 +58,7 @@ function generateImageURLData(correspondenceId, letterId, imageNumber, view) {
   return {
     M: {
       id: { S: uuid },
-      fileKey: { S: `images/${correspondenceId}/${letterId}/${view}/${uuid}_large_${imageNumber}.jpg` },
+      fileKey: { S: `unprocessed/${correspondenceId}___${letterId}___${view}___${uuid}.jpg` },
       url: { S: `${baseUrl}/mock_image_large_${imageNumber}.jpg` },
       urlThumbnail: { S: `${baseUrl}/mock_image_thumb_${imageNumber}.jpg` },
       view: { S: view },

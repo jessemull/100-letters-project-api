@@ -3,7 +3,7 @@ import {
   Context,
   APIGatewayProxyResult,
 } from 'aws-lambda';
-import { handler } from './index';
+import { handler, resolveDeleteKeys } from './index';
 import { logger } from '../../common/util/logger';
 import { s3 } from '../../common/util/s3';
 
@@ -28,6 +28,43 @@ jest.mock('../../common/util/logger', () => ({
     error: jest.fn(),
   },
 }));
+
+describe('resolveDeleteKeys', () => {
+  it('parses unprocessed ___ keys', () => {
+    expect(
+      resolveDeleteKeys(
+        'unprocessed/abc123___def456___LETTER_FRONT___uuid-1.jpeg',
+      ),
+    ).toEqual([
+      'unprocessed/abc123___def456___LETTER_FRONT___uuid-1.jpeg',
+      'images/abc123/def456/LETTER_FRONT/uuid-1_thumb.jpg',
+      'images/abc123/def456/LETTER_FRONT/uuid-1_large.jpg',
+    ]);
+  });
+
+  it('parses processed images/ keys including seed _large_N', () => {
+    const corr = '6c18f8f5-bc49-4229-8a13-3d3471425f29';
+    const letter = '2e5d1072-9dcb-446b-b972-eac5d9e1fc9c';
+    const uuid = 'd4f872a4-1e32-4514-870f-1ffeeeb10058';
+    const fileKey = `images/${corr}/${letter}/LETTER_FRONT/${uuid}_large_8.jpg`;
+
+    const keys = resolveDeleteKeys(fileKey);
+
+    expect(keys).toEqual(
+      expect.arrayContaining([
+        fileKey,
+        `images/${corr}/${letter}/LETTER_FRONT/${uuid}_thumb.jpg`,
+        `images/${corr}/${letter}/LETTER_FRONT/${uuid}_large.jpg`,
+        `unprocessed/${corr}___${letter}___LETTER_FRONT___${uuid}.jpg`,
+      ]),
+    );
+  });
+
+  it('returns null for invalid keys', () => {
+    expect(resolveDeleteKeys('bad___format.jpeg')).toBeNull();
+    expect(resolveDeleteKeys('images/not/a/valid.jpg')).toBeNull();
+  });
+});
 
 describe('Delete Upload Handler', () => {
   const context = {} as Context;
@@ -98,6 +135,29 @@ describe('Delete Upload Handler', () => {
         expect.stringMatching(/_large\.jpg$/),
       ]),
     );
+  });
+
+  it('should delete processed seed-style images/ keys', async () => {
+    (s3.send as jest.Mock).mockResolvedValue({});
+    process.env.IMAGE_S3_BUCKET_NAME = 'mock-bucket';
+
+    const corr = '6c18f8f5-bc49-4229-8a13-3d3471425f29';
+    const letter = '2e5d1072-9dcb-446b-b972-eac5d9e1fc9c';
+    const uuid = 'd4f872a4-1e32-4514-870f-1ffeeeb10058';
+    const fileKey = `images/${corr}/${letter}/LETTER_FRONT/${uuid}_large_8.jpg`;
+
+    const event = baseEvent({ fileKey });
+    const result = (await handler(
+      event,
+      context,
+      () => {},
+    )) as APIGatewayProxyResult;
+
+    expect(result.statusCode).toBe(200);
+    const deletedKeys = (s3.send as jest.Mock).mock.calls.map(
+      ([command]) => command.input.Key,
+    );
+    expect(deletedKeys).toEqual(expect.arrayContaining([fileKey]));
   });
 
   it('should return 500 and log error on failure', async () => {
