@@ -83,6 +83,38 @@ describe('Create Correspondence Handler', () => {
     expect(JSON.parse(response.body).message).toBe('Internal Server Error');
   });
 
+  it('should return 400 if the create transaction is canceled', async () => {
+    const event = {
+      body: JSON.stringify({
+        recipient: { name: 'John Doe' },
+        correspondence: {
+          reason: {
+            category: 'Technology',
+            description: 'Test',
+          },
+          status: 'COMPLETED',
+          title: 'Test Correspondence',
+        },
+        letters: [{ letterId: 'letter123', content: 'Hello' }],
+      }),
+    } as unknown as APIGatewayProxyEvent;
+
+    const canceledError = new Error('Transaction canceled');
+    canceledError.name = 'TransactionCanceledException';
+    (dynamoClient.send as jest.Mock).mockRejectedValueOnce(canceledError);
+
+    const response = (await handler(
+      event,
+      mockContext,
+      mockCallback,
+    )) as APIGatewayProxyResult;
+
+    expect(response.statusCode).toBe(400);
+    expect(JSON.parse(response.body).message).toBe(
+      'One or more items already exist or the create transaction was canceled.',
+    );
+  });
+
   it('should return 201 when correspondence, recipient, and letters are successfully created', async () => {
     const event = {
       body: JSON.stringify({

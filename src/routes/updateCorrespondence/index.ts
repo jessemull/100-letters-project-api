@@ -253,7 +253,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     const existingLetters = await queryAllPages({
       TableName: letterTableName,
-      IndexName: 'CorrespondenceIndex',
       KeyConditionExpression: 'correspondenceId = :correspondenceId',
       ExpressionAttributeValues: {
         ':correspondenceId': correspondenceId,
@@ -306,7 +305,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     const updatedLetters = await queryAllPages({
       TableName: letterTableName,
-      IndexName: 'CorrespondenceIndex',
       KeyConditionExpression: 'correspondenceId = :correspondenceId',
       ExpressionAttributeValues: {
         ':correspondenceId': correspondenceId,

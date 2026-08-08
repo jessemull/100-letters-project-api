@@ -117,6 +117,15 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       headers,
     };
   } catch (error) {
+    if (
+      error instanceof Error &&
+      (error.name === 'ConditionalCheckFailedException' ||
+        error.name === 'TransactionCanceledException')
+    ) {
+      return new BadRequestError(
+        'One or more items already exist or the create transaction was canceled.',
+      ).build(headers);
+    }
     logger.error('Error creating correspondence:', error);
     return new DatabaseError('Internal Server Error').build(headers);
   }
