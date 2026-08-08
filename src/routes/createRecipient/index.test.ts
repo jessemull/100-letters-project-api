@@ -153,4 +153,30 @@ describe('Create Recipient Handler', () => {
       expect.any(Error),
     );
   });
+
+  it('should return 400 if ConditionalCheckFailedException is thrown', async () => {
+    const body = {
+      firstName: 'John',
+      lastName: 'Doe',
+      address: '123 Street',
+    };
+
+    const conditionalError = new Error('Conditional check failed');
+    conditionalError.name = 'ConditionalCheckFailedException';
+    (dynamoClient.send as jest.Mock).mockRejectedValueOnce(conditionalError);
+
+    const result = (await handler(
+      {
+        body: JSON.stringify(body),
+        headers: {},
+      } as unknown as APIGatewayProxyEvent,
+      {} as Context,
+      () => {},
+    )) as APIGatewayProxyResult;
+
+    expect(result.statusCode).toBe(400);
+    expect(JSON.parse(result.body || '').message).toBe(
+      'Recipient already exists.',
+    );
+  });
 });

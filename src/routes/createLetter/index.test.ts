@@ -260,4 +260,38 @@ describe('Create Letter Handler', () => {
     expect(responseBody.error).toBe('NotFoundError');
     expect(responseBody.message).toBe('Correspondence ID not found.');
   });
+
+  it('should return 400 if ConditionalCheckFailedException is thrown', async () => {
+    const body = {
+      correspondenceId: 'mock-correspondence-id',
+      imageURLs: ['http://image.url'],
+      method: 'email',
+      status: 'sent',
+      text: 'Hello, this is a letter.',
+      title: 'Letter to John',
+      type: 'sent',
+    };
+
+    const conditionalError = new Error('Conditional check failed');
+    conditionalError.name = 'ConditionalCheckFailedException';
+
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Items: [{ correspondenceId: 'mock-correspondence-id' }],
+    });
+    (dynamoClient.send as jest.Mock).mockRejectedValueOnce(conditionalError);
+
+    const result = (await handler(
+      {
+        body: JSON.stringify(body),
+        headers: {},
+      } as unknown as APIGatewayProxyEvent,
+      {} as Context,
+      () => {},
+    )) as APIGatewayProxyResult;
+
+    expect(result.statusCode).toBe(400);
+    expect(JSON.parse(result.body || '').message).toBe(
+      'Letter already exists.',
+    );
+  });
 });

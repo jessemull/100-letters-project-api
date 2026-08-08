@@ -31,6 +31,12 @@
 
 ---
 
+## Deploy region
+
+Deploy workflows (`manual.yml`, `manual-all.yml`, `rollback.yml`, `deploy-api-gateway.yml`) **intentionally hardcode `us-west-2`**. This matches the account’s regional lock for API Gateway, DynamoDB, Lambda artifacts, and SES. Do not parameterize region in Actions without an explicit multi-region plan. Runtime code still prefers `AWS_REGION` (with a local `us-west-2` fallback).
+
+---
+
 ## Deploy one / all
 
 - **One:** run `manual.yml` with `lambda_function` + `environment` (`dev` | `prod`).

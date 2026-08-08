@@ -78,6 +78,12 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       headers,
     };
   } catch (error) {
+    if (
+      error instanceof Error &&
+      error.name === 'ConditionalCheckFailedException'
+    ) {
+      return new BadRequestError('Recipient already exists.').build(headers);
+    }
     logger.error('Error creating recipient in DynamoDB: ', error);
     return new DatabaseError('Internal Server Error').build(headers);
   }

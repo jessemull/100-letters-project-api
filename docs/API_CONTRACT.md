@@ -50,6 +50,17 @@ Handlers should validate inputs before writes; map failures to shared errors (`B
 
 ---
 
+## Pagination
+
+List endpoints (`GET /letters`, `GET /recipients`, `GET /correspondences`) accept:
+
+- `limit` — integer **1–100** (OpenAPI `LimitParameter`; handlers reject out-of-range values)
+- `lastEvaluatedKey` — opaque cursor from the previous page (URI-encoded JSON)
+
+Default `limit` is `50` when omitted.
+
+---
+
 ## Validation expectations
 
 - Reject malformed bodies with `400` / `BadRequestError`

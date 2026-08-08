@@ -176,4 +176,34 @@ describe('Create Correspondence Handler', () => {
     expect(response.statusCode).toBe(500);
     expect(JSON.parse(response.body).message).toBe('Internal Server Error');
   });
+
+  it('should return 400 if too many letters for a single transaction', async () => {
+    const letters = Array.from({ length: 99 }, (_, i) => ({
+      letterId: `letter-${i}`,
+      text: 'Hello',
+    }));
+
+    const event = {
+      body: JSON.stringify({
+        recipient: { firstName: 'John', lastName: 'Doe', address: '1 St' },
+        correspondence: {
+          reason: { category: 'Technology', description: 'Test' },
+          status: 'COMPLETED',
+          title: 'Test Correspondence',
+        },
+        letters,
+      }),
+    } as unknown as APIGatewayProxyEvent;
+
+    const response = (await handler(
+      event,
+      mockContext,
+      mockCallback,
+    )) as APIGatewayProxyResult;
+
+    expect(response.statusCode).toBe(400);
+    expect(JSON.parse(response.body).message).toContain(
+      'Too many letters for a single transaction',
+    );
+  });
 });

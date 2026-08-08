@@ -10,6 +10,7 @@ import { config } from '../../common/config';
 import { dynamoClient } from '../../common/util/dynamo';
 import { logger } from '../../common/util/logger';
 import { getHeaders } from '../../common/util/headers';
+import { DYNAMO_TRANSACT_MAX_ITEMS } from '../../common/util/query-all';
 import { randomUUID } from 'crypto';
 
 const { correspondenceTableName, letterTableName, recipientTableName } = config;
@@ -68,6 +69,13 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       createdAt: now,
       updatedAt: now,
     }));
+
+    // recipient + correspondence Puts, plus one Put per letter
+    if (2 + letterItems.length > DYNAMO_TRANSACT_MAX_ITEMS) {
+      return new BadRequestError(
+        `Too many letters for a single transaction (max ${DYNAMO_TRANSACT_MAX_ITEMS - 2}).`,
+      ).build(headers);
+    }
 
     const transactItems = [
       {

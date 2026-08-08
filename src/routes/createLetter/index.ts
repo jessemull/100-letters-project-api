@@ -88,7 +88,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const params = {
       TableName: letterTableName,
       Item: letterData,
-      ConditionExpression: 'attribute_not_exists(letterId)',
+      ConditionExpression: 'attribute_not_exists(correspondenceId)',
     };
 
     const command = new PutCommand(params);
@@ -103,6 +103,12 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       headers,
     };
   } catch (error) {
+    if (
+      error instanceof Error &&
+      error.name === 'ConditionalCheckFailedException'
+    ) {
+      return new BadRequestError('Letter already exists.').build(headers);
+    }
     logger.error('Error creating letter in DynamoDB: ', error);
     return new DatabaseError('Internal Server Error').build(headers);
   }

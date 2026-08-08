@@ -55,6 +55,12 @@ Route templates **import** Lambda role ARN and artifact bucket name from shared 
 
 ---
 
+## Region
+
+All shared and route stacks for this project are deployed in **`us-west-2`**. GitHub Actions workflows hardcode that region (see `docs/CI_CD.md`). CFN templates use `${AWS::Region}` so the same YAML remains portable if the account ever moves; the operational lock is the workflow/env choice, not a missing intrinsic.
+
+---
+
 ## Deploy order (high level)
 
 1. Foundational IAM / artifact bucket / CloudWatch role
