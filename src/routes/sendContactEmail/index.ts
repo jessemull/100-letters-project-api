@@ -1,11 +1,8 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { BadRequestError, InternalServerError } from '../../common/errors';
-import {
-  SendEmailCommand,
-  getHeaders,
-  logger,
-  sesClient,
-} from '../../common/util';
+import { logger } from '../../common/util/logger';
+import { getHeaders } from '../../common/util/headers';
+import { SendEmailCommand, sesClient } from '../../common/util/ses';
 
 const captchaSecret = process.env.RECAPTCHA_SECRET_KEY as string;
 const contact = process.env.SES_CONTACT as string;
@@ -16,9 +13,16 @@ const CAPTCHA_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify';
 export const handler: APIGatewayProxyHandler = async (event) => {
   const headers = getHeaders(event);
 
-  const { email, firstName, lastName, message } = JSON.parse(
-    event.body || '{}',
-  );
+  let email: string | undefined;
+  let firstName: string | undefined;
+  let lastName: string | undefined;
+  let message: string | undefined;
+
+  try {
+    ({ email, firstName, lastName, message } = JSON.parse(event.body || '{}'));
+  } catch {
+    return new BadRequestError('Invalid JSON in request body.').build(headers);
+  }
 
   const captchaToken =
     event.headers['g-recaptcha-response'] ||

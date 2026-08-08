@@ -1,7 +1,9 @@
 import path from 'path';
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { BadRequestError, DatabaseError } from '../../common/errors';
-import { DeleteObjectCommand, getHeaders, logger, s3 } from '../../common/util';
+import { logger } from '../../common/util/logger';
+import { getHeaders } from '../../common/util/headers';
+import { DeleteObjectCommand, s3 } from '../../common/util/s3';
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const headers = getHeaders(event);

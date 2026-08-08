@@ -3,7 +3,9 @@ import { BadRequestError, DatabaseError } from '../../common/errors';
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import { Recipient } from '../../types';
 import { config } from '../../common/config';
-import { dynamoClient, getHeaders, logger } from '../../common/util';
+import { dynamoClient } from '../../common/util/dynamo';
+import { logger } from '../../common/util/logger';
+import { getHeaders } from '../../common/util/headers';
 import { randomUUID } from 'crypto';
 
 const { recipientTableName } = config;

@@ -6,7 +6,9 @@ import {
 } from '../../common/errors';
 import { PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
-import { dynamoClient, getHeaders, logger } from '../../common/util';
+import { dynamoClient } from '../../common/util/dynamo';
+import { logger } from '../../common/util/logger';
+import { getHeaders } from '../../common/util/headers';
 import { Letter } from '../../types';
 import { randomUUID } from 'crypto';
 

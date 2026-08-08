@@ -1,12 +1,8 @@
 import path from 'path';
 import { Jimp } from 'jimp';
 import { S3Handler } from 'aws-lambda';
-import {
-  GetObjectCommand,
-  PutObjectCommand,
-  logger,
-  s3,
-} from '../../common/util';
+import { GetObjectCommand, PutObjectCommand, s3 } from '../../common/util/s3';
+import { logger } from '../../common/util/logger';
 
 export const handler: S3Handler = async (event) => {
   try {
@@ -43,7 +39,7 @@ export const handler: S3Handler = async (event) => {
         }),
       );
 
-      logger.info('Image data fetched from S3', s3Object);
+      logger.info(`Image data fetched from S3 for key: ${fileKey}`);
 
       if (!s3Object.Body) {
         throw new Error(`Empty S3 object body for key: ${fileKey}`);
@@ -79,9 +75,7 @@ export const handler: S3Handler = async (event) => {
               ContentType: 'image/jpeg',
             }),
           )
-          .then(() => logger.info(`Successfully uploaded: ${largeKey}`))
-          .catch((err) => logger.error(`Error uploading ${largeKey}`, err)),
-
+          .then(() => logger.info(`Successfully uploaded: ${largeKey}`)),
         s3
           .send(
             new PutObjectCommand({
@@ -91,8 +85,7 @@ export const handler: S3Handler = async (event) => {
               ContentType: 'image/jpeg',
             }),
           )
-          .then(() => logger.info(`Successfully uploaded: ${thumbnailKey}`))
-          .catch((err) => logger.error(`Error uploading ${thumbnailKey}`, err)),
+          .then(() => logger.info(`Successfully uploaded: ${thumbnailKey}`)),
       ]);
 
       logger.info(`Processed and saved images: ${largeKey}, ${thumbnailKey}`);

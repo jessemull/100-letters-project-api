@@ -1001,7 +1001,6 @@ components:
         - type: "object"
           required:
             - "correspondenceId"
-            - "date"
             - "imageURLs"
             - "method"
             - "status"
@@ -1014,7 +1013,6 @@ components:
         - type: "object"
           required:
             - "correspondenceId"
-            - "date"
             - "imageURLs"
             - "letterId"
             - "method"

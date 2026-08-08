@@ -5,13 +5,19 @@ import {
   Callback,
 } from 'aws-lambda';
 import { handler } from './index';
-import { dynamoClient } from '../../common/util';
+import { dynamoClient } from '../../common/util/dynamo';
 
-jest.mock('../../common/util', () => ({
+jest.mock('../../common/util/dynamo', () => ({
   dynamoClient: {
     send: jest.fn(),
   },
+}));
+
+jest.mock('../../common/util/headers', () => ({
   getHeaders: jest.fn(),
+}));
+
+jest.mock('../../common/util/logger', () => ({
   logger: {
     error: jest.fn(),
   },

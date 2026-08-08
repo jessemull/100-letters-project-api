@@ -3,7 +3,9 @@ import { BadRequestError, DatabaseError } from '../../common/errors';
 import { LetterCreateInput, Letter } from '../../types';
 import { TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
-import { dynamoClient, getHeaders, logger } from '../../common/util';
+import { dynamoClient } from '../../common/util/dynamo';
+import { logger } from '../../common/util/logger';
+import { getHeaders } from '../../common/util/headers';
 import { randomUUID } from 'crypto';
 
 const { correspondenceTableName, letterTableName, recipientTableName } = config;

@@ -9,7 +9,7 @@
 | File | Name | Trigger | Purpose |
 | ---- | ---- | ------- | ------- |
 | `.github/workflows/pull-request.yml` | Lint & Test | PR → `main` | Lint, Jest, coverage artifact, fail if statements &lt; 80% |
-| `.github/workflows/merge.yml` | Merge | Push → `main` | Same quality gate; detect changed `src/routes/*` and dispatch per-Lambda deploy to **dev** |
+| `.github/workflows/merge.yml` | Merge | Push → `main` | Same quality gate; detect changed `src/routes/*` (or shared `src/common/` / `src/types/` → all routes) and dispatch per-Lambda deploy to **dev** |
 | `.github/workflows/manual.yml` | Deploy Lambda | `workflow_dispatch` | Build/package one Lambda, upload S3, CFN change set, prune backups |
 | `.github/workflows/manual-all.yml` | Deploy All Lambdas | `workflow_dispatch` | Dispatch `manual.yml` for every route |
 | `.github/workflows/rollback.yml` | Rollback | `workflow_dispatch` | Redeploy from an existing S3 zip key |

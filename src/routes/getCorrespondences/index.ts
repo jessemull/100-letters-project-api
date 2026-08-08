@@ -3,7 +3,9 @@ import { DatabaseError } from '../../common/errors';
 import { Letter } from '../../types';
 import { GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
-import { dynamoClient, getHeaders, logger } from '../../common/util';
+import { dynamoClient } from '../../common/util/dynamo';
+import { logger } from '../../common/util/logger';
+import { getHeaders } from '../../common/util/headers';
 
 const { correspondenceTableName, letterTableName, recipientTableName } = config;
 

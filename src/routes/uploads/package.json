@@ -1,8 +1,6 @@
 {
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.1105.0",
     "@aws-sdk/client-s3": "^3.1105.0",
-    "@aws-sdk/lib-dynamodb": "^3.1105.0",
     "@aws-sdk/s3-request-presigner": "^3.1105.0",
     "bunyan": "^1.8.15"
   },
@@ -28,5 +26,8 @@
     "test": "jest",
     "test:watch": "jest --watch"
   },
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=22 <25"
+  }
 }

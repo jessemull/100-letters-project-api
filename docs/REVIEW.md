@@ -37,8 +37,8 @@
 - Live authorizer behavior vs OpenAPI wording
 - CFN stack deploy order in a given account
 - Residual SDK v2 after upgrades
-- Coverage HTML scrape fragility vs Jest `coverageThreshold`
-- Zip layout vs `Handler: routes/<name>/index.handler`
+- Jest `coverageThreshold` (80% statements) as the sole coverage gate
+- Zip layout vs `Handler: index.handler` (zip-root `index.js`)
 
 ### OUT OF SCOPE
 

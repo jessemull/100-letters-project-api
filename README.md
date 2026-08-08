@@ -58,7 +58,7 @@ This repository is part of the **100 Letters Project** which includes the follow
 
 ## API Documentation
 
-The API endpoints for this project are documented in the OpenAPI v3 format. For detailed information on all available endpoints, request/response formats, and data structures, please refer to the [OpenAPI YAML file](./API.yaml).
+The API endpoints for this project are documented in the OpenAPI v3 format. For detailed information on all available endpoints, request/response formats, and data structures, please refer to the [OpenAPI YAML file](./api.yaml).
 
 Alternatively, you can view the interactive API documentation using tools like [Swagger UI](https://swagger.io/tools/swagger-ui/) or [ReDoc](https://github.com/Redocly/redoc), by hosting the YAML file locally or on a web server.
 
@@ -198,7 +198,7 @@ npm run test:pkg:watch <routeName>
 
 ### Code Coverage
 
-Coverage thresholds are enforced at **80%** for all metrics. The build will fail if coverage drops below this threshold.
+Coverage thresholds are enforced at **80% statements** via Jest `coverageThreshold`. The build will fail if coverage drops below this threshold.
 
 To open the code coverage in the browser:
 

@@ -3,14 +3,21 @@ import {
   APIGatewayProxyResult,
   Context,
 } from 'aws-lambda';
-import { dynamoClient, logger } from '../../common/util';
+import { dynamoClient } from '../../common/util/dynamo';
+import { logger } from '../../common/util/logger';
 import { handler } from './index';
 
-jest.mock('../../common/util', () => ({
+jest.mock('../../common/util/dynamo', () => ({
   dynamoClient: {
     send: jest.fn(),
   },
+}));
+
+jest.mock('../../common/util/headers', () => ({
   getHeaders: jest.fn(),
+}));
+
+jest.mock('../../common/util/logger', () => ({
   logger: {
     error: jest.fn(),
     info: jest.fn(),

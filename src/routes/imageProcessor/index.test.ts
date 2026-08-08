@@ -1,11 +1,12 @@
 import { Context, S3Event } from 'aws-lambda';
 import { Jimp } from 'jimp';
 import { handler } from './index';
-import { logger, s3 } from '../../common/util';
+import { s3 } from '../../common/util/s3';
+import { logger } from '../../common/util/logger';
 
 jest.mock('jimp');
 
-jest.mock('../../common/util', () => {
+jest.mock('../../common/util/s3', () => {
   const actualS3 = jest.requireActual('@aws-sdk/client-s3');
   return {
     GetObjectCommand: actualS3.GetObjectCommand,
@@ -13,13 +14,16 @@ jest.mock('../../common/util', () => {
     s3: {
       send: jest.fn(),
     },
-    logger: {
-      info: jest.fn(),
-      warn: jest.fn(),
-      error: jest.fn(),
-    },
   };
 });
+
+jest.mock('../../common/util/logger', () => ({
+  logger: {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+  },
+}));
 
 describe('Image Processor Lambda', () => {
   const context = {} as Context;
@@ -118,7 +122,7 @@ describe('Image Processor Lambda', () => {
     );
   });
 
-  it('should log an error if uploading the large image fails', async () => {
+  it('should fail the invocation if uploading the large image fails', async () => {
     const key = 'unprocessed/abc___def___front___uuid.jpeg';
     let putCount = 0;
 
@@ -133,15 +137,16 @@ describe('Image Processor Lambda', () => {
       return {};
     });
 
-    await handler(mockS3Event(key), context, callback);
-
+    await expect(handler(mockS3Event(key), context, callback)).rejects.toThrow(
+      'Large upload failed',
+    );
     expect(logger.error).toHaveBeenCalledWith(
-      expect.stringContaining('Error uploading'),
+      'Error processing image:',
       expect.any(Error),
     );
   });
 
-  it('should log an error if uploading the thumbnail image fails', async () => {
+  it('should fail the invocation if uploading the thumbnail image fails', async () => {
     const key = 'unprocessed/abc___def___front___uuid.jpeg';
     let putCount = 0;
 
@@ -156,10 +161,11 @@ describe('Image Processor Lambda', () => {
       return {};
     });
 
-    await handler(mockS3Event(key), context, callback);
-
+    await expect(handler(mockS3Event(key), context, callback)).rejects.toThrow(
+      'Thumbnail upload failed',
+    );
     expect(logger.error).toHaveBeenCalledWith(
-      expect.stringContaining('Error uploading'),
+      'Error processing image:',
       expect.any(Error),
     );
   });

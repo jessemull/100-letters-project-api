@@ -928,7 +928,7 @@ Resources:
           data:
             type: "object"
             properties:
-              correspondencId:
+              correspondenceId:
                 type: "string"
                 format: "uuid"
               recipientId:
@@ -939,7 +939,7 @@ Resources:
                 items:
                   type: "string"
                   format: "uuid"
-            required: ["correspondencId", "recipientId", "letterIds"]
+            required: ["correspondenceId", "recipientId", "letterIds"]
           message:
             type: string
         required: ["data", "message"]

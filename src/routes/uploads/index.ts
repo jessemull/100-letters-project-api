@@ -1,11 +1,8 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { BadRequestError, DatabaseError } from '../../common/errors';
-import {
-  createPresignedPutUrl,
-  decodeJwtPayload,
-  getHeaders,
-  logger,
-} from '../../common/util';
+import { logger } from '../../common/util/logger';
+import { decodeJwtPayload, getHeaders } from '../../common/util/headers';
+import { createPresignedPutUrl } from '../../common/util/s3';
 import { randomUUID } from 'crypto';
 
 const extensionMap: { [key: string]: string } = {
@@ -56,7 +53,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const fileKey = `unprocessed/${correspondenceId}___${letterId}___${view}___${uuid}.${extension}`;
     const basePath = `images/${correspondenceId}/${letterId}/${view}/${uuid}`;
     const imageURL = `https://${process.env.PUBLIC_IMAGE_DOMAIN || 'dev.onehundredletters.com'}/${basePath}_large.jpg`;
-    const thumbnailURL = `https://${process.env.PUBLIC_IMAGE_DOMAIN || 'dev.onehundredletters.com'}/${basePath}_thumb.jpg`;
+    const thumbnailUrl = `https://${process.env.PUBLIC_IMAGE_DOMAIN || 'dev.onehundredletters.com'}/${basePath}_thumb.jpg`;
 
     const signedUrl = await createPresignedPutUrl({
       Bucket: process.env.IMAGE_S3_BUCKET_NAME!,
@@ -72,7 +69,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           correspondenceId,
           fileKey,
           imageURL,
-          thumbnailURL,
+          thumbnailUrl,
           letterId,
           mimeType,
           signedUrl,

@@ -4,23 +4,30 @@ import {
   APIGatewayProxyResult,
 } from 'aws-lambda';
 import { handler } from './index';
-import { logger, s3 } from '../../common/util';
+import { logger } from '../../common/util/logger';
+import { s3 } from '../../common/util/s3';
 
-jest.mock('../../common/util', () => {
+jest.mock('../../common/util/s3', () => {
   const actualS3 = jest.requireActual('@aws-sdk/client-s3');
   return {
     DeleteObjectCommand: actualS3.DeleteObjectCommand,
     s3: {
       send: jest.fn(),
     },
-    getHeaders: jest.fn().mockReturnValue({
-      'Content-Type': 'application/json',
-    }),
-    logger: {
-      error: jest.fn(),
-    },
   };
 });
+
+jest.mock('../../common/util/headers', () => ({
+  getHeaders: jest.fn().mockReturnValue({
+    'Content-Type': 'application/json',
+  }),
+}));
+
+jest.mock('../../common/util/logger', () => ({
+  logger: {
+    error: jest.fn(),
+  },
+}));
 
 describe('Delete Upload Handler', () => {
   const context = {} as Context;

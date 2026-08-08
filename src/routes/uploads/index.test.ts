@@ -4,21 +4,25 @@ import {
   Context,
 } from 'aws-lambda';
 import { handler } from './index';
-import {
-  createPresignedPutUrl,
-  decodeJwtPayload,
-  logger,
-} from '../../common/util';
+import { logger } from '../../common/util/logger';
+import { decodeJwtPayload } from '../../common/util/headers';
+import { createPresignedPutUrl } from '../../common/util/s3';
 
-jest.mock('../../common/util', () => ({
+jest.mock('../../common/util/headers', () => ({
   decodeJwtPayload: jest.fn(() => ({ 'cognito:username': 'mock-user' })),
-  createPresignedPutUrl: jest.fn(),
   getHeaders: jest.fn().mockReturnValue({
     'Content-Type': 'application/json',
   }),
+}));
+
+jest.mock('../../common/util/logger', () => ({
   logger: {
     error: jest.fn(),
   },
+}));
+
+jest.mock('../../common/util/s3', () => ({
+  createPresignedPutUrl: jest.fn(),
 }));
 
 describe('Lambda Handler - Pre-signed Image Upload URL', () => {
@@ -125,6 +129,7 @@ describe('Lambda Handler - Pre-signed Image Upload URL', () => {
     const body = JSON.parse(result.body);
 
     expect(body.data.signedUrl).toBe('https://signed.url');
+    expect(body.data.thumbnailUrl).toContain('_thumb.jpg');
     expect(body.message).toBe('Signed URL created successfully!');
     expect(createPresignedPutUrl).toHaveBeenCalled();
   });

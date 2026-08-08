@@ -78,9 +78,13 @@ jobs:
           ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
         run: |
           changed_functions=""
+          shared_change=false
           ROUTE_NAMES=$(ls src/routes)
           for file in ${ALL_CHANGED_FILES}; do
             echo "$file"
+            if [[ $file =~ ^src/common/ ]] || [[ $file =~ ^src/types/ ]]; then
+              shared_change=true
+            fi
             for route in $ROUTE_NAMES; do
               if [[ $file =~ ^src/routes/$route/ ]]; then
                 FUNCTION_NAME=$(echo "$file" | cut -d'/' -f3)
@@ -88,6 +92,10 @@ jobs:
               fi
             done
           done
+          if [ "$shared_change" = true ]; then
+            echo "Shared src/common or src/types change detected; redeploying all routes."
+            changed_functions="$ROUTE_NAMES"
+          fi
           changed_functions=$(echo "$changed_functions" | tr ' ' '\n' | sort -u | tr '\n' ' ')
           if [ -z "$changed_functions" ]; then
             echo "No lambda function changes detected. Skipping deployment."

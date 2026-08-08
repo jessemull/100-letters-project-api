@@ -4,26 +4,33 @@ import {
   Context,
 } from 'aws-lambda';
 import { handler } from './index';
-import { sesClient, logger } from '../../common/util';
+import { logger } from '../../common/util/logger';
+import { sesClient } from '../../common/util/ses';
 
 global.fetch = jest.fn().mockResolvedValue({
   json: async () => ({ success: true }),
 });
 
-jest.mock('../../common/util', () => {
+jest.mock('../../common/util/ses', () => {
   const actualSes = jest.requireActual('@aws-sdk/client-ses');
   return {
     SendEmailCommand: actualSes.SendEmailCommand,
     sesClient: {
       send: jest.fn(),
     },
-    getHeaders: jest.fn(),
-    logger: {
-      error: jest.fn(),
-      info: jest.fn(),
-    },
   };
 });
+
+jest.mock('../../common/util/headers', () => ({
+  getHeaders: jest.fn(),
+}));
+
+jest.mock('../../common/util/logger', () => ({
+  logger: {
+    error: jest.fn(),
+    info: jest.fn(),
+  },
+}));
 
 describe('Contact Form Handler', () => {
   afterEach(() => {
@@ -66,6 +73,34 @@ describe('Contact Form Handler', () => {
       'Email sent successfully.',
     );
     expect(sesClient.send).toHaveBeenCalled();
+  });
+
+  it('should return a 400 response if the request body is invalid JSON', async () => {
+    const event: APIGatewayProxyEvent = {
+      body: '{not-json',
+      headers: {
+        'g-recaptcha-response': 'mock-token',
+      },
+      httpMethod: 'POST',
+      isBase64Encoded: false,
+      path: '/contact',
+      pathParameters: null,
+      queryStringParameters: null,
+      stageVariables: null,
+      requestContext: {} as APIGatewayProxyEvent['requestContext'],
+      resource: '',
+    } as unknown as APIGatewayProxyEvent;
+
+    const result = (await handler(
+      event,
+      {} as Context,
+      () => {},
+    )) as APIGatewayProxyResult;
+
+    expect(result.statusCode).toBe(400);
+    expect(JSON.parse(result.body || '').message).toBe(
+      'Invalid JSON in request body.',
+    );
   });
 
   it('should return a 400 response if the required fields are missing', async () => {

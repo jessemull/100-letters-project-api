@@ -33,7 +33,11 @@ module.exports = {
     ],
   },
   mode: 'none',
+  plugins: [
+    new (require('webpack').optimize.LimitChunkCountPlugin)({ maxChunks: 1 }),
+  ],
   optimization: {
+    splitChunks: false,
     minimize: true,
     minimizer: [
       new TerserPlugin({

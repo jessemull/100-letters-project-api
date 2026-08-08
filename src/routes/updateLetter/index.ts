@@ -6,7 +6,9 @@ import {
 } from '../../common/errors';
 import { UpdateCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
-import { dynamoClient, getHeaders, logger } from '../../common/util';
+import { dynamoClient } from '../../common/util/dynamo';
+import { logger } from '../../common/util/logger';
+import { getHeaders } from '../../common/util/headers';
 import { UpdateParams } from '../../types';
 
 const { correspondenceTableName, letterTableName } = config;
