@@ -2,7 +2,7 @@ const { DynamoDBClient, PutItemCommand } = require('@aws-sdk/client-dynamodb');
 const { faker } = require('@faker-js/faker');
 const { randomUUID } = require('crypto');
 
-const dynamoDBClient = new DynamoDBClient({ region: 'us-west-2' });
+const dynamoDBClient = new DynamoDBClient({ region: process.env.AWS_REGION || 'us-west-2' });
 
 const recipientTableName = 'one-hundred-letters-recipient-table-dev';
 const correspondenceTableName = 'one-hundred-letters-correspondence-table-dev';

@@ -26,6 +26,7 @@
 - ESLint (`lint:all:fix`)
 - Typecheck (`tsc --noEmit`)
 - Jest with coverage; **80% statements** enforced by Jest `coverageThreshold` (no HTML scrape)
+- Per-route tests via `npm run test:pkg -- <name>` use Jest 30 `--testPathPatterns` (not deprecated `--testPathPattern`)
 - Coverage report uploaded as a CI artifact
 
 ---

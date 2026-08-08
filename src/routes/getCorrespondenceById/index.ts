@@ -1,5 +1,5 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
+import { GetCommand } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
 import { dynamoClient } from '../../common/util/dynamo';
 import { logger } from '../../common/util/logger';
@@ -10,6 +10,7 @@ import {
   NotFoundError,
 } from '../../common/errors';
 import { Letter } from '../../types';
+import { queryAllPages } from '../../common/util/query-all';
 
 const { correspondenceTableName, letterTableName, recipientTableName } = config;
 
@@ -66,22 +67,19 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       return new NotFoundError('Recipient not found!').build(headers);
     }
 
-    // Step 3: Get associated letters.
+    // Step 3: Get associated letters (follow LastEvaluatedKey).
 
     let letters: Letter[] = [];
-    const lettersParams = {
-      TableName: letterTableName,
-      IndexName: 'CorrespondenceIndex',
-      KeyConditionExpression: 'correspondenceId = :correspondenceId',
-      ExpressionAttributeValues: {
-        ':correspondenceId': correspondence.correspondenceId,
-      },
-    };
 
     try {
-      const lettersCommand = new QueryCommand(lettersParams);
-      const lettersResult = await dynamoClient.send(lettersCommand);
-      letters = (lettersResult.Items as Letter[]) || [];
+      letters = await queryAllPages<Letter>({
+        TableName: letterTableName,
+        IndexName: 'CorrespondenceIndex',
+        KeyConditionExpression: 'correspondenceId = :correspondenceId',
+        ExpressionAttributeValues: {
+          ':correspondenceId': correspondence.correspondenceId,
+        },
+      });
     } catch (error) {
       logger.error(
         `Error fetching letters for correspondence ID ${correspondence.correspondenceId}: `,

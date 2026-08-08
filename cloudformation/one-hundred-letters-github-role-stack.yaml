@@ -46,7 +46,7 @@ Resources:
               - lambda:ListFunctions
               - lambda:TagResource
             Resource:
-              - !Sub arn:aws:lambda:us-west-2:${AWS::AccountId}:function:*
+              - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:*
 
           - Effect: Allow
             Action:
@@ -63,13 +63,13 @@ Resources:
               - cloudformation:DescribeChangeSet
               - cloudformation:ExecuteChangeSet
             Resource: 
-              - !Sub "arn:aws:cloudformation:us-west-2:${AWS::AccountId}:stack/one-hundred-letters-route-*/*"
+              - !Sub "arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/one-hundred-letters-route-*/*"
               
           - Effect: Allow
             Action:
               - lambda:AddPermission
             Resource:
-              - !Sub "arn:aws:lambda:us-west-2:${AWS::AccountId}:function:*"
+              - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:*"
 
 Outputs:
   GitHubActionsRole:

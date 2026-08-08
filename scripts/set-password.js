@@ -7,7 +7,7 @@ const username = process.env.COGNITO_USER_POOL_USERNAME;
 const password = process.env.COGNITO_USER_POOL_PASSWORD;
 
 const client = new CognitoIdentityProviderClient({
-  region: "us-west-2"
+  region: process.env.AWS_REGION || "us-west-2"
 });
 
 async function setPermanentPassword() {

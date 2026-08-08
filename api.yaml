@@ -714,10 +714,12 @@ components:
     LimitParameter:
       name: "limit"
       in: "query"
-      description: "The maximum number of letters to return"
+      description: "The maximum number of items to return (1-100)"
       required: false
       schema:
         type: "integer"
+        minimum: 1
+        maximum: 100
         example: 50
     LastEvaluatedKeyParameter:
       name: "lastEvaluatedKey"

@@ -1,6 +1,6 @@
 const { DynamoDBClient, ScanCommand, DeleteItemCommand } = require('@aws-sdk/client-dynamodb');
 
-const dynamoDBClient = new DynamoDBClient({ region: 'us-west-2' });
+const dynamoDBClient = new DynamoDBClient({ region: process.env.AWS_REGION || 'us-west-2' });
 
 const tableNames = [
   'one-hundred-letters-recipient-table-dev',

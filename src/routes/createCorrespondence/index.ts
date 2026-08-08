@@ -88,7 +88,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         Put: {
           TableName: letterTableName,
           Item: letter,
-          ConditionExpression: 'attribute_not_exists(letterId)',
+          ConditionExpression: 'attribute_not_exists(correspondenceId)',
         },
       })),
     ];

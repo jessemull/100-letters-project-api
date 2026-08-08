@@ -10,15 +10,15 @@ import {
   TransactionItem,
   CorrespondenceUpdateInput,
 } from '../../types';
-import {
-  TransactWriteCommand,
-  GetCommand,
-  QueryCommand,
-} from '@aws-sdk/lib-dynamodb';
+import { TransactWriteCommand, GetCommand } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
 import { dynamoClient } from '../../common/util/dynamo';
 import { logger } from '../../common/util/logger';
 import { getHeaders } from '../../common/util/headers';
+import {
+  DYNAMO_TRANSACT_MAX_ITEMS,
+  queryAllPages,
+} from '../../common/util/query-all';
 
 const { correspondenceTableName, letterTableName, recipientTableName } = config;
 
@@ -65,6 +65,16 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     }
 
     const storedRecipientId = existingCorrespondence.Item.recipientId as string;
+
+    if (
+      recipient.recipientId !== undefined &&
+      recipient.recipientId !== storedRecipientId
+    ) {
+      return new BadRequestError(
+        'recipient.recipientId does not match the stored recipient for this correspondence.',
+      ).build(headers);
+    }
+
     const transactItems: TransactionItem[] = [];
 
     // Step 1: Construct correspondence update params.
@@ -239,21 +249,18 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       transactItems.push({ Update: letterUpdateParams });
     }
 
-    // Step 4: Delete missing letters.
+    // Step 4: Delete missing letters (paginate so large sets are fully considered).
 
-    const lettersParams = {
+    const existingLetters = await queryAllPages({
       TableName: letterTableName,
       IndexName: 'CorrespondenceIndex',
       KeyConditionExpression: 'correspondenceId = :correspondenceId',
       ExpressionAttributeValues: {
         ':correspondenceId': correspondenceId,
       },
-    };
-
-    const lettersCommand = new QueryCommand(lettersParams);
-    const lettersResult = await dynamoClient.send(lettersCommand);
+    });
     const existingLetterIds = new Set(
-      lettersResult.Items?.map((letter) => letter.letterId),
+      existingLetters.map((letter) => letter.letterId as string),
     );
     const incomingLetterIds = new Set(
       letters.map((letter: LetterUpdateInput) => letter.letterId),
@@ -269,6 +276,12 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         });
       }
     });
+
+    if (transactItems.length > DYNAMO_TRANSACT_MAX_ITEMS) {
+      return new BadRequestError(
+        `Too many letter changes for a single transaction (max ${DYNAMO_TRANSACT_MAX_ITEMS} items).`,
+      ).build(headers);
+    }
 
     // Step 5: Execute transaction.
 
@@ -291,17 +304,14 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       }),
     );
 
-    const updatedLettersParams = {
+    const updatedLetters = await queryAllPages({
       TableName: letterTableName,
       IndexName: 'CorrespondenceIndex',
       KeyConditionExpression: 'correspondenceId = :correspondenceId',
       ExpressionAttributeValues: {
         ':correspondenceId': correspondenceId,
       },
-    };
-
-    const updatedLettersCommand = new QueryCommand(updatedLettersParams);
-    const updatedLettersResult = await dynamoClient.send(updatedLettersCommand);
+    });
 
     return {
       statusCode: 200,
@@ -309,7 +319,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         data: {
           correspondence: correspondenceData.Item,
           recipient: recipientData.Item,
-          letters: updatedLettersResult.Items,
+          letters: updatedLetters,
         },
         message: 'Correspondence updated successfully!',
       }),

@@ -7,6 +7,7 @@ import {
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 const s3 = new S3Client({
+  // Lambda sets AWS_REGION; us-west-2 fallback is for local scripts/tests only.
   region: process.env.AWS_REGION || 'us-west-2',
 });
 

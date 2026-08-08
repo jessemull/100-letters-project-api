@@ -4,10 +4,8 @@ import {
   DatabaseError,
   NotFoundError,
 } from '../../common/errors';
-import { Letter } from '../../types';
 import {
   TransactWriteCommand,
-  QueryCommand,
   GetCommand,
   type TransactWriteCommandInput,
 } from '@aws-sdk/lib-dynamodb';
@@ -15,6 +13,10 @@ import { config } from '../../common/config';
 import { dynamoClient } from '../../common/util/dynamo';
 import { logger } from '../../common/util/logger';
 import { getHeaders } from '../../common/util/headers';
+import {
+  DYNAMO_TRANSACT_MAX_ITEMS,
+  queryAllPages,
+} from '../../common/util/query-all';
 
 const { correspondenceTableName, letterTableName, recipientTableName } = config;
 
@@ -62,30 +64,26 @@ export const handler: APIGatewayProxyHandler = async (
 
     // Step 3: Get and delete all letters associated with the correspondence.
 
-    const queryParams = {
+    const letterItems = await queryAllPages({
       TableName: letterTableName,
       KeyConditionExpression: 'correspondenceId = :correspondenceId',
       ExpressionAttributeValues: {
         ':correspondenceId': correspondenceId,
       },
       ProjectionExpression: 'correspondenceId, letterId',
-    };
-
-    const letterData = await dynamoClient.send(new QueryCommand(queryParams));
+    });
 
     const letterIds: string[] = [];
 
-    if (letterData.Items && letterData.Items.length > 0) {
-      const letters: Letter[] = letterData.Items as Letter[];
-
-      letters.forEach((letter) => {
-        letterIds.push(letter.letterId);
+    if (letterItems.length > 0) {
+      letterItems.forEach((letter) => {
+        letterIds.push(letter.letterId as string);
         transactItems.push({
           Delete: {
             TableName: letterTableName as string,
             Key: {
-              correspondenceId: letter.correspondenceId,
-              letterId: letter.letterId,
+              correspondenceId: letter.correspondenceId as string,
+              letterId: letter.letterId as string,
             },
           },
         });
@@ -104,6 +102,12 @@ export const handler: APIGatewayProxyHandler = async (
           Key: { recipientId },
         },
       });
+    }
+
+    if (transactItems.length > DYNAMO_TRANSACT_MAX_ITEMS) {
+      return new BadRequestError(
+        `Too many items to delete in a single transaction (max ${DYNAMO_TRANSACT_MAX_ITEMS}).`,
+      ).build(headers);
     }
 
     // Step 5: Perform the transaction.

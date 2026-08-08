@@ -6,6 +6,7 @@ import { config } from '../../common/config';
 import { dynamoClient } from '../../common/util/dynamo';
 import { logger } from '../../common/util/logger';
 import { getHeaders } from '../../common/util/headers';
+import { MAX_LIST_LIMIT, queryAllPages } from '../../common/util/query-all';
 
 const { correspondenceTableName, letterTableName, recipientTableName } = config;
 
@@ -15,7 +16,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const limit = parseInt(queryParameters.limit || '50', 10);
   const search = queryParameters.search?.trim();
 
-  if (!Number.isFinite(limit) || limit <= 0) {
+  if (!Number.isFinite(limit) || limit <= 0 || limit > MAX_LIST_LIMIT) {
     return new BadRequestError('Invalid limit.').build(headers);
   }
 
@@ -72,21 +73,16 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           throw error;
         }
 
-        const lettersParams = {
-          TableName: letterTableName,
-          IndexName: 'CorrespondenceIndex',
-          KeyConditionExpression: 'correspondenceId = :correspondenceId',
-          ExpressionAttributeValues: {
-            ':correspondenceId': correspondence.correspondenceId,
-          },
-          Limit: 100,
-        };
-
         let letters: Letter[] = [];
         try {
-          const lettersCommand = new QueryCommand(lettersParams);
-          const lettersResult = await dynamoClient.send(lettersCommand);
-          letters = (lettersResult.Items as Letter[]) || [];
+          letters = await queryAllPages<Letter>({
+            TableName: letterTableName,
+            IndexName: 'CorrespondenceIndex',
+            KeyConditionExpression: 'correspondenceId = :correspondenceId',
+            ExpressionAttributeValues: {
+              ':correspondenceId': correspondence.correspondenceId,
+            },
+          });
         } catch (error) {
           logger.error(
             `Error fetching letters for correspondence ID ${correspondence.correspondenceId}: `,

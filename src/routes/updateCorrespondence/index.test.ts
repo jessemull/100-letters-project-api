@@ -342,6 +342,44 @@ describe('Update Correspondence Handler', () => {
     );
   });
 
+  it('should return 400 if body recipientId does not match stored recipient', async () => {
+    const event = {
+      body: JSON.stringify({
+        recipient: {
+          recipientId: 'wrong-recipient-id',
+          firstName: 'John',
+          lastName: 'Doe',
+          address: '123 Fake Street',
+        },
+        correspondence: {
+          reason: {
+            category: 'Technology',
+            description: 'Test',
+          },
+        },
+        letters: [
+          { letterId: 'mock-letter-id', text: 'Updated letter content' },
+        ],
+      }),
+      pathParameters: { id: 'mock-id' },
+    } as unknown as APIGatewayProxyEvent;
+
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Item: { correspondenceId: 'mock-id', recipientId: 'mock-recipient-id' },
+    });
+
+    const response = (await handler(
+      event,
+      mockContext,
+      mockCallback,
+    )) as APIGatewayProxyResult;
+
+    expect(response.statusCode).toBe(400);
+    expect(JSON.parse(response.body).message).toBe(
+      'recipient.recipientId does not match the stored recipient for this correspondence.',
+    );
+  });
+
   it('should return 404 if correspondence does not exist', async () => {
     const event = {
       body: JSON.stringify({

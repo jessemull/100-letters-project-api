@@ -410,4 +410,18 @@ describe('Get Correspondences Handler', () => {
       'Invalid lastEvaluatedKey.',
     );
   });
+
+  it('should return 400 for limit above the maximum', async () => {
+    const result = (await handler(
+      {
+        queryStringParameters: { limit: '101' },
+        headers: {},
+      } as unknown as APIGatewayProxyEvent,
+      {} as Context,
+      () => {},
+    )) as APIGatewayProxyResult;
+
+    expect(result.statusCode).toBe(400);
+    expect(JSON.parse(result.body || '').message).toBe('Invalid limit.');
+  });
 });

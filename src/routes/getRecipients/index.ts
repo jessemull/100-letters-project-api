@@ -5,6 +5,7 @@ import { config } from '../../common/config';
 import { dynamoClient } from '../../common/util/dynamo';
 import { logger } from '../../common/util/logger';
 import { getHeaders } from '../../common/util/headers';
+import { MAX_LIST_LIMIT } from '../../common/util/query-all';
 
 const { recipientTableName } = config;
 
@@ -14,7 +15,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const search = queryParameters.search?.trim();
   const headers = getHeaders(event);
 
-  if (!Number.isFinite(limit) || limit <= 0) {
+  if (!Number.isFinite(limit) || limit <= 0 || limit > MAX_LIST_LIMIT) {
     return new BadRequestError('Invalid limit.').build(headers);
   }
 
