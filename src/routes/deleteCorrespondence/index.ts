@@ -62,9 +62,7 @@ export const handler: APIGatewayProxyHandler = async (
       },
     ];
 
-    // Step 3: Get and delete all letters associated with the correspondence.
-    // Prefer the base table: PK is correspondenceId (HASH) + letterId (RANGE).
-    // CorrespondenceIndex is a GSI on the same partition key and is not needed here.
+    // Step 3: Get and delete all letters for this correspondence (base-table PK query).
 
     const letterItems = await queryAllPages({
       TableName: letterTableName,
