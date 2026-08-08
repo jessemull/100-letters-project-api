@@ -110,6 +110,27 @@ describe('Delete Recipient Handler', () => {
     );
   });
 
+  it('should return 404 if the recipient does not exist', async () => {
+    const event = {
+      pathParameters: { id: '123' },
+    } as unknown as APIGatewayProxyEvent;
+
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({ Items: [] });
+
+    const conditionalError = new Error('Conditional check failed');
+    conditionalError.name = 'ConditionalCheckFailedException';
+    (dynamoClient.send as jest.Mock).mockRejectedValueOnce(conditionalError);
+
+    const response = (await handler(
+      event,
+      mockContext,
+      mockCallback,
+    )) as APIGatewayProxyResult;
+
+    expect(response.statusCode).toBe(404);
+    expect(JSON.parse(response.body).message).toBe('Recipient not found.');
+  });
+
   it('should return 500 if there is an error deleting the recipient', async () => {
     const event = {
       pathParameters: { id: '123' },

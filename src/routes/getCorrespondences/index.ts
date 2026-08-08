@@ -15,6 +15,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const limit = parseInt(queryParameters.limit || '50', 10);
   const search = queryParameters.search?.trim();
 
+  if (!Number.isFinite(limit) || limit <= 0) {
+    return new BadRequestError('Invalid limit.').build(headers);
+  }
+
   let lastEvaluatedKey;
   try {
     lastEvaluatedKey = queryParameters.lastEvaluatedKey
@@ -75,6 +79,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           ExpressionAttributeValues: {
             ':correspondenceId': correspondence.correspondenceId,
           },
+          Limit: 100,
         };
 
         let letters: Letter[] = [];

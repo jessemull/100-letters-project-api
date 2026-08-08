@@ -90,6 +90,12 @@ describe('Update Correspondence Handler', () => {
       pathParameters: { id: 'mock-id' },
     } as unknown as APIGatewayProxyEvent;
 
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Item: { correspondenceId: 'mock-id', recipientId: 'mock-recipient-id' },
+    });
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Items: [{ letterId: 'mock-letter-id' }],
+    });
     (dynamoClient.send as jest.Mock).mockRejectedValueOnce(
       new Error('DynamoDB error'),
     );
@@ -126,6 +132,9 @@ describe('Update Correspondence Handler', () => {
       pathParameters: { id: 'mock-id' },
     } as unknown as APIGatewayProxyEvent;
 
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Item: { correspondenceId: 'mock-id', recipientId: 'mock-recipient-id' },
+    });
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
       Items: [
         { letterId: 'mock-letter-id' },
@@ -177,7 +186,9 @@ describe('Update Correspondence Handler', () => {
       pathParameters: { id: 'mock-id' },
     } as unknown as APIGatewayProxyEvent;
 
-    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({});
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Item: { correspondenceId: 'mock-id', recipientId: 'mock-recipient-id' },
+    });
     (dynamoClient.send as jest.Mock).mockRejectedValueOnce(
       new Error('Error retrieving letter data'),
     );
@@ -217,7 +228,10 @@ describe('Update Correspondence Handler', () => {
     } as unknown as APIGatewayProxyEvent;
 
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Item: { letterId: 'mock-letter-id' },
+      Item: { correspondenceId: 'mock-id', recipientId: 'mock-recipient-id' },
+    });
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Items: [{ letterId: 'mock-letter-id' }],
     });
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({});
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
@@ -285,7 +299,10 @@ describe('Update Correspondence Handler', () => {
     } as unknown as APIGatewayProxyEvent;
 
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
-      Item: { letterId: 'mock-letter-id' },
+      Item: { correspondenceId: 'mock-id', recipientId: 'mock-recipient-id' },
+    });
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
+      Items: [{ letterId: 'mock-letter-id' }],
     });
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({});
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce({
@@ -323,6 +340,33 @@ describe('Update Correspondence Handler', () => {
     expect(JSON.parse(response.body).message).toBe(
       'Correspondence updated successfully!',
     );
+  });
+
+  it('should return 404 if correspondence does not exist', async () => {
+    const event = {
+      body: JSON.stringify({
+        recipient: { recipientId: 'mock-recipient-id' },
+        correspondence: {
+          reason: {
+            category: 'Technology',
+            description: 'Test',
+          },
+        },
+        letters: [{ letterId: 'mock-letter-id', content: 'Hello' }],
+      }),
+      pathParameters: { id: 'missing-id' },
+    } as unknown as APIGatewayProxyEvent;
+
+    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({});
+
+    const response = (await handler(
+      event,
+      mockContext,
+      mockCallback,
+    )) as APIGatewayProxyResult;
+
+    expect(response.statusCode).toBe(404);
+    expect(JSON.parse(response.body).message).toBe('Correspondence not found.');
   });
 
   it('should return 400 if pathParameters is missing the id', async () => {

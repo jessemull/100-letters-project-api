@@ -73,14 +73,13 @@ describe('Update Letter Handler', () => {
       Items: [{ correspondenceId: 'abc' }],
     };
 
-    const mockLetterResult = {
-      Attributes: undefined,
-    };
+    const conditionalError = new Error(' Conditional check failed');
+    conditionalError.name = 'ConditionalCheckFailedException';
 
     (dynamoClient.send as jest.Mock).mockResolvedValueOnce(
       mockCorrespondenceResult,
     );
-    (dynamoClient.send as jest.Mock).mockResolvedValueOnce(mockLetterResult);
+    (dynamoClient.send as jest.Mock).mockRejectedValueOnce(conditionalError);
 
     const response = (await handler(
       event,

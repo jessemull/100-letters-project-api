@@ -1,5 +1,9 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { BadRequestError, DatabaseError } from '../../common/errors';
+import {
+  BadRequestError,
+  DatabaseError,
+  InternalServerError,
+} from '../../common/errors';
 import { logger } from '../../common/util/logger';
 import { decodeJwtPayload, getHeaders } from '../../common/util/headers';
 import { createPresignedPutUrl } from '../../common/util/s3';
@@ -20,9 +24,21 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       return new BadRequestError('Request body is required.').build(headers);
     }
 
-    const { correspondenceId, letterId, mimeType, view } = JSON.parse(
-      event.body,
-    );
+    let body: {
+      correspondenceId?: string;
+      letterId?: string;
+      mimeType?: string;
+      view?: string;
+    };
+    try {
+      body = JSON.parse(event.body);
+    } catch {
+      return new BadRequestError('Invalid JSON in request body.').build(
+        headers,
+      );
+    }
+
+    const { correspondenceId, letterId, mimeType, view } = body;
 
     if (!correspondenceId || !letterId || !mimeType || !view) {
       return new BadRequestError('Missing required fields.').build(headers);
@@ -33,6 +49,13 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       return new BadRequestError(`Unsupported MIME type: ${mimeType}`).build(
         headers,
       );
+    }
+
+    const publicImageDomain = process.env.PUBLIC_IMAGE_DOMAIN;
+    if (!publicImageDomain) {
+      return new InternalServerError(
+        'PUBLIC_IMAGE_DOMAIN is not configured.',
+      ).build(headers);
     }
 
     const authHeader =
@@ -52,8 +75,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const uuid = randomUUID();
     const fileKey = `unprocessed/${correspondenceId}___${letterId}___${view}___${uuid}.${extension}`;
     const basePath = `images/${correspondenceId}/${letterId}/${view}/${uuid}`;
-    const imageURL = `https://${process.env.PUBLIC_IMAGE_DOMAIN || 'dev.onehundredletters.com'}/${basePath}_large.jpg`;
-    const thumbnailUrl = `https://${process.env.PUBLIC_IMAGE_DOMAIN || 'dev.onehundredletters.com'}/${basePath}_thumb.jpg`;
+    const imageURL = `https://${publicImageDomain}/${basePath}_large.jpg`;
+    const thumbnailUrl = `https://${publicImageDomain}/${basePath}_thumb.jpg`;
 
     const signedUrl = await createPresignedPutUrl({
       Bucket: process.env.IMAGE_S3_BUCKET_NAME!,

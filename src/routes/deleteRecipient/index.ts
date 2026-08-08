@@ -1,5 +1,9 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { BadRequestError, DatabaseError } from '../../common/errors';
+import {
+  BadRequestError,
+  DatabaseError,
+  NotFoundError,
+} from '../../common/errors';
 import { DeleteCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { config } from '../../common/config';
 import { dynamoClient } from '../../common/util/dynamo';
@@ -40,6 +44,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       Key: {
         recipientId,
       },
+      ConditionExpression: 'attribute_exists(recipientId)',
     };
 
     await dynamoClient.send(new DeleteCommand(deleteParams));
@@ -53,6 +58,12 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       headers,
     };
   } catch (error) {
+    if (
+      error instanceof Error &&
+      error.name === 'ConditionalCheckFailedException'
+    ) {
+      return new NotFoundError('Recipient not found.').build(headers);
+    }
     logger.error('Error deleting recipient: ', error);
     return new DatabaseError('Internal Server Error').build(headers);
   }

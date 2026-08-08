@@ -51,6 +51,8 @@ describe('Lambda Handler - Pre-signed Image Upload URL', () => {
     }) as unknown as APIGatewayProxyEvent;
 
   beforeEach(() => {
+    process.env.PUBLIC_IMAGE_DOMAIN = 'cdn.example.com';
+    process.env.IMAGE_S3_BUCKET_NAME = 'mock-bucket';
     jest.clearAllMocks();
     (createPresignedPutUrl as jest.Mock).mockResolvedValue(
       'https://signed.url',
@@ -134,7 +136,7 @@ describe('Lambda Handler - Pre-signed Image Upload URL', () => {
     expect(createPresignedPutUrl).toHaveBeenCalled();
   });
 
-  it('should use default domain if PUBLIC_IMAGE_DOMAIN is not set', async () => {
+  it('should return 500 if PUBLIC_IMAGE_DOMAIN is not set', async () => {
     delete process.env.PUBLIC_IMAGE_DOMAIN;
     const event = baseEvent();
     const result = (await handler(
@@ -143,8 +145,25 @@ describe('Lambda Handler - Pre-signed Image Upload URL', () => {
       () => {},
     )) as APIGatewayProxyResult;
 
-    const body = JSON.parse(result.body);
-    expect(body.data.imageURL).toContain('dev.onehundredletters.com');
+    expect(result.statusCode).toBe(500);
+    expect(JSON.parse(result.body).message).toBe(
+      'PUBLIC_IMAGE_DOMAIN is not configured.',
+    );
+  });
+
+  it('should return 400 for invalid JSON body', async () => {
+    const event = baseEvent();
+    event.body = '{not-json';
+    const result = (await handler(
+      event,
+      context,
+      () => {},
+    )) as APIGatewayProxyResult;
+
+    expect(result.statusCode).toBe(400);
+    expect(JSON.parse(result.body).message).toBe(
+      'Invalid JSON in request body.',
+    );
   });
 
   it('should use environment domain if PUBLIC_IMAGE_DOMAIN is set', async () => {

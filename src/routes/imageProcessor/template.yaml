@@ -28,15 +28,11 @@ Resources:
           Fn::ImportValue: 
             !Sub "100-letters-project-api-${Environment}"
         S3Key: !Ref S3Key
-      Timeout: 10
+      Timeout: 60
       MemorySize: 2048
       Environment:
         Variables:
-          ACCESS_CONTROL_ALLOW_ORIGIN: !Sub "{{resolve:secretsmanager:one-hundred-letters-api-${Environment}:SecretString:accessControlAllowOrigin}}"
-          CORRESPONDENCE_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:correspondenceTableName}}"
           ENVIRONMENT: !Ref Environment
-          LETTER_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:letterTableName}}"
-          RECIPIENT_TABLE_NAME: !Sub "{{resolve:secretsmanager:one-hundred-letters-tables-${Environment}:SecretString:recipientTableName}}"
 
   ImageBucketInvokePermission:
     Type: AWS::Lambda::Permission

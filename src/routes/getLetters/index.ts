@@ -14,6 +14,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const search = queryParameters.search?.trim();
   const headers = getHeaders(event);
 
+  if (!Number.isFinite(limit) || limit <= 0) {
+    return new BadRequestError('Invalid limit.').build(headers);
+  }
+
   let lastEvaluatedKey;
   try {
     lastEvaluatedKey = queryParameters.lastEvaluatedKey

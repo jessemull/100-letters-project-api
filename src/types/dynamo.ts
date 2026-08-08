@@ -5,6 +5,7 @@ export type TransactionItem = {
     TableName: string;
     Key: Record<string, unknown>;
     UpdateExpression: string;
+    ConditionExpression?: string;
     ExpressionAttributeNames: Record<string, string>;
     ExpressionAttributeValues: Record<string, unknown>;
   };
@@ -25,11 +26,12 @@ export interface UpdateParams {
     [key: string]: string;
   };
   UpdateExpression: string;
+  ConditionExpression?: string;
   ExpressionAttributeNames: {
     [key: string]: string;
   };
   ExpressionAttributeValues: {
     [key: string]: unknown;
   };
-  ReturnValues: ReturnValue;
+  ReturnValues?: ReturnValue;
 }

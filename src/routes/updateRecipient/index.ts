@@ -52,17 +52,20 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       Key: {
         recipientId,
       },
+      ConditionExpression: 'attribute_exists(recipientId)',
       UpdateExpression:
-        'SET #address = :address, #firstName = :firstName, #lastName = :lastName',
+        'SET #address = :address, #firstName = :firstName, #lastName = :lastName, #updatedAt = :updatedAt',
       ExpressionAttributeNames: {
         '#address': 'address',
         '#firstName': 'firstName',
         '#lastName': 'lastName',
+        '#updatedAt': 'updatedAt',
       },
       ExpressionAttributeValues: {
         ':address': address,
         ':firstName': firstName,
         ':lastName': lastName,
+        ':updatedAt': new Date().toISOString(),
       },
       ReturnValues: 'ALL_NEW',
     };
@@ -104,10 +107,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const command = new UpdateCommand(updateParams);
     const result = await dynamoClient.send(command);
 
-    if (!result.Attributes) {
-      return new NotFoundError('Recipient not found.').build(headers);
-    }
-
     return {
       statusCode: 200,
       body: JSON.stringify({
@@ -117,6 +116,12 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       headers,
     };
   } catch (error) {
+    if (
+      error instanceof Error &&
+      error.name === 'ConditionalCheckFailedException'
+    ) {
+      return new NotFoundError('Recipient not found.').build(headers);
+    }
     logger.error('Error updating recipient in DynamoDB: ', error);
     return new DatabaseError('Internal Server Error').build(headers);
   }

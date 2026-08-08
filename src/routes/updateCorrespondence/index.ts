@@ -1,5 +1,9 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { BadRequestError, DatabaseError } from '../../common/errors';
+import {
+  BadRequestError,
+  DatabaseError,
+  NotFoundError,
+} from '../../common/errors';
 import {
   LetterUpdateInput,
   UpdateParams,
@@ -46,9 +50,21 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     }
 
     const { recipient, correspondence, letters } = parsedBody;
-
     const { reason, status, title } = correspondence;
+    const now = new Date().toISOString();
 
+    const existingCorrespondence = await dynamoClient.send(
+      new GetCommand({
+        TableName: correspondenceTableName,
+        Key: { correspondenceId },
+      }),
+    );
+
+    if (!existingCorrespondence.Item) {
+      return new NotFoundError('Correspondence not found.').build(headers);
+    }
+
+    const storedRecipientId = existingCorrespondence.Item.recipientId as string;
     const transactItems: TransactionItem[] = [];
 
     // Step 1: Construct correspondence update params.
@@ -56,43 +72,47 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const correspondenceUpdateParams: UpdateParams = {
       TableName: correspondenceTableName as string,
       Key: { correspondenceId },
+      ConditionExpression: 'attribute_exists(correspondenceId)',
       UpdateExpression:
-        'SET #reason = :reason, #status = :status, #title = :title',
+        'SET #reason = :reason, #status = :status, #title = :title, #updatedAt = :updatedAt',
       ExpressionAttributeNames: {
         '#reason': 'reason',
         '#status': 'status',
         '#title': 'title',
+        '#updatedAt': 'updatedAt',
       },
       ExpressionAttributeValues: {
         ':reason': reason,
         ':status': status,
         ':title': title,
+        ':updatedAt': now,
       },
-      ReturnValues: 'ALL_NEW',
     };
 
     transactItems.push({
       Update: correspondenceUpdateParams,
     });
 
-    // Step 2: Construct recipient update params.
+    // Step 2: Construct recipient update params using stored recipientId.
 
     const recipientUpdateParams: UpdateParams = {
       TableName: recipientTableName as string,
-      Key: { recipientId: recipient.recipientId },
+      Key: { recipientId: storedRecipientId },
+      ConditionExpression: 'attribute_exists(recipientId)',
       UpdateExpression:
-        'SET #firstName = :firstName, #lastName = :lastName, #address = :address',
+        'SET #firstName = :firstName, #lastName = :lastName, #address = :address, #updatedAt = :updatedAt',
       ExpressionAttributeNames: {
         '#firstName': 'firstName',
         '#lastName': 'lastName',
         '#address': 'address',
+        '#updatedAt': 'updatedAt',
       },
       ExpressionAttributeValues: {
         ':firstName': recipient.firstName,
         ':lastName': recipient.lastName,
         ':address': recipient.address,
+        ':updatedAt': now,
       },
-      ReturnValues: 'ALL_NEW',
     };
 
     let recipientRemoveExpressions: string[] = [];
@@ -151,8 +171,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       const letterUpdateParams: UpdateParams = {
         TableName: letterTableName as string,
         Key: { correspondenceId, letterId },
+        ConditionExpression:
+          'attribute_exists(correspondenceId) AND attribute_exists(letterId)',
         UpdateExpression:
-          'SET #imageURLs = :imageURLs, #method = :method, #status = :status, #text = :text, #title = :title, #type = :type',
+          'SET #imageURLs = :imageURLs, #method = :method, #status = :status, #text = :text, #title = :title, #type = :type, #updatedAt = :updatedAt',
         ExpressionAttributeNames: {
           '#imageURLs': 'imageURLs',
           '#method': 'method',
@@ -160,6 +182,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           '#text': 'text',
           '#title': 'title',
           '#type': 'type',
+          '#updatedAt': 'updatedAt',
         },
         ExpressionAttributeValues: {
           ':imageURLs': letterData.imageURLs,
@@ -168,8 +191,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           ':text': letterData.text,
           ':title': letterData.title,
           ':type': letterData.type,
+          ':updatedAt': now,
         },
-        ReturnValues: 'ALL_NEW',
       };
 
       let removeExpressions: string[] = [];
@@ -216,7 +239,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       transactItems.push({ Update: letterUpdateParams });
     }
 
-    // Set 4: Delete missing letters.
+    // Step 4: Delete missing letters.
 
     const lettersParams = {
       TableName: letterTableName,
@@ -264,7 +287,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const recipientData = await dynamoClient.send(
       new GetCommand({
         TableName: recipientTableName,
-        Key: { recipientId: recipient.recipientId },
+        Key: { recipientId: storedRecipientId },
       }),
     );
 
@@ -293,6 +316,15 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       headers,
     };
   } catch (error) {
+    if (
+      error instanceof Error &&
+      (error.name === 'ConditionalCheckFailedException' ||
+        error.name === 'TransactionCanceledException')
+    ) {
+      return new NotFoundError(
+        'Correspondence, recipient, or letter not found.',
+      ).build(headers);
+    }
     logger.error('Error updating correspondence: ', error);
     return new DatabaseError('Internal Server Error').build(headers);
   }

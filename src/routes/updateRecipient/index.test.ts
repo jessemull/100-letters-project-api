@@ -135,7 +135,9 @@ describe('Update Recipient Handler', () => {
       }),
     } as unknown as APIGatewayProxyEvent;
 
-    (dynamoClient.send as jest.Mock).mockResolvedValueOnce({});
+    const conditionalError = new Error('Conditional check failed');
+    conditionalError.name = 'ConditionalCheckFailedException';
+    (dynamoClient.send as jest.Mock).mockRejectedValueOnce(conditionalError);
 
     const response = (await handler(
       event,

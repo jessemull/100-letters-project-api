@@ -76,8 +76,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         correspondenceId,
         letterId,
       },
+      ConditionExpression:
+        'attribute_exists(correspondenceId) AND attribute_exists(letterId)',
       UpdateExpression:
-        'SET #imageURLs = :imageURLs, #method = :method, #status = :status, #text = :text, #title = :title, #type = :type',
+        'SET #imageURLs = :imageURLs, #method = :method, #status = :status, #text = :text, #title = :title, #type = :type, #updatedAt = :updatedAt',
       ExpressionAttributeNames: {
         '#imageURLs': 'imageURLs',
         '#method': 'method',
@@ -85,14 +87,16 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         '#text': 'text',
         '#title': 'title',
         '#type': 'type',
+        '#updatedAt': 'updatedAt',
       },
       ExpressionAttributeValues: {
         ':imageURLs': imageURLs,
         ':method': method,
         ':status': status,
         ':text': text,
-        ':title': title,
+        ':title': typeof title === 'string' ? title.trim() : title,
         ':type': type,
+        ':updatedAt': new Date().toISOString(),
       },
       ReturnValues: 'ALL_NEW',
     };
@@ -134,10 +138,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const command = new UpdateCommand(updateParams);
     const result = await dynamoClient.send(command);
 
-    if (!result.Attributes) {
-      return new NotFoundError('Letter not found.').build(headers);
-    }
-
     return {
       statusCode: 200,
       body: JSON.stringify({
@@ -147,6 +147,12 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       headers,
     };
   } catch (error) {
+    if (
+      error instanceof Error &&
+      error.name === 'ConditionalCheckFailedException'
+    ) {
+      return new NotFoundError('Letter not found.').build(headers);
+    }
     logger.error('Error updating letter in DynamoDB: ', error);
     return new DatabaseError('Internal Server Error').build(headers);
   }
