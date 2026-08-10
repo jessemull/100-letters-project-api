@@ -59,6 +59,7 @@
     "commit": "git-cz",
     "coverage:open": "open coverage/lcov-report/index.html",
     "create:route": "node ./scripts/create-route.js",
+    "db:export": "node ./scripts/export-db.js",
     "db:reset": "node ./scripts/reset-db.js",
     "db:seed": "node ./scripts/seed-db.js",
     "format": "prettier --write .",

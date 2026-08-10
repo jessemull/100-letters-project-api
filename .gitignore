@@ -130,4 +130,5 @@ dist
 .pnp.*
 
 # macos
-.DS_Store
+.DS_Storebackups/
+backups/
