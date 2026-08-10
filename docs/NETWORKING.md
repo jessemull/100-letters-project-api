@@ -19,8 +19,9 @@ Custom domains are attached in `one-hundred-letters-api-gateway-stack.yaml` (reg
 
 - OPTIONS mock integrations on methods stack set `Access-Control-Allow-Origin`, Methods, and Headers (includes `Authorization`, reCAPTCHA headers where needed).
 - Lambda responses should use `getHeaders(event)` so runtime allowlisting from Secrets Manager applies.
+- `DEFAULT_4XX` / `DEFAULT_5XX` / `UNAUTHORIZED` GatewayResponses (gateway stack) add the same CORS headers for authorizer and request-validator failures so browsers do not mask them as `Failed to fetch`.
 
-Do not widen CORS to `*` in production Lambda responses without review (gateway OPTIONS may still advertise `*` — treat changes carefully).
+Do not widen CORS to `*` in production Lambda responses without review (gateway OPTIONS and GatewayResponses may still advertise `*` — treat changes carefully).
 
 ---
 

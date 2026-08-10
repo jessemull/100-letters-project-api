@@ -48,8 +48,40 @@ Resources:
               Fn::ImportValue: !Sub "OneHundredLettersAuthorizerFunctionArn-${Environment}"
       AuthorizerResultTtlInSeconds: 0
 
+  # Authorizer / request-validator errors never hit Lambda getHeaders — without these,
+  # browsers surface 401/400 as opaque "Failed to fetch" CORS failures.
+  GatewayResponseDefault4XX:
+    Type: AWS::ApiGateway::GatewayResponse
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ResponseType: DEFAULT_4XX
+      ResponseParameters:
+        gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+        gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type, Authorization, x-amz-date, x-api-key, g-recaptcha-response, G-Recaptcha-Response'"
+        gatewayresponse.header.Access-Control-Allow-Methods: "'GET, POST, PUT, DELETE, OPTIONS'"
+
+  GatewayResponseDefault5XX:
+    Type: AWS::ApiGateway::GatewayResponse
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ResponseType: DEFAULT_5XX
+      ResponseParameters:
+        gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+        gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type, Authorization, x-amz-date, x-api-key, g-recaptcha-response, G-Recaptcha-Response'"
+        gatewayresponse.header.Access-Control-Allow-Methods: "'GET, POST, PUT, DELETE, OPTIONS'"
+
+  GatewayResponseUnauthorized:
+    Type: AWS::ApiGateway::GatewayResponse
+    Properties:
+      RestApiId: !Ref OneHundredLettersApi
+      ResponseType: UNAUTHORIZED
+      ResponseParameters:
+        gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+        gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type, Authorization, x-amz-date, x-api-key, g-recaptcha-response, G-Recaptcha-Response'"
+        gatewayresponse.header.Access-Control-Allow-Methods: "'GET, POST, PUT, DELETE, OPTIONS'"
+
   # Custom Domain Setup
-  
+ 
   ApiGatewayCustomDomain: 
     Type: AWS::ApiGateway::DomainName
     Properties:
